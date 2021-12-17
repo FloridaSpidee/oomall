@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -16,30 +15,30 @@
     <version>0.0.1-SNAPSHOT</version>
 
     <name>other</name>
+    <description>the tutorial project for course "SE", "OOAD" and "JavaEE" in Informatics School Xiamen University
+    </description>
     <packaging>pom</packaging>
 
     <properties>
         <spring.version>2.4.12</spring.version>
+        <spring.cloud.version>3.0.1</spring.cloud.version>
         <java.version>11</java.version>
-        <jackson.version>2.13.0</jackson.version>
+        <jackson.version>2.11.4</jackson.version>
         <logback.version>1.2.6</logback.version>
         <alibaba.version>2021.1</alibaba.version>
         <swagger2.version>3.0.0</swagger2.version>
-        <openfeign.version>3.0.5</openfeign.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <argLine>-Dfile.encoding=UTF-8</argLine>
     </properties>
 
     <modules>
-        <module>customer</module>
         <module>aftersale</module>
         <module>coupon</module>
-        <module>share</module>
+        <module>customer</module>
         <module>liquidation</module>
+        <module>share</module>
     </modules>
-
-
 
     <dependencyManagement>
         <dependencies>
@@ -217,25 +216,31 @@
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-openfeign-core</artifactId>
-                <version>${openfeign.version}</version>
+                <version>${spring.cloud.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-starter-openfeign</artifactId>
-                <version>${openfeign.version}</version>
+                <version>${spring.cloud.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-starter-loadbalancer</artifactId>
-                <version>3.0.4</version>
+                <version>${spring.cloud.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>1.7.32</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-bootstrap</artifactId>
+                <version>${spring.cloud.version}</version>
             </dependency>
 
         </dependencies>
@@ -372,6 +377,4 @@
             <url>https://maven.aliyun.com/repository/spring-plugin</url>
         </repository>
     </repositories>
-
-
 </project>

@@ -315,6 +315,66 @@ public class SuccessfulSharePoExample {
             return (Criteria) this;
         }
 
+        public Criteria andSharerIdIsNull() {
+            addCriterion("`sharer_id` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharerIdIsNotNull() {
+            addCriterion("`sharer_id` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharerIdEqualTo(Long value) {
+            addCriterion("`sharer_id` =", value, "sharerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharerIdNotEqualTo(Long value) {
+            addCriterion("`sharer_id` <>", value, "sharerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharerIdGreaterThan(Long value) {
+            addCriterion("`sharer_id` >", value, "sharerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharerIdGreaterThanOrEqualTo(Long value) {
+            addCriterion("`sharer_id` >=", value, "sharerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharerIdLessThan(Long value) {
+            addCriterion("`sharer_id` <", value, "sharerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharerIdLessThanOrEqualTo(Long value) {
+            addCriterion("`sharer_id` <=", value, "sharerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharerIdIn(List<Long> values) {
+            addCriterion("`sharer_id` in", values, "sharerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharerIdNotIn(List<Long> values) {
+            addCriterion("`sharer_id` not in", values, "sharerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharerIdBetween(Long value1, Long value2) {
+            addCriterion("`sharer_id` between", value1, value2, "sharerId");
+            return (Criteria) this;
+        }
+
+        public Criteria andSharerIdNotBetween(Long value1, Long value2) {
+            addCriterion("`sharer_id` not between", value1, value2, "sharerId");
+            return (Criteria) this;
+        }
+
         public Criteria andProductIdIsNull() {
             addCriterion("`product_id` is null");
             return (Criteria) this;
@@ -372,6 +432,66 @@ public class SuccessfulSharePoExample {
 
         public Criteria andProductIdNotBetween(Long value1, Long value2) {
             addCriterion("`product_id` not between", value1, value2, "productId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOnsaleIdIsNull() {
+            addCriterion("`onsale_id` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOnsaleIdIsNotNull() {
+            addCriterion("`onsale_id` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOnsaleIdEqualTo(Long value) {
+            addCriterion("`onsale_id` =", value, "onsaleId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOnsaleIdNotEqualTo(Long value) {
+            addCriterion("`onsale_id` <>", value, "onsaleId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOnsaleIdGreaterThan(Long value) {
+            addCriterion("`onsale_id` >", value, "onsaleId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOnsaleIdGreaterThanOrEqualTo(Long value) {
+            addCriterion("`onsale_id` >=", value, "onsaleId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOnsaleIdLessThan(Long value) {
+            addCriterion("`onsale_id` <", value, "onsaleId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOnsaleIdLessThanOrEqualTo(Long value) {
+            addCriterion("`onsale_id` <=", value, "onsaleId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOnsaleIdIn(List<Long> values) {
+            addCriterion("`onsale_id` in", values, "onsaleId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOnsaleIdNotIn(List<Long> values) {
+            addCriterion("`onsale_id` not in", values, "onsaleId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOnsaleIdBetween(Long value1, Long value2) {
+            addCriterion("`onsale_id` between", value1, value2, "onsaleId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOnsaleIdNotBetween(Long value1, Long value2) {
+            addCriterion("`onsale_id` not between", value1, value2, "onsaleId");
             return (Criteria) this;
         }
 

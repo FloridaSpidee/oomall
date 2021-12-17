@@ -555,6 +555,66 @@ public class RevenuePoExample {
             return (Criteria) this;
         }
 
+        public Criteria andQuantityIsNull() {
+            addCriterion("`quantity` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityIsNotNull() {
+            addCriterion("`quantity` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityEqualTo(Integer value) {
+            addCriterion("`quantity` =", value, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityNotEqualTo(Integer value) {
+            addCriterion("`quantity` <>", value, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityGreaterThan(Integer value) {
+            addCriterion("`quantity` >", value, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityGreaterThanOrEqualTo(Integer value) {
+            addCriterion("`quantity` >=", value, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityLessThan(Integer value) {
+            addCriterion("`quantity` <", value, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityLessThanOrEqualTo(Integer value) {
+            addCriterion("`quantity` <=", value, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityIn(List<Integer> values) {
+            addCriterion("`quantity` in", values, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityNotIn(List<Integer> values) {
+            addCriterion("`quantity` not in", values, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityBetween(Integer value1, Integer value2) {
+            addCriterion("`quantity` between", value1, value2, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityNotBetween(Integer value1, Integer value2) {
+            addCriterion("`quantity` not between", value1, value2, "quantity");
+            return (Criteria) this;
+        }
+
         public Criteria andProductIdIsNull() {
             addCriterion("`product_id` is null");
             return (Criteria) this;
@@ -685,63 +745,63 @@ public class RevenuePoExample {
             return (Criteria) this;
         }
 
-        public Criteria andAccountIsNull() {
-            addCriterion("`account` is null");
+        public Criteria andAmountIsNull() {
+            addCriterion("`amount` is null");
             return (Criteria) this;
         }
 
-        public Criteria andAccountIsNotNull() {
-            addCriterion("`account` is not null");
+        public Criteria andAmountIsNotNull() {
+            addCriterion("`amount` is not null");
             return (Criteria) this;
         }
 
-        public Criteria andAccountEqualTo(Long value) {
-            addCriterion("`account` =", value, "account");
+        public Criteria andAmountEqualTo(Long value) {
+            addCriterion("`amount` =", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAccountNotEqualTo(Long value) {
-            addCriterion("`account` <>", value, "account");
+        public Criteria andAmountNotEqualTo(Long value) {
+            addCriterion("`amount` <>", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAccountGreaterThan(Long value) {
-            addCriterion("`account` >", value, "account");
+        public Criteria andAmountGreaterThan(Long value) {
+            addCriterion("`amount` >", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAccountGreaterThanOrEqualTo(Long value) {
-            addCriterion("`account` >=", value, "account");
+        public Criteria andAmountGreaterThanOrEqualTo(Long value) {
+            addCriterion("`amount` >=", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAccountLessThan(Long value) {
-            addCriterion("`account` <", value, "account");
+        public Criteria andAmountLessThan(Long value) {
+            addCriterion("`amount` <", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAccountLessThanOrEqualTo(Long value) {
-            addCriterion("`account` <=", value, "account");
+        public Criteria andAmountLessThanOrEqualTo(Long value) {
+            addCriterion("`amount` <=", value, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAccountIn(List<Long> values) {
-            addCriterion("`account` in", values, "account");
+        public Criteria andAmountIn(List<Long> values) {
+            addCriterion("`amount` in", values, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAccountNotIn(List<Long> values) {
-            addCriterion("`account` not in", values, "account");
+        public Criteria andAmountNotIn(List<Long> values) {
+            addCriterion("`amount` not in", values, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAccountBetween(Long value1, Long value2) {
-            addCriterion("`account` between", value1, value2, "account");
+        public Criteria andAmountBetween(Long value1, Long value2) {
+            addCriterion("`amount` between", value1, value2, "amount");
             return (Criteria) this;
         }
 
-        public Criteria andAccountNotBetween(Long value1, Long value2) {
-            addCriterion("`account` not between", value1, value2, "account");
+        public Criteria andAmountNotBetween(Long value1, Long value2) {
+            addCriterion("`amount` not between", value1, value2, "amount");
             return (Criteria) this;
         }
 

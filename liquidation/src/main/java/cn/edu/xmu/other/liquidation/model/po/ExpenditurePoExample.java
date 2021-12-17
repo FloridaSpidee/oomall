@@ -625,63 +625,243 @@ public class ExpenditurePoExample {
             return (Criteria) this;
         }
 
-        public Criteria andAccountIsNull() {
-            addCriterion("`account` is null");
+        public Criteria andOrderIdIsNull() {
+            addCriterion("`order_id` is null");
             return (Criteria) this;
         }
 
-        public Criteria andAccountIsNotNull() {
-            addCriterion("`account` is not null");
+        public Criteria andOrderIdIsNotNull() {
+            addCriterion("`order_id` is not null");
             return (Criteria) this;
         }
 
-        public Criteria andAccountEqualTo(Long value) {
-            addCriterion("`account` =", value, "account");
+        public Criteria andOrderIdEqualTo(Long value) {
+            addCriterion("`order_id` =", value, "orderId");
             return (Criteria) this;
         }
 
-        public Criteria andAccountNotEqualTo(Long value) {
-            addCriterion("`account` <>", value, "account");
+        public Criteria andOrderIdNotEqualTo(Long value) {
+            addCriterion("`order_id` <>", value, "orderId");
             return (Criteria) this;
         }
 
-        public Criteria andAccountGreaterThan(Long value) {
-            addCriterion("`account` >", value, "account");
+        public Criteria andOrderIdGreaterThan(Long value) {
+            addCriterion("`order_id` >", value, "orderId");
             return (Criteria) this;
         }
 
-        public Criteria andAccountGreaterThanOrEqualTo(Long value) {
-            addCriterion("`account` >=", value, "account");
+        public Criteria andOrderIdGreaterThanOrEqualTo(Long value) {
+            addCriterion("`order_id` >=", value, "orderId");
             return (Criteria) this;
         }
 
-        public Criteria andAccountLessThan(Long value) {
-            addCriterion("`account` <", value, "account");
+        public Criteria andOrderIdLessThan(Long value) {
+            addCriterion("`order_id` <", value, "orderId");
             return (Criteria) this;
         }
 
-        public Criteria andAccountLessThanOrEqualTo(Long value) {
-            addCriterion("`account` <=", value, "account");
+        public Criteria andOrderIdLessThanOrEqualTo(Long value) {
+            addCriterion("`order_id` <=", value, "orderId");
             return (Criteria) this;
         }
 
-        public Criteria andAccountIn(List<Long> values) {
-            addCriterion("`account` in", values, "account");
+        public Criteria andOrderIdIn(List<Long> values) {
+            addCriterion("`order_id` in", values, "orderId");
             return (Criteria) this;
         }
 
-        public Criteria andAccountNotIn(List<Long> values) {
-            addCriterion("`account` not in", values, "account");
+        public Criteria andOrderIdNotIn(List<Long> values) {
+            addCriterion("`order_id` not in", values, "orderId");
             return (Criteria) this;
         }
 
-        public Criteria andAccountBetween(Long value1, Long value2) {
-            addCriterion("`account` between", value1, value2, "account");
+        public Criteria andOrderIdBetween(Long value1, Long value2) {
+            addCriterion("`order_id` between", value1, value2, "orderId");
             return (Criteria) this;
         }
 
-        public Criteria andAccountNotBetween(Long value1, Long value2) {
-            addCriterion("`account` not between", value1, value2, "account");
+        public Criteria andOrderIdNotBetween(Long value1, Long value2) {
+            addCriterion("`order_id` not between", value1, value2, "orderId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderitemIdIsNull() {
+            addCriterion("`orderitem_id` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderitemIdIsNotNull() {
+            addCriterion("`orderitem_id` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderitemIdEqualTo(Long value) {
+            addCriterion("`orderitem_id` =", value, "orderitemId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderitemIdNotEqualTo(Long value) {
+            addCriterion("`orderitem_id` <>", value, "orderitemId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderitemIdGreaterThan(Long value) {
+            addCriterion("`orderitem_id` >", value, "orderitemId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderitemIdGreaterThanOrEqualTo(Long value) {
+            addCriterion("`orderitem_id` >=", value, "orderitemId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderitemIdLessThan(Long value) {
+            addCriterion("`orderitem_id` <", value, "orderitemId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderitemIdLessThanOrEqualTo(Long value) {
+            addCriterion("`orderitem_id` <=", value, "orderitemId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderitemIdIn(List<Long> values) {
+            addCriterion("`orderitem_id` in", values, "orderitemId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderitemIdNotIn(List<Long> values) {
+            addCriterion("`orderitem_id` not in", values, "orderitemId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderitemIdBetween(Long value1, Long value2) {
+            addCriterion("`orderitem_id` between", value1, value2, "orderitemId");
+            return (Criteria) this;
+        }
+
+        public Criteria andOrderitemIdNotBetween(Long value1, Long value2) {
+            addCriterion("`orderitem_id` not between", value1, value2, "orderitemId");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityIsNull() {
+            addCriterion("`quantity` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityIsNotNull() {
+            addCriterion("`quantity` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityEqualTo(Integer value) {
+            addCriterion("`quantity` =", value, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityNotEqualTo(Integer value) {
+            addCriterion("`quantity` <>", value, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityGreaterThan(Integer value) {
+            addCriterion("`quantity` >", value, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityGreaterThanOrEqualTo(Integer value) {
+            addCriterion("`quantity` >=", value, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityLessThan(Integer value) {
+            addCriterion("`quantity` <", value, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityLessThanOrEqualTo(Integer value) {
+            addCriterion("`quantity` <=", value, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityIn(List<Integer> values) {
+            addCriterion("`quantity` in", values, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityNotIn(List<Integer> values) {
+            addCriterion("`quantity` not in", values, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityBetween(Integer value1, Integer value2) {
+            addCriterion("`quantity` between", value1, value2, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andQuantityNotBetween(Integer value1, Integer value2) {
+            addCriterion("`quantity` not between", value1, value2, "quantity");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountIsNull() {
+            addCriterion("`amount` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountIsNotNull() {
+            addCriterion("`amount` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountEqualTo(Long value) {
+            addCriterion("`amount` =", value, "amount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountNotEqualTo(Long value) {
+            addCriterion("`amount` <>", value, "amount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountGreaterThan(Long value) {
+            addCriterion("`amount` >", value, "amount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountGreaterThanOrEqualTo(Long value) {
+            addCriterion("`amount` >=", value, "amount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountLessThan(Long value) {
+            addCriterion("`amount` <", value, "amount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountLessThanOrEqualTo(Long value) {
+            addCriterion("`amount` <=", value, "amount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountIn(List<Long> values) {
+            addCriterion("`amount` in", values, "amount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountNotIn(List<Long> values) {
+            addCriterion("`amount` not in", values, "amount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountBetween(Long value1, Long value2) {
+            addCriterion("`amount` between", value1, value2, "amount");
+            return (Criteria) this;
+        }
+
+        public Criteria andAmountNotBetween(Long value1, Long value2) {
+            addCriterion("`amount` not between", value1, value2, "amount");
             return (Criteria) this;
         }
 
