@@ -1,4 +1,4 @@
-package cn.edu.xmu.other;
+package cn.edu.xmu.other.customer;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;

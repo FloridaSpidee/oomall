@@ -29,8 +29,8 @@ public class CustomerRetVo {
     private String email;
 
     @ApiModelProperty(value = "状态")
-    private Integer state;
+    private Byte state;
 
     @ApiModelProperty(value = "返点")
-    private Integer point;
+    private Long point;
 }
