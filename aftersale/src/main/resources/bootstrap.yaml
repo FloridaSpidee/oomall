@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: aftersale-service
+  cloud:
+    nacos:
+      config:
+        server-addr: localhost:8803
+  profiles:
+    active: dev
+

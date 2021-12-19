@@ -14,7 +14,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   application:
-    name: goods-service
+    name: aftersale-service
   servlet:
     multipart:
       enabled: true
@@ -22,14 +22,14 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 172.16.4.136
+        server-addr: localhost
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://localhost:3306/oomall?serverTimezone=GMT%2B8
-    username: dbuser
-    password: 12345678
+    url: jdbc:mysql://localhost:3306/oomall_others?serverTimezone=GMT%2B8&useUnicode=true&characterEncoding=UTF8
+    username: root
+    password: 123456
     druid:
       initial-size: 3
       min-idle: 3
