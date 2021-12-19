@@ -1,13 +1,14 @@
 package cn.edu.xmu.other.share.service;
 
 
+import cn.edu.xmu.oomall.core.model.VoObject;
 import cn.edu.xmu.oomall.core.util.ReturnNo;
 import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.share.dao.ShareDao;
 import cn.edu.xmu.other.share.microservice.ActivityService;
 import cn.edu.xmu.other.share.microservice.GoodsService;
 import cn.edu.xmu.other.share.microservice.vo.OnSaleRetVo;
-import cn.edu.xmu.other.share.microservice.vo.ShareActivityRetVo;
+import cn.edu.xmu.other.share.microservice.vo.ProductRetVo;
 import cn.edu.xmu.other.share.model.bo.Share;
 import cn.edu.xmu.other.share.model.bo.SuccessfulShare;
 import cn.edu.xmu.other.share.model.po.SharePo;
@@ -26,6 +27,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static cn.edu.xmu.privilegegateway.annotation.util.Common.cloneVo;
 import static cn.edu.xmu.privilegegateway.annotation.util.Common.setPoCreatedFields;
 
 /**
@@ -58,32 +60,62 @@ public class ShareService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public ReturnObject generateShareResult(Integer onSaleId, Long loginUserId, String loginUserName) {
+    public ReturnObject generateShareResult(Long onSaleId, Long loginUserId, String loginUserName) {
+        var onsaleRet=goodsService.getOnSaleRetVoById(onSaleId);
+        OnSaleRetVo onSaleRetVo = (OnSaleRetVo) onsaleRet.getData();
+        if(null==onsaleRet.getData())
+        {
+            return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST,"商品id不存在");//没有商品或查询商品出错，返回错误
+        }
+
+        //查找是否存在share记录，已存在则直接返回
+        SharePoExample sharePoExample=new SharePoExample();
+        var criteria=sharePoExample.createCriteria();
+        criteria.andSharerIdEqualTo(loginUserId);
+        criteria.andOnsaleIdEqualTo(onSaleId);
+        var ret=shareDao.getShareByExample(sharePoExample,null,null);
+        if(ret.getData().getList().size()!=0)
+        {
+            Share sharePo = ret.getData().getList().get(0);
+            Share share= cloneVo(sharePo,Share.class);
+            ShareRetVo shareRetVo=new ShareRetVo(share,loginUserId,loginUserName);
+            shareRetVo.setOnsale(onSaleRetVo);
+            return new ReturnObject(shareRetVo);
+        }
+
         SharePo sharePo = new SharePo();
         sharePo.setSharerId(loginUserId);
-        OnSaleRetVo onSaleRetVo = (OnSaleRetVo) goodsService.getOnSaleRetVoByProductId(sharePo.getProductId()).getData();
+        System.out.println(onSaleRetVo.toString());
         sharePo.setShareActId(onSaleRetVo.getShareActId());
         sharePo.setProductId(onSaleRetVo.getProduct().getId());
-        Integer quantity = 0;
-        sharePo.setQuantity(quantity.longValue());
-        ShareActivityRetVo shareActivityRetVo = (ShareActivityRetVo) activityService.getShareActivityRetVoById(sharePo.getShareActId()).getData();
-        sharePo.setState(shareActivityRetVo.getState());
+        sharePo.setQuantity(0L);
+        sharePo.setOnsaleId(onSaleId);
+        //sharePo.setGmtCreate(LocalDateTime.now());
+        //ShareActivityRetVo shareActivityRetVo = (ShareActivityRetVo) activityService.getShareActivityRetVoById(sharePo.getShareActId()).getData();
+        //sharePo.setState(shareActivityRetVo.getState());
         setPoCreatedFields(sharePo, loginUserId, loginUserName);
-        return shareDao.insertSharePo(sharePo);
+        ReturnObject retPo=shareDao.insertSharePo(sharePo);
+        if(!retPo.getCode().equals(ReturnNo.OK))
+        {
+            return retPo;
+        }
+        Share share= cloneVo(sharePo,Share.class);
+        ShareRetVo shareRetVo=new ShareRetVo(share,loginUserId,loginUserName);
+        shareRetVo.setOnsale(onSaleRetVo);
+        return new ReturnObject(shareRetVo);
     }
-
 
     /**
      * 买家查询所有分享记录
      */
     @Transactional(rollbackFor = Exception.class)
-    public ReturnObject getAllShareRecords(LocalDateTime beginTime,
-                                           LocalDateTime endTime,
-                                           Integer productId,
-                                           Integer page,
-                                           Integer pageSize,
-                                           Long loginUserId,
-                                           String loginUserName) {
+    public ReturnObject<PageInfo<VoObject>> getAllShareRecords(LocalDateTime beginTime,
+                                                               LocalDateTime endTime,
+                                                               Long productId,
+                                                               Integer page,
+                                                               Integer pageSize,
+                                                               Long loginUserId,
+                                                               String loginUserName) {
         SharePoExample sharePoExample = new SharePoExample();
         var criteria = sharePoExample.createCriteria();
         if (beginTime != null) {
@@ -93,9 +125,9 @@ public class ShareService {
             criteria.andGmtCreateLessThanOrEqualTo(endTime);
         }
         if (null != productId) {
-            var productRet=goodsService.getProductRetVoById(productId.longValue());
+            var productRet=goodsService.getProductRetVoById(productId);
             if(!productRet.getCode().equals(ReturnNo.OK)) return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST);//查询商品是否存在,不存在则返回错误
-            else criteria.andProductIdEqualTo(productId.longValue());
+            else criteria.andProductIdEqualTo(productId);
         }
         criteria.andSharerIdEqualTo(loginUserId);
         var ret = shareDao.getShareByExample(sharePoExample, page, pageSize);
@@ -116,36 +148,50 @@ public class ShareService {
      * 查看商品的详细信息
      */
     @Transactional(rollbackFor = Exception.class)
-    public ReturnObject getProductsFromShares(Integer sid,
-                                              Integer id,
+    public ReturnObject getProductsFromShares(Long sid,
+                                              Long id,
                                               Long loginUserId,
                                               String loginUserName) {
+        var shareRet=shareDao.getSharePoByPrimaryKey(sid);
+        if(!shareRet.getCode().equals(ReturnNo.OK)) return shareRet;
+        else if(null==shareRet.getData()) return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST,"分享记录不存在");//查询share出错，返回错误
+
+        var productRet=goodsService.getProductRetVoById(id);
+        if(!productRet.getCode().equals(ReturnNo.OK)) return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST,"商品不存在");//商品不存在，返回错误
+
+        SharePo sharePo = shareRet.getData();
         SuccessfulSharePo successfulSharePo = new SuccessfulSharePo();
-        successfulSharePo.setShareId(sid.longValue());
-        successfulSharePo.setProductId(id.longValue());
+        successfulSharePo.setShareId(sid);
+        successfulSharePo.setSharerId(sharePo.getSharerId());
+        successfulSharePo.setProductId(id);
+        successfulSharePo.setOnsaleId(sharePo.getOnsaleId());
         successfulSharePo.setCustomerId(loginUserId);
-        SharePo sharePo = shareDao.getSharePoByPrimaryKey(sid.longValue()).getData();
-        successfulSharePo.setState(sharePo.getState());
+        //successfulSharePo.setState(sharePo.getState());
         setPoCreatedFields(successfulSharePo, loginUserId, loginUserName);
         ReturnObject ret = shareDao.insertSuccessSharePo(successfulSharePo);
-        if (ret.getCode().equals(ReturnNo.FIELD_NOTVALID)) return ret;
-        return new ReturnObject(goodsService.getProductRetVoById(id.longValue()).getData());
+        if (!ret.getCode().equals(ReturnNo.OK)) return ret;
+        return new ReturnObject(productRet.getData());
     }
 
     /**
      * 管理员查询商品分享记录
      *
-     * @param id
+     * @param id 商品Id
      * @param page
      * @param pageSize
      */
     @Transactional(rollbackFor = Exception.class)
-    public ReturnObject getSharesOfGoods(Integer id,
+    public ReturnObject getSharesOfGoods(Long id,
+                                         Long shopId,
                                          Integer page,
                                          Integer pageSize) {
+        ProductRetVo productRetVo= (ProductRetVo) goodsService.getOnSaleRetVoByProductId(id).getData();
+        if(!productRetVo.getShop().getId().equals(shopId))
+            return new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE);//只能查询自己商铺的商品
+
         SharePoExample sharePoExample = new SharePoExample();
         var criteria = sharePoExample.createCriteria();
-        criteria.andProductIdEqualTo(id.longValue());
+        criteria.andProductIdEqualTo(id);
         var ret = shareDao.getShareByExample(sharePoExample, page, pageSize);
         PageInfo retPage = ret.getData();
         List<Share> boList = retPage.getList();
@@ -162,33 +208,17 @@ public class ShareService {
 
     /**
      * 分享者查询所有分享成功记录
-     *
-     * @param pageSize
-     * @param page
-     * @param beginTime
-     * @param endTime
-     * @param loginUserId
-     * @param loginUserName
-     * @param productId
+     * @param productId 商品id
      */
     @Transactional(rollbackFor = Exception.class)
     public ReturnObject getBeShared(LocalDateTime beginTime,
                                     LocalDateTime endTime,
-                                    Integer productId,
+                                    Long productId,
                                     Integer page,
                                     Integer pageSize,
                                     Long loginUserId,
                                     String loginUserName) {
-        SharePoExample sharePoExample = new SharePoExample();
-        var preCriteria = sharePoExample.createCriteria();
-        preCriteria.andSharerIdEqualTo(loginUserId);
-        List<Share> shareList = shareDao.getShareByExample(sharePoExample, null, null).getData().getList();
-        List<Long> shareIdList = new ArrayList<>();
-        for (Share share : shareList) {
-            shareIdList.add(share.getId());
-        }
-        //先查询所有的分享记录，再将分享成功的记录挑出来
-
+        System.out.println("Dao");
         SuccessfulSharePoExample successfulSharePoExample = new SuccessfulSharePoExample();
         var criteria = successfulSharePoExample.createCriteria();
         if (null != beginTime) {
@@ -198,26 +228,32 @@ public class ShareService {
             criteria.andGmtCreateLessThanOrEqualTo(endTime);
         }
         if (null != productId) {
-            criteria.andProductIdEqualTo(productId.longValue());
+            var productRet=goodsService.getProductRetVoById(productId);
+            if(!productRet.getCode().equals(ReturnNo.OK)) return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST,"查询的商品不存在");
+            criteria.andProductIdEqualTo(productId);
         }
-        criteria.andShareIdIn(shareIdList);
+        criteria.andSharerIdEqualTo(loginUserId);
         PageInfo<SuccessfulShare> ret = shareDao.getSuccessfulShareByExample(successfulSharePoExample, page, pageSize).getData();
         List<SuccessfulShare> boList = ret.getList();
         List<BeSharedRetVo> voList = new ArrayList<>();
         for (SuccessfulShare successfulShare : boList) {
-            voList.add(new BeSharedRetVo(successfulShare));
+            BeSharedRetVo beSharedRetVo = new BeSharedRetVo(successfulShare);
+            voList.add(beSharedRetVo);
         }
-        PageInfo<BeSharedRetVo> pageInfo = new PageInfo<BeSharedRetVo>(voList);
-        return new ReturnObject<>(pageInfo);
+        PageInfo<BeSharedRetVo> retVoPageInfo = new PageInfo<>(voList);
+        return new ReturnObject<>(retVoPageInfo);
     }
 
     /**
      * 管理员查询所有分享成功记录
+     * @param id 商品id
+     * @param did 店铺id
      */
     @Transactional(rollbackFor = Exception.class, readOnly = true)
     public ReturnObject getAllBeShared(LocalDateTime beginTime,
                                        LocalDateTime endTime,
-                                       Integer id,
+                                       Long id,
+                                       Long did,
                                        Integer page,
                                        Integer pageSize
     ) {
@@ -229,18 +265,22 @@ public class ShareService {
         if (null != endTime) {
             criteria.andGmtCreateLessThanOrEqualTo(endTime);
         }
-        criteria.andProductIdEqualTo(id.longValue());
+        var productRet=(ProductRetVo)goodsService.getProductRetVoById(id).getData();
+        if(!productRet.getShop().getId().equals(did))
+            return new ReturnObject<>(ReturnNo.RESOURCE_ID_OUTSCOPE,"查询的不是自己的商品");
+        criteria.andProductIdEqualTo(id);
         var ret = shareDao.getSuccessfulShareByExample(successfulSharePoExample, page, pageSize);
         if (!ret.getCode().equals(ReturnNo.OK)) {
             return ret;
         }
         PageInfo retPage = ret.getData();
         List<SuccessfulShare> boList = retPage.getList();
-        List<SharePo> voList = new ArrayList<SharePo>();
+        List<BeSharedRetVo> voList = new ArrayList<BeSharedRetVo>();
         for (SuccessfulShare successfulShare : boList) {
             BeSharedRetVo beSharedRetVo = new BeSharedRetVo(successfulShare);
+            voList.add(beSharedRetVo);
         }
         retPage.setList(voList);
-        return new ReturnObject(retPage);
+        return new ReturnObject<>(retPage);
     }
 }

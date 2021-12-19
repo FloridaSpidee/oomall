@@ -7,11 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * @author Zijun Min 22920192204257
- * @description
- * @createTime 2021/11/11 02:57
- **/
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -105,21 +106,43 @@ public class ShareDao {
 
     public ReturnObject insertSharePo(SharePo sharePo)
     {
-        int ret= sharePoMapper.insert(sharePo);
-        if(ret==0)
+        try
         {
-            return new ReturnObject(ReturnNo.FIELD_NOTVALID);
+            SharePo testPo=new SharePo();
+            testPo.setGmtCreate(LocalDateTime.now());
+            sharePo.setGmtCreate(LocalDateTime.now());
+            System.out.println("Dao");
+            System.out.println(sharePo.getId());
+            sharePoMapper.insert(sharePo);
+            sharePoMapper.insert(testPo);
+            SharePo testSel=sharePoMapper.selectByPrimaryKey(sharePo.getId());
+            System.out.println(testSel.getId());
+            System.out.println(sharePo.getId());
+            return new ReturnObject(sharePo);
         }
-        return new ReturnObject(sharePo);
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+            return new ReturnObject<>(ReturnNo.INTERNAL_SERVER_ERR, e.getMessage());
+        }
+
     }
 
     public ReturnObject insertSuccessSharePo(SuccessfulSharePo successfulSharePo)
     {
-        int ret=successfulSharePoMapper.insert(successfulSharePo);
-        if(ret==0)
+        try
         {
-            return new ReturnObject(ReturnNo.FIELD_NOTVALID);
+            int ret=successfulSharePoMapper.insert(successfulSharePo);
+            if(ret==0)
+            {
+                return new ReturnObject(ReturnNo.FIELD_NOTVALID);
+            }
+            return new ReturnObject(successfulSharePo);
         }
-        return new ReturnObject(successfulSharePo);
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+            return new ReturnObject<>(ReturnNo.INTERNAL_SERVER_ERR, e.getMessage());
+        }
     }
 }

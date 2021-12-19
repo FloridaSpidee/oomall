@@ -1,5 +1,6 @@
 package cn.edu.xmu.other.share.model.vo;
 
+import cn.edu.xmu.oomall.core.model.VoObject;
 import cn.edu.xmu.other.share.microservice.vo.OnSaleRetVo;
 import cn.edu.xmu.other.share.model.bo.Share;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 
-public class ShareRetVo {
+public class ShareRetVo implements VoObject {
     Long id;
     SimpleCustomer sharer;
     OnSaleRetVo onsale;
@@ -22,12 +23,13 @@ public class ShareRetVo {
     LocalDateTime gmtModified;
     SimpleAdminUser modifier;
 
-    public ShareRetVo(Share share, Long sharerId, String sharerName)
+    public ShareRetVo (Share share, Long sharerId, String sharerName)
     {
         this.id=share.getId();
         this.sharer=new SimpleCustomer(sharerId,sharerName);
         this.quantity=share.getQuantity();
         this.creator=new SimpleAdminUser(share.getCreatorId(),share.getCreatorName());
+        this.gmtCreate=share.getGmtCreate();
         this.gmtModified=share.getGmtModified();
         this.modifier=new SimpleAdminUser(share.getModifierId(),share.getModifierName());
     }
@@ -38,5 +40,15 @@ public class ShareRetVo {
         this.creator=new SimpleAdminUser(share.getCreatorId(),share.getCreatorName());
         this.gmtModified=share.getGmtModified();
         this.modifier=new SimpleAdminUser(share.getModifierId(),share.getModifierName());
+    }
+
+    @Override
+    public Object createVo() {
+        return this;
+    }
+
+    @Override
+    public Object createSimpleVo() {
+        return null;
     }
 }
