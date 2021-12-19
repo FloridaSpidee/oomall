@@ -12,7 +12,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  */
 @SpringBootApplication(scanBasePackages = {"cn.edu.xmu.privilegegateway","cn.edu.xmu.other.customer"})
 @EnableConfigurationProperties
-@MapperScan("cn.edu.xmu.oomall.customer.mapper")
+@MapperScan("cn.edu.xmu.other.customer.mapper")
 @EnableDiscoveryClient
 public class CustomerApplication {
     public static void main(String[] args) {
