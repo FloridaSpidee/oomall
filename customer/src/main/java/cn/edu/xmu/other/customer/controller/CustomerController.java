@@ -1,7 +1,7 @@
 package cn.edu.xmu.other.customer.controller;
 
 import cn.edu.xmu.other.customer.model.vo.CustomerModifyVo;
-import cn.edu.xmu.other.service.CustomerService;
+import cn.edu.xmu.other.customer.service.CustomerService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
 import cn.edu.xmu.privilegegateway.annotation.aop.LoginName;
 import cn.edu.xmu.privilegegateway.annotation.aop.LoginUser;

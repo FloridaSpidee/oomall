@@ -1,4 +1,4 @@
-package cn.edu.xmu.other.service;
+package cn.edu.xmu.other.customer.service;
 
 import cn.edu.xmu.other.customer.dao.CustomerDao;
 import cn.edu.xmu.other.customer.model.bo.Customer;
@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import static cn.edu.xmu.privilegegateway.annotation.util.Common.cloneVo;
+import static cn.edu.xmu.privilegegateway.annotation.util.Common.setPoModifiedFields;
 
 /**
  * @Auther hongyu lei
@@ -33,7 +34,6 @@ public class CustomerService {
         {
             Customer customer=(Customer) returnObject.getData();
             CustomerRetVo customerRetVo=cloneVo(customer,CustomerRetVo.class);
-            customerRetVo.setName(customer.getRealName());
             return new ReturnObject(customerRetVo);
         }
         else
@@ -63,5 +63,31 @@ public class CustomerService {
             return pageInfoReturnObject;
         }
         return pageInfoReturnObject;
+    }
+
+    /**
+     * @Author: Chen Yixuan
+     */
+    @Transactional(rollbackFor=Exception.class)
+    public ReturnObject banCustomer(Long id, Long loginUser, String loginUsername){
+        Customer customer = new Customer();
+        customer.setId(id);
+        setPoModifiedFields(customer, loginUser, loginUsername);
+        Byte foridden = 6;
+        customer.setState(foridden);
+        return  customerDao.updateCustomerState(customer);
+    }
+
+    /**
+     * @Author: Chen Yixuan
+     */
+    @Transactional(rollbackFor=Exception.class)
+    public ReturnObject releaseCustomer(Long id, Long loginUser, String loginUsername){
+        Customer customer = new Customer();
+        customer.setId(id);
+        setPoModifiedFields(customer, loginUser, loginUsername);
+        Byte norm =4;
+        customer.setState(norm);
+        return  customerDao.updateCustomerState(customer);
     }
 }

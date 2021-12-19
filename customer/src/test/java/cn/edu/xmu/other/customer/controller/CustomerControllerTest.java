@@ -1,6 +1,6 @@
 package cn.edu.xmu.other.customer.controller;
 
-import cn.edu.xmu.other.CustomerApplication;
+import cn.edu.xmu.other.customer.CustomerApplication;
 import cn.edu.xmu.other.customer.model.vo.CustomerModifyVo;
 import cn.edu.xmu.privilegegateway.annotation.util.JacksonUtil;
 import cn.edu.xmu.privilegegateway.annotation.util.JwtHelper;

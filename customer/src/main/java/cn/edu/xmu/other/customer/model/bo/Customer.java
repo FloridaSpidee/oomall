@@ -75,11 +75,11 @@ public class Customer {
 
     private String password;
 
-    private String realName;
+    private String name;
 
     private Long point;
 
-    private State state;
+    private Byte state;
 
     private String email;
 

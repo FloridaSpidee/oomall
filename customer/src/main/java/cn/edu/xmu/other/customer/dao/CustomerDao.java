@@ -121,4 +121,24 @@ public class CustomerDao {
             return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,e.getMessage());
         }
     }
+
+    /**
+     * @Author: Chen Yixuan
+     */
+    public ReturnObject updateCustomerState(Customer customer){
+        CustomerPo customerPo = (CustomerPo) cloneVo(customer,CustomerPo.class);
+        int ret;
+        try{
+            ret = customerPoMapper.updateByPrimaryKeySelective(customerPo);
+            if(ret == 0){
+                return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST);
+            }
+            else {
+                return new ReturnObject(ReturnNo.OK);
+            }
+        }catch (Exception e){
+            return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR);
+        }
+
+    }
 }
