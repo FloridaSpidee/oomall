@@ -3,7 +3,6 @@ package cn.edu.xmu.other.customer.controller;
 import cn.edu.xmu.other.customer.dao.CartDao;
 import cn.edu.xmu.other.customer.microservice.vo.ProductRetVo;
 import cn.edu.xmu.other.customer.model.vo.SimpleObject;
-import com.fasterxml.jackson.databind.SerializationConfig;
 import cn.edu.xmu.other.customer.CustomerApplication;
 
 import cn.edu.xmu.other.customer.microservice.CouponService;
@@ -24,19 +23,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.transaction.annotation.Transactional;
-import cn.edu.xmu.privilegegateway.annotation.util.ReturnNo;
-import cn.edu.xmu.privilegegateway.annotation.util.ReturnObject;
 
-import javax.annotation.Generated;
+
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**

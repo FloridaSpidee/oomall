@@ -5,7 +5,6 @@ import cn.edu.xmu.other.customer.mapper.ShoppingCartPoMapper;
 import cn.edu.xmu.other.customer.model.bo.Cart;
 import cn.edu.xmu.other.customer.model.po.ShoppingCartPo;
 import cn.edu.xmu.other.customer.model.po.ShoppingCartPoExample;
-import cn.edu.xmu.other.customer.model.vo.CartVo;
 import cn.edu.xmu.privilegegateway.annotation.util.ReturnNo;
 import cn.edu.xmu.privilegegateway.annotation.util.ReturnObject;
 import org.slf4j.Logger;

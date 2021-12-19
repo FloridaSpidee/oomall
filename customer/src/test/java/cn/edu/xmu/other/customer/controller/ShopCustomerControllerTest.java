@@ -1,13 +1,8 @@
 package cn.edu.xmu.other.customer.controller;
 
 import cn.edu.xmu.other.customer.CustomerApplication;
-import cn.edu.xmu.other.customer.mapper.CustomerPoMapper;
 import cn.edu.xmu.other.customer.microservice.CouponService;
 import cn.edu.xmu.other.customer.microservice.ProductService;
-import cn.edu.xmu.other.customer.service.CustomerService;
-import cn.edu.xmu.other.customer.microservice.CouponService;
-import cn.edu.xmu.other.customer.microservice.ProductService;
-import cn.edu.xmu.privilegegateway.annotation.util.Common;
 import cn.edu.xmu.privilegegateway.annotation.util.JwtHelper;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
