@@ -69,10 +69,10 @@ public class CartControllerTest {
 
     private static String adminToken = jwtHelper.createToken(1L,"admin",0L, 1,2000);
 
-    @MockBean(name = "cn.edu.xmu.oomall.activity.microservice.ProductService")
+    @MockBean
     private ProductService productService;
 
-    @MockBean(name = "cn.edu.xmu.oomall.activity.microservice.CouponService")
+    @MockBean
     private CouponService couponService;
 
     CartControllerTest(){
