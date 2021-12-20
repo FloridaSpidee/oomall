@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 public class CustomerModifyVo {
 
     @ApiModelProperty(name = "真实姓名", value = "陈xx")
-    private String realName;
+    private String Name;
 
 }
