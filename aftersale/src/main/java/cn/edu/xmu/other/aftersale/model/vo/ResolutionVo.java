@@ -25,4 +25,9 @@ public class ResolutionVo {
     @ApiModelProperty(value = "状态")
     @Range(min = 0, max = 2, message = "0换货，1退货, 2维修")
     private Byte type;
+
+    public ResolutionVo(boolean confirm,String conclusion){
+        this.confirm=confirm;
+        this.conclusion=conclusion;
+    }
 }

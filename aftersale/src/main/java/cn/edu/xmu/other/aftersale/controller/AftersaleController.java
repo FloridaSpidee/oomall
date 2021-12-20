@@ -2,6 +2,7 @@ package cn.edu.xmu.other.aftersale.controller;
 import cn.edu.xmu.oomall.core.util.Common;
 import cn.edu.xmu.oomall.core.util.ReturnNo;
 import cn.edu.xmu.oomall.core.util.ReturnObject;
+import cn.edu.xmu.other.aftersale.microservice.vo.OrderInfo;
 import cn.edu.xmu.other.aftersale.model.vo.*;
 import cn.edu.xmu.other.aftersale.service.AftersaleService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
@@ -198,7 +199,7 @@ public class AftersaleController {
     }
 
     @ApiOperation(value = "买家填写售后的运单信息")
-    @DeleteMapping(value = "/aftersales/{id}/sendback")
+    @PutMapping(value = "/aftersales/{id}/sendback")
     @Audit(departName = "aftersale")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户的token", required = true),
@@ -300,10 +301,11 @@ public class AftersaleController {
 
     @ApiOperation(value = "管理员同意/不同意（退款，换货，维修）")
     @PutMapping(value = "/shops/{shopId}/aftersales/{id}/confirm")
+    @Audit(departName = "shop")
     @ApiImplicitParams({
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户的token", required = true),
             @ApiImplicitParam(paramType = "path", dataType = "Integer", name = "shopId", value = "店铺id", required = true),
-            @ApiImplicitParam(paramType = "body", dataType = "SellerResolutionVo", name = "sellerResolutionVo", value = "处理意见", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "ResolutionVo", name = "resolutionVo", value = "处理意见", required = true),
             @ApiImplicitParam(paramType = "path", dataType = "Integer", name = "id", value = "售后单id", required = true)
     })
     @ApiResponses({
@@ -328,41 +330,55 @@ public class AftersaleController {
     }
 
 
-//    @ApiOperation(value = "店家寄出货物维修：填写寄回的运单单号" +
-//            "- 维修：填写寄回的运单单号" +
-//            "- 换货：产生售后订单，订单id填写到售后单的orderid")
-//    @PutMapping(value = "/shops/{shopId}/aftersales/{id}/deliver")
-//    @Audit(departName = "aftersale")
-//    @ApiImplicitParams({
-//            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户的token", required = true),
-//            @ApiImplicitParam(paramType = "path", dataType = "Integer", name = "shopId", value = "店铺id", required = true),
-//            @ApiImplicitParam(paramType = "body", dataType = "WaybillVo", name = "waybillVo", value = "运单信息", required = true),
-//            @ApiImplicitParam(paramType = "path", dataType = "Integer", name = "id", value = "售后单id", required = true)
-//    })
-//    @ApiResponses({
-//            @ApiResponse(code = 0, message = "成功"),
-//            @ApiResponse(code = 504, message = "售后单不存在"),
-//            @ApiResponse(code = 505, message = "该店铺无此售后单"),
-//            @ApiResponse(code = 507, message = "该状态下禁止此操作"),
-//            @ApiResponse(code = 904, message = "库存不足")
-//    })
-//    public Object deliverAfterService(@PathVariable("shopId") Long shopId,
-//                                     @PathVariable("id") Long aftersaleOrderId,
-//                                     @Validated @RequestBody WaybillVo waybillVo,
-//                                     BindingResult bindingResult,
-//                                     @LoginUser Long userId,
-//                                     @LoginName String userName
-//    ) {
-//        Object fieldErrors = Common.processFieldErrors(bindingResult, httpServletResponse);
-//        if (fieldErrors != null) {
-//            return fieldErrors;
-//        }
-//        return Common.decorateReturnObject(aftersaleService.shopDelivered(shopId, aftersaleOrderId, waybillVo, userId, userName));
-//    }
-//
-//
+    @ApiOperation(value = "店家寄出货物维修：填写寄回的运单单号" +
+            "- 维修：填写寄回的运单单号" +
+            "- 换货：产生售后订单，订单id填写到售后单的orderid")
+    @PutMapping(value = "/shops/{shopId}/aftersales/{id}/deliver")
+    @Audit(departName = "aftersale")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户的token", required = true),
+            @ApiImplicitParam(paramType = "path", dataType = "Integer", name = "shopId", value = "店铺id", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "WaybillVo", name = "waybillVo", value = "运单信息", required = true),
+            @ApiImplicitParam(paramType = "path", dataType = "Integer", name = "id", value = "售后单id", required = true)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 504, message = "售后单不存在"),
+            @ApiResponse(code = 505, message = "该店铺无此售后单"),
+            @ApiResponse(code = 507, message = "该状态下禁止此操作"),
+            @ApiResponse(code = 904, message = "库存不足")
+    })
+    public Object deliverAfterService(@PathVariable("shopId") Long shopId,
+                                     @PathVariable("id") Long aftersaleOrderId,
+                                     @Validated @RequestBody WaybillVo waybillVo,
+                                     BindingResult bindingResult,
+                                     @LoginUser Long userId,
+                                     @LoginName String userName
+    ) {
+        Object fieldErrors = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if (fieldErrors != null) {
+            return fieldErrors;
+        }
+        return Common.decorateReturnObject(aftersaleService.shopDelivered(shopId, aftersaleOrderId, waybillVo, userId, userName));
+    }
+
+    @ApiOperation(value = "获得售后单的的支付信息")
+    @GetMapping(value = "/aftersales/{id}/payments")
+    @Audit(departName = "shop")
+    @ApiImplicitParams({
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户的token", required = true),
+            @ApiImplicitParam(paramType = "path", dataType = "Integer", name = "id", value = "售后单id", required = true)
+    })
+    @ApiResponses({
+            @ApiResponse(code = 0, message = "成功")
+    })
+    public Object getPayment(@PathVariable("id") Long aftersaleId)
+    {
+        return Common.decorateReturnObject(aftersaleService.getPayment(aftersaleId));
+    }
+
 //    @ApiOperation(value = "管理员申请建立售后订单（不是售后单）")
-//    @PostMapping(value = "/shops/{shopId}/aftersales/{id}/deliver")
+//    @PostMapping()
 //    @Audit(departName = "aftersale")
 //    @ApiImplicitParams({
 //            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户的token", required = true),
