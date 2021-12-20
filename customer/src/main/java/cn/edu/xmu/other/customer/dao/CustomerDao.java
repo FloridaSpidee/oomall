@@ -84,17 +84,18 @@ public class CustomerDao {
             CustomerPoExample example = new CustomerPoExample();
             CustomerPoExample.Criteria criteria = example.createCriteria();
 
-            if(!userName.isBlank()) criteria.andUserNameEqualTo(userName);
-            if(!email.isBlank()) criteria.andEmailEqualTo(email);
-            if(!mobile.isBlank()) criteria.andMobileEqualTo(mobile);
+            System.out.println(email);
+            System.out.println(userName);
+            System.out.println(mobile);
+            if(userName!=null&&!userName.isBlank())
+                criteria.andUserNameEqualTo(userName);
+            if(email!=null&&!email.isBlank())
+                criteria.andEmailEqualTo(email);
+            if(mobile!=null&&!mobile.isBlank())
+                criteria.andMobileEqualTo(mobile);
 
             PageHelper.startPage(page,pagesize);
             List<CustomerPo> customers = customerPoMapper.selectByExample(example);
-            System.out.println(userName+"111");
-            System.out.println(email+"222");
-            System.out.println(mobile+"333");
-            System.out.println(customers.size()+"444");
-            System.out.println(customers.get(0).getEmail());
             if (customers.size()==0) {
                 return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST);
             }
