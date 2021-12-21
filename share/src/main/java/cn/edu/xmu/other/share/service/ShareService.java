@@ -47,13 +47,6 @@ public class ShareService {
     /**
      * 根据买家id和商品id生成唯一的分享链接
      */
-    public ReturnObject Test()
-    {
-        System.out.println("getInService");
-        var ret=shareDao.Test();
-        System.out.println("ServiceRet"+ret.toString());
-        return ret;
-    }
 
     @Transactional(rollbackFor = Exception.class)
     public ReturnObject generateShareResult(Long onSaleId, Long loginUserId, String loginUserName) {
@@ -81,7 +74,6 @@ public class ShareService {
 
         SharePo sharePo = new SharePo();
         sharePo.setSharerId(loginUserId);
-        System.out.println(onSaleRetVo.toString());
         sharePo.setShareActId(onSaleRetVo.getShareActId());
         sharePo.setProductId(onSaleRetVo.getProduct().getId());
         sharePo.setQuantity(0L);
@@ -189,13 +181,11 @@ public class ShareService {
                                          Integer pageSize) {
         try
         {
-            System.out.println("Service");
             var productRet= goodsService.getProductRetVoById(id);
             if(productRet.getData()==null) return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST,"查询的商品不存在");
             ProductRetVo productRetVo= (ProductRetVo) productRet.getData();
             if(!productRetVo.getShop().getId().equals(shopId))
             {
-                System.out.println("只能查自己的");
                 return new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE);//只能查询自己商铺的商品
             }
             SharePoExample sharePoExample = new SharePoExample();
@@ -203,9 +193,7 @@ public class ShareService {
             criteria.andProductIdEqualTo(id);
             var ret = shareDao.getShareByExample(sharePoExample, page, pageSize);
             PageInfo retPage = ret.getData();
-            System.out.println(retPage.toString());
             List<Share> boList = retPage.getList();
-            System.out.println(retPage.getPageSize());
             List<ShareRetVo> voList = new ArrayList<>();
             for (Share share : boList) {
                 ShareRetVo shareRetVo = new ShareRetVo(share);
@@ -219,7 +207,6 @@ public class ShareService {
         }
         catch (Exception e)
         {
-            System.out.println(e.getMessage());
             return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,e.getMessage());
         }
 

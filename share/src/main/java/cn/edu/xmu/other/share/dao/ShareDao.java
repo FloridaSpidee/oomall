@@ -34,21 +34,10 @@ public class ShareDao {
 
     private static final Logger logger = LoggerFactory.getLogger(Common.class);
 
-    public ReturnObject Test()
-    {
-        System.out.println("getInDao");
-        SharePo sharePo=new SharePo();
-        sharePo.setShareActId(1l);
-        sharePo.setId(1l);
-        System.out.println("sharePo:"+sharePo.toString());
-        return new ReturnObject(sharePo);
-    }
-
     public ReturnObject<PageInfo<Share>> getShareByExample(SharePoExample sharePoExample, Integer page, Integer pageSize)
     {
         try
         {
-            System.out.println("dao");
             if(null!=page&&null!=pageSize) {
                 PageHelper.startPage(page, pageSize);
             }

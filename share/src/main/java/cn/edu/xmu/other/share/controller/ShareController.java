@@ -51,7 +51,6 @@ public class ShareController {
                                       @LoginUser Long loginUserId,
                                       @LoginName String loginUserName)
     {
-        System.out.println("controller");
         return Common.decorateReturnObject(shareService.generateShareResult(id,loginUserId,loginUserName));
     }
 
@@ -141,7 +140,6 @@ public class ShareController {
                                    @LoginUser Long loginUserId,
                                    @LoginName String loginUserName)
     {
-        System.out.println("controller");
         var ret=shareService.getSharesOfGoods(id,did,page,pageSize);
         return Common.decorateReturnObject(Common.getPageRetObject(ret));
     }

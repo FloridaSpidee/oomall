@@ -85,16 +85,14 @@ class ShareControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        System.out.println(responseString1);
-        String expectedResponse1 = "{\"errno\":0,\"errmsg\":\"成功\",\"data\":{\"sharer\":{\"id\":1,\"name\":\"user1\"},\"onsale\":{\"id\":1,\"shop\":null,\"product\":{\"id\":1,\"name\":null,\"imageUrl\":null},\"price\":20,\"beginTime\":null,\"endTime\":null,\"quantity\":10,\"type\":null,\"activityId\":1,\"shareActId\":1,\"numKey\":null,\"maxQuantity\":100,\"creator\":null,\"gmtCreate\":null,\"gmtModified\":null,\"modifier\":null},\"quantity\":0,\"creator\":{\"id\":1,\"name\":\"user1\"},\"modifier\":{\"id\":null,\"name\":null}}}";
+        String expectedResponse1 ="{\"errno\":0,\"data\":{\"id\":501,\"sharer\":{\"id\":1,\"name\":\"user1\"},\"product\":{\"id\":2,\"name\":null,\"imageUrl\":null},\"quantity\":10,\"creator\":{\"id\":1,\"name\":\"user1\"},\"gmtCreate\":\"2021-12-20T01:25:23\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}},\"errmsg\":\"成功\"}";
         JSONAssert.assertEquals(expectedResponse1, responseString1, false);
         //post两次，判断是否为同一记录
-        String responseString2 = this.mvc.perform(post("/onsale/1/shares").contentType("application/json;charset=UTF-8")
+        String responseString2 = this.mvc.perform(post("/onsale/2/shares").contentType("application/json;charset=UTF-8")
                         .header("authorization", token1))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        System.out.println(responseString1);
         JSONAssert.assertEquals(responseString1, responseString2, false);
         //上传不存在的onsaleId,返回错误值
         String responseString3 = this.mvc.perform(post("/onsale/3/shares").contentType("application/json;charset=UTF-8")
@@ -103,7 +101,6 @@ class ShareControllerTest {
                 .andReturn().getResponse().getContentAsString();
         String expectedResponse2 = "{\"errno\":504,\"errmsg\":\"商品id不存在\"}";
         JSONAssert.assertEquals(expectedResponse2, responseString3, false);
-
     }
 
     @Test
@@ -115,7 +112,7 @@ class ShareControllerTest {
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
         System.out.println(responseString1);
-        String expectedResponse1 = "{\"errno\":0,\"data\":{\"total\":2,\"pages\":1,\"pageSize\":10,\"page\":1,\"list\":[{\"id\":500,\"sharer\":{\"id\":1,\"name\":\"user1\"},\"onsale\":{\"id\":1,\"price\":20,\"quantity\":10,\"beginTime\":null,\"endTime\":null,\"type\":null,\"activityId\":1,\"shareActId\":1,\"numKey\":null,\"maxQuantity\":100,\"gmtCreate\":null,\"gmtModified\":null,\"product\":{\"id\":1,\"name\":null,\"imageUrl\":null},\"shop\":null,\"creator\":null,\"modifier\":null},\"quantity\":10,\"creator\":{\"id\":1,\"name\":\"user1\"},\"gmtCreate\":\"2021-12-20T01:25:23\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}},{\"id\":501,\"sharer\":{\"id\":1,\"name\":\"user1\"},\"onsale\":{\"id\":2,\"price\":20,\"quantity\":10,\"beginTime\":null,\"endTime\":null,\"type\":null,\"activityId\":2,\"shareActId\":2,\"numKey\":null,\"maxQuantity\":100,\"gmtCreate\":null,\"gmtModified\":null,\"product\":{\"id\":2,\"name\":null,\"imageUrl\":null},\"shop\":null,\"creator\":null,\"modifier\":null},\"quantity\":10,\"creator\":{\"id\":1,\"name\":\"user1\"},\"gmtCreate\":\"2021-12-20T01:25:23\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}}]},\"errmsg\":\"成功\"}";
+        String expectedResponse1 = "{\"errno\":0,\"data\":{\"total\":2,\"pages\":1,\"pageSize\":10,\"page\":1,\"list\":[{\"id\":500,\"sharer\":{\"id\":1,\"name\":\"user1\"},\"product\":{\"id\":1,\"name\":null,\"imageUrl\":null},\"quantity\":10,\"creator\":{\"id\":1,\"name\":\"user1\"},\"gmtCreate\":\"2021-12-20T01:25:23\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}},{\"id\":501,\"sharer\":{\"id\":1,\"name\":\"user1\"},\"product\":{\"id\":2,\"name\":null,\"imageUrl\":null},\"quantity\":10,\"creator\":{\"id\":1,\"name\":\"user1\"},\"gmtCreate\":\"2021-12-20T01:25:23\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}}]},\"errmsg\":\"成功\"}";
         JSONAssert.assertEquals(expectedResponse1, responseString1, false);
 
         //根据商品id查询分享记录
@@ -125,7 +122,7 @@ class ShareControllerTest {
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
         System.out.println(responseString2);
-        String expectedResponse2 = "{\"errno\":0,\"data\":{\"total\":1,\"pages\":1,\"pageSize\":10,\"page\":1,\"list\":[{\"id\":500,\"sharer\":{\"id\":1,\"name\":\"user1\"},\"onsale\":{\"id\":1,\"price\":20,\"quantity\":10,\"beginTime\":null,\"endTime\":null,\"type\":null,\"activityId\":1,\"shareActId\":1,\"numKey\":null,\"maxQuantity\":100,\"gmtCreate\":null,\"gmtModified\":null,\"product\":{\"id\":1,\"name\":null,\"imageUrl\":null},\"shop\":null,\"creator\":null,\"modifier\":null},\"quantity\":10,\"creator\":{\"id\":1,\"name\":\"user1\"},\"gmtCreate\":\"2021-12-20T01:25:23\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}}]},\"errmsg\":\"成功\"}\n";
+        String expectedResponse2 = "{\"errno\":0,\"data\":{\"total\":1,\"pages\":1,\"pageSize\":10,\"page\":1,\"list\":[{\"id\":500,\"sharer\":{\"id\":1,\"name\":\"user1\"},\"product\":{\"id\":1,\"name\":null,\"imageUrl\":null},\"quantity\":10,\"creator\":{\"id\":1,\"name\":\"user1\"},\"gmtCreate\":\"2021-12-20T01:25:23\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}}]},\"errmsg\":\"成功\"}";
         JSONAssert.assertEquals(expectedResponse2, responseString2, false);
 
         //查询不存在商品的分享记录
@@ -134,7 +131,7 @@ class ShareControllerTest {
                         .header("authorization", token1))
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse3 = "{\"code\":\"RESOURCE_ID_NOTEXIST\",\"errmsg\":\"操作的资源id不存在\",\"data\":null}";
+        String expectedResponse3 = "{\"code\":\"RESOURCE_ID_NOTEXIST\",\"errmsg\":\"商品不存在\",\"data\":null}";
         JSONAssert.assertEquals(expectedResponse3, responseString3, false);
 
         String responseString4 = this.mvc.perform(get("/shares")
@@ -185,7 +182,8 @@ class ShareControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedString1 = "{\"errno\":0,\"data\":{\"total\":2,\"pages\":1,\"pageSize\":10,\"page\":1,\"list\":[{\"id\":500,\"sharer\":{\"id\":1,\"name\":\"user1\"},\"onsale\":null,\"quantity\":10,\"creator\":{\"id\":1,\"name\":\"user1\"},\"gmtCreate\":\"2021-12-20T01:25:23\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}},{\"id\":502,\"sharer\":{\"id\":2,\"name\":\"user2\"},\"onsale\":null,\"quantity\":10,\"creator\":{\"id\":2,\"name\":\"user2\"},\"gmtCreate\":\"2021-12-20T23:13:30\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}}]},\"errmsg\":\"成功\"}";
+        System.out.println(responseString1);
+        String expectedString1 = "{\"errno\":0,\"data\":{\"total\":2,\"pages\":1,\"pageSize\":10,\"page\":1,\"list\":[{\"id\":500,\"sharer\":{\"id\":1,\"name\":\"user1\"},\"product\":null,\"quantity\":10,\"creator\":{\"id\":1,\"name\":\"user1\"},\"gmtCreate\":\"2021-12-20T01:25:23\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}},{\"id\":502,\"sharer\":{\"id\":2,\"name\":\"user2\"},\"product\":null,\"quantity\":10,\"creator\":{\"id\":2,\"name\":\"user2\"},\"gmtCreate\":\"2021-12-20T23:13:30\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}}]},\"errmsg\":\"成功\"}";
         JSONAssert.assertEquals(expectedString1, responseString1, false);
         String responseErrorString1 = this.mvc.perform(get("/shops/2/products/1/share").contentType("application/json;charset=UTF-8")
                         .header("authorization", token1))
