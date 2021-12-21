@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel(description="简单对象,包括id和name")
-public class SimpleObject {
+public class SimpleProductRetVo {
     private Long id;
     private String name;
 }

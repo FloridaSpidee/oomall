@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 /**
@@ -19,18 +18,18 @@ import java.time.ZonedDateTime;
 @ApiModel(description = "收入视图对象")
 public class RevenueRetVo {
     private Long id;
-    private SimpleObject shop;
-    private SimpleObject product;
+    private SimpleShopRetVo shop;
+    private SimpleProductRetVo product;
     private Long amount;
     private Integer quantity;
     private Long commission;
     private Long point;
     private Long shopRevenue;
     private Long expressFee;
-    private SimpleObject creator;
+    private SimpleUserRetVo creator;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "uuuu-MM-dd'T'HH:mm:ss.SSSXXX",timezone = "GMT+8")
     private ZonedDateTime gmtCreate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "uuuu-MM-dd'T'HH:mm:ss.SSSXXX",timezone = "GMT+8")
     private ZonedDateTime gmtModified;
-    private SimpleObject modifier;
+    private SimpleProductRetVo modifier;
 }

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SimpleShopVo {
+public class SimpleShopRetVo {
     private Long id;
     private String name;
 

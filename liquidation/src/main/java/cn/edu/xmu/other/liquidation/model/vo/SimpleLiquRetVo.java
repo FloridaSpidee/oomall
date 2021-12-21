@@ -18,7 +18,7 @@ import java.time.ZonedDateTime;
 @ApiModel(description = "清算简单信息对象")
 public class SimpleLiquRetVo {
     private Long id;
-    private SimpleShopVo simpleShopVo;
+    private SimpleShopRetVo simpleShopVo;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "uuuu-MM-dd'T'HH:mm:ss.SSSZZZZZ")
     private ZonedDateTime liquidDate;
