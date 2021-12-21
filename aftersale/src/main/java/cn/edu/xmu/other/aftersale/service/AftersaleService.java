@@ -344,55 +344,67 @@ public class AftersaleService {
     }
 
 
-//    /**
-//     * 店家寄出货物
-//     * 维修：填写寄回的运单单号
-//     * 换货：产生售后订单，订单id填写到售后单的orderid
-//     *
-//     * @return ReturnObject
-//     */
-//    @Transactional(rollbackFor = Exception.class)
-//    public ReturnObject shopDelivered(Long shopId, Long aftersaleId, WaybillVo waybillVo, Long userId, String userName) {
-//        ReturnObject ret = aftersaleDao.selectById(aftersaleId);
-//        if (!ret.getCode().equals(ReturnNo.OK)) {
-//            return ret;
-//        }
-//        AftersalePo aftersalePo = (AftersalePo) ret.getData();
-//        if(!aftersalePo.getShopId().equals(shopId)){
-//            return new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE);
-//        }
-//        //状态不允许
-//        if (!aftersalePo.getState().equals(AftersaleState.SHOP_IS_TO_DELIVERED.getCode())) {
-//            return new ReturnObject<>(ReturnNo.STATENOTALLOW);
-//        }
-//        //状态变成店家已发货
-//        aftersalePo.setState(AftersaleState.SHOP_IS_DELIVERED.getCode());
-//        aftersalePo.setShopLogSn(waybillVo.getLogSn());
-//        //是换货单
-//        if (aftersalePo.getType() == 0) {
-//            InternalReturnObject internalReturnObject = new InternalReturnObject();//orderService.getOrderItemById(aftersalePo.getOrderItemId());
-//            OrderItem orderItem = (OrderItem)internalReturnObject.getData();
-//            OrderItemVo orderItemVo = cloneVo(orderItem,OrderItemVo.class);
-//            OrderInfoVo orderInfoVo = cloneVo(aftersalePo,OrderInfoVo.class);
-//            //设置orderInfoVo的信息
-//            ArrayList<OrderItemVo> orderItemVos = new ArrayList<>();
-//            orderItemVos.add(orderItemVo);
-//            orderInfoVo.setOrderItemVos(orderItemVos);
-//            orderInfoVo.setAddress(aftersalePo.getDetail());
-//
-//            //产生售后订单
-//            ReturnObject returnObject = createAftersaleOrder(shopId, aftersaleId, orderInfoVo, userId, userName);
-//            if(returnObject.getCode()!=ReturnNo.OK){
-//                return returnObject;
-//            }
-//            OrderInfo orderInfo = (OrderInfo) returnObject.getData();
-//            //订单id填写到售后单的orderid
-//            aftersalePo.setOrderId(orderInfo.getId());
-//        }
-//        return aftersaleDao.updateAftersale(aftersalePo, userId, userName);
-//    }
-//
-//
+    /**
+     * 店家寄出货物
+     * 维修：填写寄回的运单单号
+     * 换货：产生售后订单，订单id填写到售后单的orderid
+     *
+     * @return ReturnObject
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnObject shopDelivered(Long shopId, Long aftersaleId, WaybillVo waybillVo, Long userId, String userName) {
+        ReturnObject ret = aftersaleDao.selectById(aftersaleId);
+        if (!ret.getCode().equals(ReturnNo.OK)) {
+            return ret;
+        }
+        AftersalePo aftersalePo = (AftersalePo) ret.getData();
+        if(!aftersalePo.getShopId().equals(shopId)){
+            return new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE);
+        }
+        //状态不允许
+        if (!aftersalePo.getState().equals(AftersaleState.SHOP_IS_TO_DELIVERED.getCode())) {
+            return new ReturnObject<>(ReturnNo.STATENOTALLOW);
+        }
+        //状态变成店家已发货
+        aftersalePo.setState(AftersaleState.SHOP_IS_DELIVERED.getCode());
+        aftersalePo.setShopLogSn(waybillVo.getLogSn());
+        //是换货单
+        if (aftersalePo.getType() == 0) {
+            //设置orderItemVo，用于初始化orderInfoVo
+            InternalReturnObject internalReturnObject = orderService.getOrderItemById(aftersalePo.getOrderItemId());
+            OrderItem orderItem = (OrderItem)internalReturnObject.getData();
+            OrderItemVo orderItemVo = cloneVo(orderItem,OrderItemVo.class);
+            OrderInfoVo orderInfoVo = cloneVo(aftersalePo,OrderInfoVo.class);
+            orderInfoVo.setPay((byte)0);
+            //设置orderInfoVo的信息
+            ArrayList<OrderItemVo> orderItemVos = new ArrayList<>();
+            orderItemVos.add(orderItemVo);
+            orderInfoVo.setOrderItemVos(orderItemVos);
+            orderInfoVo.setAddress(aftersalePo.getDetail());
+
+            //产生售后订单
+            InternalReturnObject internalReturnObject1 = orderService.createAftersaleOrder(shopId, orderInfoVo, userId, userName);
+            if(internalReturnObject1.getErrno()!=0){
+                return new ReturnObject(internalReturnObject1);
+            }
+            OrderInfo orderInfo = (OrderInfo) internalReturnObject1.getData();
+            //订单id填写到售后单的orderid
+            aftersalePo.setOrderId(orderInfo.getId());
+        }
+        return aftersaleDao.updateAftersale(aftersalePo, userId, userName);
+    }
+
+
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnObject getPayment(Long aftersaleId) {
+        ReturnObject returnObject = aftersaleDao.selectById(aftersaleId);
+        if(!returnObject.getCode().equals(ReturnNo.OK)){
+            return returnObject;
+        }
+        AftersalePo aftersalePo = (AftersalePo)returnObject.getData();
+        return new ReturnObject(orderService.getPayment(aftersalePo.getOrderId()));
+    }
+
 //    /**
 //     * 管理员申请建立售后订单
 //     * 为售后单支付或者换货建立订单
@@ -411,7 +423,7 @@ public class AftersaleService {
 //            return new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE);
 //        }
 //
-//        InternalReturnObject internalReturnObject = new InternalReturnObject();//orderService.createAftersaleOrder(shopId, orderInfoVo, userName, userId);
+//        InternalReturnObject internalReturnObject = orderService.createAftersaleOrder(shopId, orderInfoVo,userId,userName);
 //        if (internalReturnObject.getErrno() != 0) {
 //            return new ReturnObject<>(ReturnNo.GOODS_STOCK_SHORTAGE);
 //        }

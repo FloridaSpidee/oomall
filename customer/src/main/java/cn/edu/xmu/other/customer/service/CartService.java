@@ -59,7 +59,6 @@ public class CartService {
             CartRetVo cartRetVo = (CartRetVo) cloneVo(cart,CartRetVo.class);
             //读取product
             InternalReturnObject<ProductRetVo> internalObj = productService.getProductDetails(cart.getProductId());
-
             //Product模块判断判断是否有错
             if(internalObj.getErrno().equals(0)) {
 

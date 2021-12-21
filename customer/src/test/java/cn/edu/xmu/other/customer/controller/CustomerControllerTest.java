@@ -33,7 +33,7 @@ public class CustomerControllerTest {
 
     private static JwtHelper jwtHelper = new JwtHelper();
 
-    private  static  String token = jwtHelper.createToken(0L, "user1", 0L, 1, 40000);
+    private  static  String token = jwtHelper.createToken(2L, "admin", 0L, 1, 40000);
     /**
      * 买家成功查看自己信息
      *
@@ -50,11 +50,11 @@ public class CustomerControllerTest {
                 "  \"errno\": 0,\n" +
                 "  \"errmsg\": \"成功\",\n" +
                 "  \"data\": {\n" +
-                "    \"id\": 0,\n" +
+                "    \"id\": 2,\n" +
                 "    \"userName\": \"admin\",\n" +
                 "    \"name\": \"lhy\",\n" +
                 "    \"mobile\": \"15605922405\",\n" +
-                "    \"email\": \"1195564654@qq.com\",\n" +
+                "    \"email\": \"1195389634@qq.com\",\n" +
                 "    \"state\": 0,\n" +
                 "    \"point\": 10\n" +
                 "  }\n" +
@@ -70,7 +70,7 @@ public class CustomerControllerTest {
     @Test
     public void modifyUserInformationTest() throws Exception {
         CustomerModifyVo customerModifyVo=new CustomerModifyVo();
-        customerModifyVo.setRealName("leihongyu");
+        customerModifyVo.setName("leihongyu");
         String requestJSON = JacksonUtil.toJson(customerModifyVo);
         String responseString = this.mvc.perform(put("/self").contentType("application/json;charset=UTF-8")
                 .header("authorization", token).content(requestJSON))
@@ -102,7 +102,7 @@ public class CustomerControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectString = "";
+        String expectString = "{\"errno\":0,\"data\":{\"total\":1,\"pages\":1,\"pageSize\":10,\"page\":1,\"list\":[{\"id\":2,\"name\":\"lhy\"}]},\"errmsg\":\"成功\"}";
         JSONAssert.assertEquals(expectString, responseString, false);
     }
 
@@ -126,7 +126,7 @@ public class CustomerControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectString = "";
+        String expectString = "{\"errno\":0,\"data\":{\"total\":1,\"pages\":1,\"pageSize\":10,\"page\":1,\"list\":[{\"id\":2,\"name\":\"lhy\"}]},\"errmsg\":\"成功\"}";
         JSONAssert.assertEquals(expectString, responseString, false);
     }
 
@@ -138,7 +138,7 @@ public class CustomerControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectString = "";
+        String expectString = "{\"errno\":0,\"data\":{\"total\":1,\"pages\":1,\"pageSize\":10,\"page\":1,\"list\":[{\"id\":2,\"name\":\"lhy\"}]},\"errmsg\":\"成功\"}";
         JSONAssert.assertEquals(expectString, responseString, false);
     }
     @Test
@@ -149,7 +149,7 @@ public class CustomerControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectString = "";
+        String expectString = "{\"errno\":0,\"data\":{\"total\":1,\"pages\":1,\"pageSize\":10,\"page\":1,\"list\":[{\"id\":2,\"name\":\"lhy\"}]},\"errmsg\":\"成功\"}";
         JSONAssert.assertEquals(expectString, responseString, false);
     }
 }

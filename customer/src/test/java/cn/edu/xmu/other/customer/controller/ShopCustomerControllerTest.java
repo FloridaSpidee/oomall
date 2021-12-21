@@ -36,12 +36,6 @@ public class ShopCustomerControllerTest {
 
     private static JwtHelper jwtHelper = new JwtHelper();
 
-    @MockBean
-    private ProductService productService;
-
-    @MockBean
-    private CouponService couponService;
-
     @Test
     void getUserById() throws Exception{
         token=jwtHelper.createToken(1L,"admin",0L,1, 3600);
