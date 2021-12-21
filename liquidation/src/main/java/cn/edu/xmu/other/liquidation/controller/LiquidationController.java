@@ -1,7 +1,10 @@
 package cn.edu.xmu.other.liquidation.controller;
 
 import cn.edu.xmu.other.liquidation.constant.TimeFormat;
+import cn.edu.xmu.other.liquidation.service.LiquidationService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
+import cn.edu.xmu.privilegegateway.annotation.util.Common;
+import cn.edu.xmu.privilegegateway.annotation.util.ReturnObject;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +31,9 @@ public class LiquidationController {
     @Autowired
     private HttpServletResponse httpServletResponse;
 
+    @Autowired
+    private LiquidationService liquidationService;
+
     /**
      *获得清算单的所有状态
      */
@@ -40,7 +46,8 @@ public class LiquidationController {
     @GetMapping("/liquidation/states")
     public Object getLiquAllStates()
     {
-
+        ReturnObject returnObject=liquidationService.getLiquiState();
+        return Common.decorateReturnObject(returnObject);
     }
 
     /**
