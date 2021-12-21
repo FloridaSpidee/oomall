@@ -1,4 +1,4 @@
-package cn.edu.xmu.other.share.microservice.vo;
+package cn.edu.xmu.other.share.model.vo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -6,11 +6,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
 /**
- * @author Chen Ye
- * @date 2021/12/17
+ * @author Chenye
+ * @date 2021/12/20
  */
-@FeignClient(name = "Activity")
-public interface ActivityService {
-    @GetMapping("/shops/0/shareactivities/{id}")
-    public ReturnObject getShareActivityRetVoById(@PathVariable Long id);
+
+@FeignClient(name = "Customer")
+public interface CustomerService {
+    @GetMapping("/shops/{shopId}/customers/{id}")
+    public ReturnObject getCustomerRetVoById(@PathVariable Long shopId, @PathVariable Long id);
 }

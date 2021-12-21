@@ -48,16 +48,18 @@ public class ShareDao {
     {
         try
         {
+            System.out.println("dao");
             if(null!=page&&null!=pageSize) {
                 PageHelper.startPage(page, pageSize);
             }
             List<SharePo> poList=sharePoMapper.selectByExample(sharePoExample);
+            var pageInfo=new PageInfo(poList);
             var boList=new ArrayList<Share>();
             for(SharePo sharePo:poList) {
                 boList.add((Share) cloneVo(sharePo, Share.class));
             }
-            var pageInfo=new PageInfo<Share>(boList);
-            return new ReturnObject<>(pageInfo);
+            pageInfo.setList(boList);
+            return new ReturnObject(pageInfo);
         }
         catch (Exception e)
         {
@@ -89,13 +91,14 @@ public class ShareDao {
                 PageHelper.startPage(page, pageSize);
             }
             List<SuccessfulSharePo> poList=successfulSharePoMapper.selectByExample(successfulSharePoExample);
+            var pageInfo=new PageInfo(poList);
             var boList=new ArrayList<SuccessfulShare>();
             for(SuccessfulSharePo successfulSharePo:poList)
             {
                 boList.add((SuccessfulShare) cloneVo(successfulSharePo, SuccessfulShare.class));
             }
-            var pageInfo=new PageInfo<SuccessfulShare>(boList);
-            return new ReturnObject<>(pageInfo);
+            pageInfo.setList(boList);
+            return new ReturnObject(pageInfo);
         }
         catch (Exception e)
         {
@@ -108,16 +111,8 @@ public class ShareDao {
     {
         try
         {
-            SharePo testPo=new SharePo();
-            testPo.setGmtCreate(LocalDateTime.now());
             sharePo.setGmtCreate(LocalDateTime.now());
-            System.out.println("Dao");
-            System.out.println(sharePo.getId());
             sharePoMapper.insert(sharePo);
-            sharePoMapper.insert(testPo);
-            SharePo testSel=sharePoMapper.selectByPrimaryKey(sharePo.getId());
-            System.out.println(testSel.getId());
-            System.out.println(sharePo.getId());
             return new ReturnObject(sharePo);
         }
         catch (Exception e)

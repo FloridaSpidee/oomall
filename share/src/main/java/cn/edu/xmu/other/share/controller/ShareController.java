@@ -1,10 +1,8 @@
 package cn.edu.xmu.other.share.controller;
 
 import cn.edu.xmu.oomall.core.util.Common;
-import cn.edu.xmu.oomall.core.util.ResponseUtil;
 import cn.edu.xmu.oomall.core.util.ReturnNo;
 import cn.edu.xmu.oomall.core.util.ReturnObject;
-import cn.edu.xmu.other.share.model.po.SharePo;
 import cn.edu.xmu.other.share.service.ShareService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
 import cn.edu.xmu.privilegegateway.annotation.aop.LoginName;
@@ -15,9 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,8 +25,6 @@ import java.time.ZonedDateTime;
 @RestController
 @RefreshScope
 @RequestMapping(value = "/", produces = "application/json;charset=UTF-8")
-
-
 public class ShareController {
     private final Logger logger = LoggerFactory.getLogger(ShareController.class);
 
@@ -137,19 +130,20 @@ public class ShareController {
             @ApiResponse(code = 0, message = "成功"),
             @ApiResponse(code = 500, message = "服务器内部错误"),
             @ApiResponse(code = 404,message = "id或sid不存在"),
-            @ApiResponse(code = 505,message = "操作的资源id不是自己的对象")
+                @ApiResponse(code = 505,message = "操作的资源id不是自己的对象")
     })
     @Audit(departName = "shares")
     @GetMapping("/shops/{did}/products/{id}/share")
     public Object getSharesOfGoods(@PathVariable("did") Long did,
-                                   @RequestParam("id") Long id,
+                                   @PathVariable("id") Long id,
                                    @RequestParam(defaultValue = "1") Integer page,
                                    @RequestParam(defaultValue = "10") Integer pageSize,
-                                   BindingResult bindingResult,
                                    @LoginUser Long loginUserId,
                                    @LoginName String loginUserName)
     {
-        return Common.decorateReturnObject(shareService.getSharesOfGoods(id,did,page,pageSize));
+        System.out.println("controller");
+        var ret=shareService.getSharesOfGoods(id,did,page,pageSize);
+        return Common.decorateReturnObject(Common.getPageRetObject(ret));
     }
 
     @ApiOperation(value = "分享者查询所有分享成功记录", produces = "application/json;charset=UTF-8")
@@ -164,25 +158,31 @@ public class ShareController {
     @ApiResponses(value = {
             @ApiResponse(code = 0, message = "成功"),
             @ApiResponse(code = 500, message = "服务器内部错误"),
-            @ApiResponse(code = 609,message = "用户未登录")
+            @ApiResponse(code = 609,message = "用户未登录"),
+            @ApiResponse(code = 947,message = "开始时间不能晚于结束时间"),
+            @ApiResponse(code = 404,message = "productId不存在"),
     })
     @Audit(departName = "shares")
     @GetMapping("/beshared")
-    public Object getBeShared(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime beginTime,
-                              @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime,
-                              @RequestParam(required = false)Long productId,
+    public Object getBeShared(@RequestParam(required = false) @DateTimeFormat(pattern="uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime beginTime,
+                              @RequestParam(required = false) @DateTimeFormat(pattern="uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime endTime,
+                              @RequestParam(value = "productId",required = false)Long productId,
                               @RequestParam(defaultValue = "1") Integer page,
                               @RequestParam(defaultValue = "10") Integer pageSize,
-                              BindingResult bindingResult,
                               @LoginUser Long loginUserId,
                               @LoginName String loginUserName)
     {
-        System.out.println("Controller");
-        if(beginTime!=null&&endTime!=null&&beginTime.isAfter(endTime)){
-            ReturnObject returnObjectNotValid=new ReturnObject(ReturnNo.LATE_BEGINTIME);
-            return Common.decorateReturnObject(returnObjectNotValid);
+        LocalDateTime begin=null,end=null;
+        if(beginTime!=null&&endTime!=null){
+            if(beginTime.isAfter(endTime)){
+                ReturnObject returnObjectNotValid=new ReturnObject(ReturnNo.LATE_BEGINTIME);
+                return Common.decorateReturnObject(returnObjectNotValid);
+            }
+            begin = beginTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+            end = endTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
         }
-        return Common.decorateReturnObject(shareService.getBeShared(beginTime,endTime,productId,page,pageSize,loginUserId,loginUserName));
+        var ret=shareService.getBeShared(begin,end,productId,page,pageSize,loginUserId,loginUserName);
+        return Common.decorateReturnObject(Common.getPageRetObject(ret));
     }
 
     @ApiOperation(value = "管理员查询商品分享记录", produces = "application/json;charset=UTF-8")
@@ -203,41 +203,26 @@ public class ShareController {
     })
     @Audit(departName = "shares")
     @GetMapping("/shops/{did}/products/{id}/beshared")
-    public Object getAllBeShared(@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime beginTime,
-                                 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime endTime,
+    public Object getAllBeShared(@RequestParam(required = false) @DateTimeFormat(pattern="uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime beginTime,
+                                 @RequestParam(required = false) @DateTimeFormat(pattern="uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime endTime,
                                  @PathVariable("did") Long did,
                                  @PathVariable("id") Long id,
                                  @RequestParam(defaultValue = "1") Integer page,
                                  @RequestParam(defaultValue = "10") Integer pageSize,
-                                 BindingResult bindingResult,
                                  @LoginUser Long loginUserId,
                                  @LoginName String loginUserName)
     {
-        if(beginTime!=null&&endTime!=null&&beginTime.isAfter(endTime)){
-            ReturnObject returnObjectNotValid=new ReturnObject(ReturnNo.LATE_BEGINTIME);
-            return Common.decorateReturnObject(returnObjectNotValid);
+        LocalDateTime begin=null,end=null;
+        if(beginTime!=null&&endTime!=null){
+            if(beginTime.isAfter(endTime)){
+                ReturnObject returnObjectNotValid=new ReturnObject(ReturnNo.LATE_BEGINTIME);
+                return Common.decorateReturnObject(returnObjectNotValid);
+            }
+            begin = beginTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+            end = endTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
         }
-        return Common.decorateReturnObject(shareService.getAllBeShared(beginTime,endTime,id,did,page,pageSize));
-    }
-
-    @Audit(departName = "shares")
-    @GetMapping("/test")
-    public Object test()
-    {
-        System.out.println("TestInController");
-        System.out.println("letsbegin");
-        var ret=shareService.Test();
-//        System.out.println("ret:"+ret.toString());
-        System.out.println("TestInController");
-        var Restret=Common.decorateReturnObject(shareService.Test());
-    //    System.out.println("Restret:"+Restret);
-        System.out.println("TestInController");
-        System.out.println("TestInController");
-        System.out.println("TestInController");
-        System.out.println("TestInController");
-        System.out.println("TestInController");
-        System.out.println("TestInController");
-        return Restret;
+        var ret=shareService.getAllBeShared(begin,end,id,did,page,pageSize);
+        return Common.decorateReturnObject(Common.getPageRetObject(ret));
     }
 
 }

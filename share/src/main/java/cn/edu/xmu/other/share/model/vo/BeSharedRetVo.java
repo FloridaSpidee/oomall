@@ -15,11 +15,10 @@ import java.time.LocalDateTime;
 
 public class BeSharedRetVo implements VoObject {
     Long id;
-    OnSaleRetVo onSale;
+    SimpleProductRetVo productId;
     Long sharerId;
     Long customerId;
-    Long orderItemId;
-    Integer rebate;
+    byte state;
     SimpleAdminUser creator;
     LocalDateTime gmtCreate;
     LocalDateTime gmtModified;
@@ -29,8 +28,6 @@ public class BeSharedRetVo implements VoObject {
         this.id=successfulShare.getId();
         this.customerId=successfulShare.getCustomerId();
         this.sharerId=successfulShare.getShareId();
-        //this.orderItemId
-        //this.rebate
         this.gmtCreate=successfulShare.getGmtCreate();
         this.creator=new SimpleAdminUser(successfulShare.getCreatorId(),successfulShare.getCreatorName());
         this.gmtModified=successfulShare.getGmtModified();

@@ -1,5 +1,6 @@
 package cn.edu.xmu.other.share.microservice.vo;
 
+import cn.edu.xmu.other.share.model.vo.SimpleProductRetVo;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
