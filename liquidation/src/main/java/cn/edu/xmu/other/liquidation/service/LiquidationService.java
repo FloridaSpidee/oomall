@@ -1,7 +1,8 @@
 package cn.edu.xmu.other.liquidation.service;
 
+import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.liquidation.dao.LiquidationDao;
-import cn.edu.xmu.privilegegateway.annotation.util.ReturnObject;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
