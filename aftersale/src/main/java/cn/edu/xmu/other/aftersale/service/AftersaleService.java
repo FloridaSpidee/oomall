@@ -205,7 +205,7 @@ public class AftersaleService {
     public ReturnObject deleteAftersale(Long aftersaleId, Long userId, String userName) {
         ReturnObject ret = aftersaleDao.selectById(aftersaleId);
         if (ret.getCode().equals(ReturnNo.RESOURCE_ID_NOTEXIST)) {
-            return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST);
+            return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST,"售后单不存在");
         }
         AftersalePo aftersalePo = (AftersalePo) ret.getData();
         if(!aftersalePo.getCustomerId().equals(userId)){
@@ -281,7 +281,7 @@ public class AftersaleService {
         if(!aftersalePo.getShopId().equals(shopId)){
             return new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE);
         }
-        if(!aftersalePo.getState().equals(AftersaleState.BUYER_IS_TO_DELIVERED.getCode())){
+        if(!aftersalePo.getState().equals(AftersaleState.BUYER_IS_DELIVERED.getCode())){
             return new ReturnObject(ReturnNo.STATENOTALLOW);
         }
         //验收不通过
