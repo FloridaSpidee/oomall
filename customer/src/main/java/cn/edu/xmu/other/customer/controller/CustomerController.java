@@ -50,7 +50,6 @@ public class CustomerController {
     public Object getAllStates()
     {
         ReturnObject returnObject=customerService.getCustomerState();
-        System.out.println(returnObject.getData());
         return Common.decorateReturnObject(returnObject);
     }
 

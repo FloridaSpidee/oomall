@@ -1,7 +1,13 @@
 package cn.edu.xmu.other.liquidation.controller;
 
+import cn.edu.xmu.oomall.core.util.Common;
+import cn.edu.xmu.oomall.core.util.ReturnNo;
+import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.liquidation.constant.TimeFormat;
+import cn.edu.xmu.other.liquidation.service.LiquidationService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
+import cn.edu.xmu.privilegegateway.annotation.util.Common;
+import cn.edu.xmu.privilegegateway.annotation.util.ReturnObject;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +34,9 @@ public class LiquidationController {
     @Autowired
     private HttpServletResponse httpServletResponse;
 
+    @Autowired
+    private LiquidationService liquidationService;
+
     /**
      *获得清算单的所有状态
      */
@@ -40,7 +49,8 @@ public class LiquidationController {
     @GetMapping("/liquidation/states")
     public Object getLiquAllStates()
     {
-
+        ReturnObject returnObject=liquidationService.getLiquiState();
+        return Common.decorateReturnObject(returnObject);
     }
 
     /**
@@ -62,7 +72,10 @@ public class LiquidationController {
     })
     @Audit
     @GetMapping("/shops/{shopId}/liquidation")
-    public Object getSimpleLiquInfo(@PathVariable("shopId")Integer shopId, @RequestParam(name="beginDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime LocalDateTime beginDate, @RequestParam(name="endDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime LocalDateTime endDate, @RequestParam(name = "state", required = false)Boolean state, @RequestParam(name = "page", required = false) Integer page,
+    public Object getSimpleLiquInfo(@PathVariable("shopId")Integer shopId, @RequestParam(name="beginDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime LocalDateTime beginDate,
+                                    @RequestParam(name="endDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime LocalDateTime endDate,
+                                    @RequestParam(name = "state", required = false)Boolean state,
+                                    @RequestParam(name = "page", required = false) Integer page,
                                     @RequestParam(name = "pageSize", required = false) Integer pageSize)
     {
 
@@ -85,6 +98,86 @@ public class LiquidationController {
     @GetMapping("/shops/{shopId}/liquidation/{id}")
     public Object getDetailLiquInfo(@PathVariable("shopId")Integer shopId,@PathVariable("id")Integer Id)
     {
+
+    }
+
+    @ApiOperation(value = "开始清算")
+    @ApiImplicitParams(value={
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "token", value = "用户的token", required = true),
+            @ApiImplicitParam(name = "beginTime",dataType = "LocalDateTime",value = "开始时间",required = false),
+            @ApiImplicitParam(name = "endTime",dataType = "LocalDateTime",value = "结束时间",required = false),
+    })
+    @Audit(departName = "shops")
+    @PutMapping("/shops/{shopId}/liquidation/start")
+    public Object startLiquidations(@PathVariable("shopId")Integer shopId,
+                                    @RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime beginTime,
+                                    @RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime endTime)
+    {
+        //输入参数合法性检查
+        if(beginTime!=null&&endTime!=null) {
+            if(beginTime.isAfter(endTime)) {
+                return Common.decorateReturnObject(new ReturnObject(ReturnNo.LATE_BEGINTIME, "开始时间不能晚于结束时间"));
+            }
+        }
+        // 非平台管理员
+        if (shopId != 0) {
+            return Common.decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE));
+        }
+
+    }
+
+    @ApiOperation(value = "用户获取自己因分享得到收入返点的记录")
+    @ApiImplicitParams(value={
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "token", value = "用户的token", required = true),
+            @ApiImplicitParam(name = "beginTime",dataType = "LocalDateTime",value = "开始时间",required = false),
+            @ApiImplicitParam(name = "endTime",dataType = "LocalDateTime",value = "结束时间",required = false),
+            @ApiImplicitParam(name="page",dataType = "Integer",value = "页数",required = false),
+            @ApiImplicitParam(name="pageSize",dataType = "Integer",value = "页大小",required = false)
+    })
+    @ApiResponses(value = {
+            @ApiResponse(code = 0, message = "成功")
+    })
+    @Audit(departName = "shops")
+    @GetMapping("/pointrecords/revenue")
+    public Object getRevenuePointRecords(@RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime beginTime,
+                                         @RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime endTime,
+                                         @RequestParam(name = "page", required = false) Integer page,
+                                         @RequestParam(name = "pageSize",  required = false) Integer pageSize)
+    {
+        //输入参数合法性检查
+        if(beginTime!=null&&endTime!=null) {
+            if(beginTime.isAfter(endTime)) {
+                return Common.decorateReturnObject(new ReturnObject(ReturnNo.LATE_BEGINTIME, "开始时间不能晚于结束时间"));
+            }
+        }
+
+    }
+
+
+    @ApiOperation(value = "用户获取因退货而扣除支出返点的记录")
+    @ApiImplicitParams(value={
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "token", value = "用户的token", required = true),
+            @ApiImplicitParam(name = "beginTime",dataType = "LocalDateTime",value = "开始时间",required = false),
+            @ApiImplicitParam(name = "endTime",dataType = "LocalDateTime",value = "结束时间",required = false),
+            @ApiImplicitParam(name="page",dataType = "Integer",value = "页数",required = false),
+            @ApiImplicitParam(name="pageSize",dataType = "Integer",value = "页大小",required = false)
+    })
+    @ApiResponses(value = {
+            @ApiResponse(code = 0, message = "成功")
+    })
+    @Audit(departName = "shops")
+    @GetMapping("/pointrecords/expenditure")
+    public Object getExpenditurePointRecords(@RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime beginTime,
+                                             @RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime endTime,
+                                             @RequestParam(name = "page", required = false) Integer page,
+                                             @RequestParam(name = "pageSize",  required = false) Integer pageSize)
+    {
+        //输入参数合法性检查
+        if(beginTime!=null&&endTime!=null) {
+            if(beginTime.isAfter(endTime)) {
+                return Common.decorateReturnObject(new ReturnObject(ReturnNo.LATE_BEGINTIME, "开始时间不能晚于结束时间"));
+            }
+        }
 
     }
 }
