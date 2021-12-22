@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 /**
  * @Auther hongyu lei
  * @Date 2021/12/21
@@ -23,5 +25,14 @@ public class LiquidationService {
     @Transactional(rollbackFor=Exception.class, readOnly = true)
     public ReturnObject getLiquiState() {
         return liquidationDao.getLiquiState();
+    }
+
+    @Transactional(readOnly = true,rollbackFor = Exception.class)
+    public ReturnObject getSimpleLiquInfo(Integer shopId, Byte state, LocalDateTime beginTime, LocalDateTime endTime, Integer page, Integer pageSize)
+    {
+        if(shopId!=null)
+        {
+
+        }
     }
 }

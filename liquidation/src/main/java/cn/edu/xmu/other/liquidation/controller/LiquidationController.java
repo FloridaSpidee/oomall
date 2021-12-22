@@ -76,7 +76,14 @@ public class LiquidationController {
                                     @RequestParam(name = "page", required = false) Integer page,
                                     @RequestParam(name = "pageSize", required = false) Integer pageSize)
     {
-
+        //输入参数合法性检查
+        if(beginDate!=null&&endDate!=null) {
+            if(beginDate.isAfter(endDate)) {
+                return Common.decorateReturnObject(new ReturnObject(ReturnNo.LATE_BEGINTIME, "开始时间不能晚于结束时间"));
+            }
+        }
+        ReturnObject ret= liquidationService.getSimpleLiquInfo(shopId,state,TimeFormat.ZonedDateTime2LocalDateTime(beginDate),TimeFormat.ZonedDateTime2LocalDateTime(endDate),page,pageSize);
+        return Common.decorateReturnObject(ret);
     }
 
     /**

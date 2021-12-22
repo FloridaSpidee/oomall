@@ -98,4 +98,6 @@ public class LiquidationDao {
             return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,e.getMessage());
         }
     }
+
+    public ReturnObject getSimpleLiquInfo(Integer shopId,)
 }
