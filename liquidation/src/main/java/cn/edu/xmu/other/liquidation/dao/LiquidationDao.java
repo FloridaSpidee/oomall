@@ -99,5 +99,5 @@ public class LiquidationDao {
         }
     }
 
-    public ReturnObject getSimpleLiquInfo(Integer shopId,)
+    public ReturnObject getSimpleLiquInfo(Long shopId,)
 }

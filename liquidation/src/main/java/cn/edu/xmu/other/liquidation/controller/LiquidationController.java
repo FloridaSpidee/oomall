@@ -57,7 +57,7 @@ public class LiquidationController {
     @ApiOperation(value = "平台管理员或商家获取符合条件的清算单简单信息", produces = "application/json;charset=UTF-8")
     @ApiImplicitParams(value = {
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户token", required = true),
-            @ApiImplicitParam(paramType = "path", dataType = "Integer", name = "shopId", value = "商铺id", required = true),
+            @ApiImplicitParam(paramType = "path", dataType = "Long", name = "shopId", value = "商铺id", required = true),
             @ApiImplicitParam(paramType = "query", required = false, dataType = "LocalDateTime",  name = "beginDate"),
             @ApiImplicitParam(paramType = "query", required = false, dataType = "LocalDateTime",  name = "endDate"),
             @ApiImplicitParam(paramType = "query", required = false, dataType = "Boolean",  name = "state"),
@@ -70,7 +70,7 @@ public class LiquidationController {
     })
     @Audit
     @GetMapping("/shops/{shopId}/liquidation")
-    public Object getSimpleLiquInfo(@PathVariable("shopId")Integer shopId, @RequestParam(name="beginDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime beginDate,
+    public Object getSimpleLiquInfo(@PathVariable("shopId")Long shopId, @RequestParam(name="beginDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime beginDate,
                                     @RequestParam(name="endDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime endDate,
                                     @RequestParam(name = "state", required = false)Boolean state,
                                     @RequestParam(name = "page", required = false) Integer page,
@@ -92,8 +92,8 @@ public class LiquidationController {
     @ApiOperation(value = "查询指定清算单详情", produces = "application/json;charset=UTF-8")
     @ApiImplicitParams(value = {
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户token", required = true),
-            @ApiImplicitParam(paramType = "path", dataType = "Integer", name = "shopId", value = "商铺id", required = true),
-            @ApiImplicitParam(paramType = "path", dataType = "Integer", name = "Id", value = "清算单id", required = true),
+            @ApiImplicitParam(paramType = "path", dataType = "Long", name = "shopId", value = "商铺id", required = true),
+            @ApiImplicitParam(paramType = "path", dataType = "Long", name = "Id", value = "清算单id", required = true),
     })
     @ApiResponses(value = {
             @ApiResponse(code = 0, message = "成功"),
@@ -101,7 +101,7 @@ public class LiquidationController {
     })
     @Audit
     @GetMapping("/shops/{shopId}/liquidation/{id}")
-    public Object getDetailLiquInfo(@PathVariable("shopId")Integer shopId,@PathVariable("id")Integer Id)
+    public Object getDetailLiquInfo(@PathVariable("shopId")Long shopId,@PathVariable("id")Long Id)
     {
 
     }
@@ -114,7 +114,7 @@ public class LiquidationController {
     })
     @Audit(departName = "shops")
     @PutMapping("/shops/{shopId}/liquidation/start")
-    public Object startLiquidations(@PathVariable("shopId")Integer shopId,
+    public Object startLiquidations(@PathVariable("shopId")Long shopId,
                                     @RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime beginTime,
                                     @RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime endTime)
     {
