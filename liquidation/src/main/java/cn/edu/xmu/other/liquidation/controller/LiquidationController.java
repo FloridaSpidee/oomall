@@ -6,8 +6,6 @@ import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.liquidation.constant.TimeFormat;
 import cn.edu.xmu.other.liquidation.service.LiquidationService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
-import cn.edu.xmu.privilegegateway.annotation.util.Common;
-import cn.edu.xmu.privilegegateway.annotation.util.ReturnObject;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,8 +70,8 @@ public class LiquidationController {
     })
     @Audit
     @GetMapping("/shops/{shopId}/liquidation")
-    public Object getSimpleLiquInfo(@PathVariable("shopId")Integer shopId, @RequestParam(name="beginDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime LocalDateTime beginDate,
-                                    @RequestParam(name="endDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime LocalDateTime endDate,
+    public Object getSimpleLiquInfo(@PathVariable("shopId")Integer shopId, @RequestParam(name="beginDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime beginDate,
+                                    @RequestParam(name="endDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime endDate,
                                     @RequestParam(name = "state", required = false)Boolean state,
                                     @RequestParam(name = "page", required = false) Integer page,
                                     @RequestParam(name = "pageSize", required = false) Integer pageSize)
