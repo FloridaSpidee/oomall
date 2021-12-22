@@ -4,6 +4,7 @@ import cn.edu.xmu.oomall.core.util.Common;
 import cn.edu.xmu.oomall.core.util.ReturnNo;
 import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.liquidation.constant.TimeFormat;
+import cn.edu.xmu.other.liquidation.model.vo.DetailLiquRetVo;
 import cn.edu.xmu.other.liquidation.model.vo.SimpleLiquRetVo;
 import cn.edu.xmu.other.liquidation.service.LiquidationService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
@@ -102,9 +103,10 @@ public class LiquidationController {
     })
     @Audit
     @GetMapping("/shops/{shopId}/liquidation/{id}")
-    public Object getDetailLiquInfo(@PathVariable("shopId")Long shopId,@PathVariable("id")Long Id)
+    public Object getDetailLiquInfo(@RequestBody DetailLiquRetVo detailLiquRetVo, @PathVariable("shopId")Long shopId, @PathVariable("id")Long Id)
     {
-
+        ReturnObject ret=liquidationService.getDetailLiquInfo(detailLiquRetVo,shopId,Id);
+        return Common.decorateReturnObject(ret);
     }
 
     @ApiOperation(value = "开始清算")

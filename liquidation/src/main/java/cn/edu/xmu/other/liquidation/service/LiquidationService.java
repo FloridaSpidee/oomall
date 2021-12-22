@@ -6,6 +6,7 @@ import cn.edu.xmu.other.liquidation.dao.LiquidationDao;
 
 import cn.edu.xmu.other.liquidation.microservice.ShopService;
 import cn.edu.xmu.other.liquidation.microservice.vo.SimpleShopVo;
+import cn.edu.xmu.other.liquidation.model.vo.DetailLiquRetVo;
 import cn.edu.xmu.other.liquidation.model.vo.SimpleLiquRetVo;
 import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class LiquidationService {
     @Transactional(readOnly = true,rollbackFor = Exception.class)
     public ReturnObject getSimpleLiquInfo(SimpleLiquRetVo simpleLiquRetVo,Long shopId, Byte state, LocalDateTime beginDate, LocalDateTime endDate, Integer page, Integer pageSize)
     {
-        if(shopId!=null)
+        if(shopId!=null&&shopId!=0)
         {
             InternalReturnObject<SimpleShopVo> shopVoReturnObject= shopService.getShopInfo(shopId);
             if (shopVoReturnObject.getData() == null) {
@@ -47,5 +48,18 @@ public class LiquidationService {
             }
         }
         return liquidationDao.getSimpleLiquInfo(simpleLiquRetVo,shopId,state,beginDate,endDate,page,pageSize);
+    }
+
+    @Transactional(readOnly = true,rollbackFor = Exception.class)
+    public ReturnObject getDetailLiquInfo(DetailLiquRetVo detailLiquRetVo,Long shopId,Long id)
+    {
+        if(shopId!=null&&shopId!=0)
+        {
+            InternalReturnObject<SimpleShopVo> shopVoReturnObject= shopService.getShopInfo(shopId);
+            if (shopVoReturnObject.getData() == null) {
+                return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST, "不存在该商铺");
+            }
+        }
+        return liquidationDao.getDetailLiquInfo(detailLiquRetVo,shopId,id);
     }
 }

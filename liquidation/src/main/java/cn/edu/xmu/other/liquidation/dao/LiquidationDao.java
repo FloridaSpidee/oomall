@@ -9,13 +9,11 @@ import cn.edu.xmu.other.liquidation.microservice.vo.SimpleShopVo;
 import cn.edu.xmu.other.liquidation.model.bo.Liquidation;
 import cn.edu.xmu.other.liquidation.model.po.LiquidationPo;
 import cn.edu.xmu.other.liquidation.model.po.LiquidationPoExample;
-import cn.edu.xmu.other.liquidation.model.vo.SimpleLiquRetVo;
-import cn.edu.xmu.other.liquidation.model.vo.SimpleShopRetVo;
+import cn.edu.xmu.other.liquidation.model.vo.*;
 import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import cn.edu.xmu.other.liquidation.model.bo.Liquidation;
-import cn.edu.xmu.other.liquidation.model.vo.StateRetVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,5 +151,34 @@ public class LiquidationDao {
                 logger.error(e.getMessage());
                 return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,e.getMessage());
             }
+    }
+
+    public ReturnObject getDetailLiquInfo(DetailLiquRetVo detailLiquRetVo, Long shopId,Long id)
+    {
+        LiquidationPoExample liquidationPoExample=new LiquidationPoExample();
+        LiquidationPoExample.Criteria criteria=liquidationPoExample.createCriteria();
+        if(shopId!=0)
+            criteria.andShopIdEqualTo(shopId);
+        criteria.andIdEqualTo(id);
+        try{
+            List<LiquidationPo> liquidationPos=liquidationPoMapper.selectByExample(liquidationPoExample);
+            if(liquidationPos.size()==0)
+            {
+                return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST,"清算单不存在");
+            }
+            List<DetailLiquRetVo> detailLiquRetVos=new ArrayList<>();
+            InternalReturnObject<SimpleShopVo> shopVoReturnObject=shopService.getShopInfo(liquidationPos.get(0).getShopId());
+            DetailLiquRetVo detailLiquRetVo1=cloneVo(liquidationPos.get(0),DetailLiquRetVo.class);
+            SimpleShopRetVo simpleShopRetVo=new SimpleShopRetVo();
+            simpleShopRetVo.setId(shopVoReturnObject.getData().getId());
+            simpleShopRetVo.setName(shopVoReturnObject.getData().getName());
+            detailLiquRetVo1.setSimpleShopVo(simpleShopRetVo);
+            detailLiquRetVo1.setCreator(new SimpleUserRetVo(liquidationPos.get(0).getCreatorId(),liquidationPos.get(0).getCreatorName()));
+            detailLiquRetVo1.setModifier(new SimpleUserRetVo(liquidationPos.get(0).getModifierId(),liquidationPos.get(0).getModifierName()));
+            return new ReturnObject<>(detailLiquRetVo1);
+        }catch (Exception e){
+            logger.error(e.getMessage());
+            return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,e.getMessage());
+        }
     }
 }
