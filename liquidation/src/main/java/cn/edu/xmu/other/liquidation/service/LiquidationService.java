@@ -28,7 +28,7 @@ public class LiquidationService {
     }
 
     @Transactional(readOnly = true,rollbackFor = Exception.class)
-    public ReturnObject getSimpleLiquInfo(Integer shopId, Byte state, LocalDateTime beginTime, LocalDateTime endTime, Integer page, Integer pageSize)
+    public ReturnObject getSimpleLiquInfo(Integer shopId, Boolean state, LocalDateTime beginTime, LocalDateTime endTime, Integer page, Integer pageSize)
     {
         if(shopId!=null)
         {
