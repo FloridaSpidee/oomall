@@ -6,6 +6,7 @@ import cn.edu.xmu.other.liquidation.dao.LiquidationDao;
 
 import cn.edu.xmu.other.liquidation.microservice.ShopService;
 import cn.edu.xmu.other.liquidation.microservice.vo.SimpleShopVo;
+import cn.edu.xmu.other.liquidation.model.vo.SimpleLiquRetVo;
 import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,7 @@ public class LiquidationService {
     }
 
     @Transactional(readOnly = true,rollbackFor = Exception.class)
-    public ReturnObject getSimpleLiquInfo(Long shopId, Boolean state, LocalDateTime beginTime, LocalDateTime endTime, Integer page, Integer pageSize)
+    public ReturnObject getSimpleLiquInfo(SimpleLiquRetVo simpleLiquRetVo,Long shopId, Byte state, LocalDateTime beginDate, LocalDateTime endDate, Integer page, Integer pageSize)
     {
         if(shopId!=null)
         {
@@ -45,5 +46,6 @@ public class LiquidationService {
                 return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST, "不存在该商铺");
             }
         }
+        return liquidationDao.getSimpleLiquInfo(simpleLiquRetVo,shopId,state,beginDate,endDate,page,pageSize);
     }
 }

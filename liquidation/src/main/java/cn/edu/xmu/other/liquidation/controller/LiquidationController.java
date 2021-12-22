@@ -4,6 +4,7 @@ import cn.edu.xmu.oomall.core.util.Common;
 import cn.edu.xmu.oomall.core.util.ReturnNo;
 import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.liquidation.constant.TimeFormat;
+import cn.edu.xmu.other.liquidation.model.vo.SimpleLiquRetVo;
 import cn.edu.xmu.other.liquidation.service.LiquidationService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
 import io.swagger.annotations.*;
@@ -70,9 +71,9 @@ public class LiquidationController {
     })
     @Audit
     @GetMapping("/shops/{shopId}/liquidation")
-    public Object getSimpleLiquInfo(@PathVariable("shopId")Long shopId, @RequestParam(name="beginDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime beginDate,
+    public Object getSimpleLiquInfo(@RequestBody SimpleLiquRetVo simpleLiquRetVo, @PathVariable("shopId")Long shopId, @RequestParam(name="beginDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime beginDate,
                                     @RequestParam(name="endDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime endDate,
-                                    @RequestParam(name = "state", required = false)Boolean state,
+                                    @RequestParam(name = "state", required = false)Byte state,
                                     @RequestParam(name = "page", required = false) Integer page,
                                     @RequestParam(name = "pageSize", required = false) Integer pageSize)
     {
@@ -82,7 +83,7 @@ public class LiquidationController {
                 return Common.decorateReturnObject(new ReturnObject(ReturnNo.LATE_BEGINTIME, "开始时间不能晚于结束时间"));
             }
         }
-        ReturnObject ret= liquidationService.getSimpleLiquInfo(shopId,state,TimeFormat.ZonedDateTime2LocalDateTime(beginDate),TimeFormat.ZonedDateTime2LocalDateTime(endDate),page,pageSize);
+        ReturnObject ret= liquidationService.getSimpleLiquInfo(simpleLiquRetVo,shopId,state,TimeFormat.ZonedDateTime2LocalDateTime(beginDate),TimeFormat.ZonedDateTime2LocalDateTime(endDate),page,pageSize);
         return Common.decorateReturnObject(ret);
     }
 
