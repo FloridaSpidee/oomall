@@ -4,10 +4,14 @@ import cn.edu.xmu.oomall.core.util.Common;
 import cn.edu.xmu.oomall.core.util.ReturnNo;
 import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.liquidation.mapper.LiquidationPoMapper;
+import cn.edu.xmu.other.liquidation.microservice.ShopService;
+import cn.edu.xmu.other.liquidation.microservice.vo.SimpleShopVo;
 import cn.edu.xmu.other.liquidation.model.bo.Liquidation;
 import cn.edu.xmu.other.liquidation.model.po.LiquidationPo;
 import cn.edu.xmu.other.liquidation.model.po.LiquidationPoExample;
 import cn.edu.xmu.other.liquidation.model.vo.SimpleLiquRetVo;
+import cn.edu.xmu.other.liquidation.model.vo.SimpleShopRetVo;
+import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import cn.edu.xmu.other.liquidation.model.bo.Liquidation;
@@ -17,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
@@ -24,6 +29,7 @@ import static cn.edu.xmu.privilegegateway.annotation.util.Common.cloneVo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 
 @Repository
 public class LiquidationDao {
@@ -31,6 +37,9 @@ public class LiquidationDao {
 
     @Autowired
     LiquidationPoMapper liquidationPoMapper;
+
+    @Resource
+    ShopService shopService;
 
     public ReturnObject getLiquidationByPrimaryKey(Long id)
     {
@@ -122,9 +131,24 @@ public class LiquidationDao {
             try{
                 PageHelper.startPage(page,pagesize);
                 List<LiquidationPo>liquidationPos=liquidationPoMapper.selectByExample(liquidationPoExample);
-                PageInfo<LiquidationPo>pageInfo=new PageInfo<>(liquidationPos);
-                ReturnObject ret=new ReturnObject(pageInfo);
-                return Common.getPageRetVo(ret,SimpleLiquRetVo.class);
+                List<SimpleLiquRetVo> simpleLiquRetVos=new ArrayList<>();
+                for(var v:liquidationPos)
+                {
+                    InternalReturnObject<SimpleShopVo> shopVoReturnObject=shopService.getShopInfo(v.getShopId());
+                    SimpleLiquRetVo simpleLiquRetVo1=cloneVo(v,SimpleLiquRetVo.class);
+                    if(shopVoReturnObject!=null)
+                    {
+                        SimpleShopRetVo simpleShopRetVo=new SimpleShopRetVo();
+                        simpleShopRetVo.setId(shopVoReturnObject.getData().getId());
+                        simpleShopRetVo.setName(shopVoReturnObject.getData().getName());
+                        simpleLiquRetVo1.setSimpleShopVo(simpleShopRetVo);
+                    }
+                    simpleLiquRetVos.add(simpleLiquRetVo1);
+                }
+                PageInfo<SimpleLiquRetVo>pageInfo=new PageInfo<>(simpleLiquRetVos);
+//                ReturnObject ret=new ReturnObject(pageInfo);
+//                return Common.getPageRetVo(ret,SimpleLiquRetVo.class);
+                return new ReturnObject(pageInfo);
             }catch (Exception e){
                 logger.error(e.getMessage());
                 return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,e.getMessage());
