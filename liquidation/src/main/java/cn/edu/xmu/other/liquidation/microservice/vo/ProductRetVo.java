@@ -1,16 +1,17 @@
-package cn.edu.xmu.other.share.microservice.vo;
+package cn.edu.xmu.other.liquidation.microservice.vo;
 
+import cn.edu.xmu.other.liquidation.model.vo.SimpleProductRetVo;
+import cn.edu.xmu.other.liquidation.model.vo.SimpleShopRetVo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductRetVo {
     private Long id;
-    private SimpleObject shop;
+    private SimpleShopRetVo shop;
     private Long goodsId;
     private Long onSaleId;
     private String name;
@@ -26,4 +27,8 @@ public class ProductRetVo {
     private String originPlace;
     private SimpleObject category;
     private Boolean shareable;
+    public SimpleProductRetVo getSimpleProduct()
+    {
+        return new SimpleProductRetVo(id,name);
+    }
 }

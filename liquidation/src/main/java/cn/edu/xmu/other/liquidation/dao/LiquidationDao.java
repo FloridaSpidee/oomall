@@ -1,10 +1,10 @@
 package cn.edu.xmu.other.liquidation.dao;
 
-import cn.edu.xmu.oomall.core.util.Common;
 import cn.edu.xmu.oomall.core.util.ReturnNo;
 import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.liquidation.mapper.LiquidationPoMapper;
 import cn.edu.xmu.other.liquidation.microservice.ShopService;
+import cn.edu.xmu.other.liquidation.model.vo.SimpleShopRetVo;
 import cn.edu.xmu.other.liquidation.microservice.vo.SimpleShopVo;
 import cn.edu.xmu.other.liquidation.model.bo.Liquidation;
 import cn.edu.xmu.other.liquidation.model.po.LiquidationPo;
@@ -13,7 +13,6 @@ import cn.edu.xmu.other.liquidation.model.vo.*;
 import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import cn.edu.xmu.other.liquidation.model.bo.Liquidation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +24,7 @@ import java.util.ArrayList;
 
 import static cn.edu.xmu.privilegegateway.annotation.util.Common.cloneVo;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 @Repository
 public class LiquidationDao {

@@ -8,6 +8,7 @@ import cn.edu.xmu.other.liquidation.model.vo.DetailLiquRetVo;
 import cn.edu.xmu.other.liquidation.model.vo.SimpleLiquRetVo;
 import cn.edu.xmu.other.liquidation.service.ExpenditureService;
 import cn.edu.xmu.other.liquidation.service.LiquidationService;
+import cn.edu.xmu.other.liquidation.service.RevenueService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
 import io.swagger.annotations.*;
 import org.apache.ibatis.ognl.ObjectElementsAccessor;
@@ -42,6 +43,9 @@ public class LiquidationController {
 
     @Autowired
     private ExpenditureService expenditureService;
+
+    @Autowired
+    private RevenueService revenueService;
 
     /**
      *获得清算单的所有状态
@@ -112,6 +116,7 @@ public class LiquidationController {
     public Object getDetailLiquInfo(@RequestBody DetailLiquRetVo detailLiquRetVo, @PathVariable("shopId")Long shopId, @PathVariable("id")Long Id)
     {
         ReturnObject ret=liquidationService.getDetailLiquInfo(detailLiquRetVo,shopId,Id);
+        if(!ret.getCode().equals(ReturnNo.OK)) return Common.decorateReturnObject(ret);
         return Common.decorateReturnObject(ret);
     }
 
@@ -135,7 +140,8 @@ public class LiquidationController {
                              @RequestParam(name = "page", required = false) Integer page,
                              @RequestParam(name = "pageSize",  required = false) Integer pageSize)
     {
-        var ret=expenditureService.getRevenue(shopId,orderId,productId,liquidationId,page,pageSize);
+        var ret=revenueService.getRevenue(shopId,orderId,productId,liquidationId,page,pageSize);
+        if(!ret.getCode().equals(ReturnNo.OK)) return Common.decorateReturnObject(ret);
         return Common.decorateReturnObject(Common.getPageRetObject(ret));
     }
 
@@ -160,6 +166,7 @@ public class LiquidationController {
                                  @RequestParam(name = "pageSize",  required = false) Integer pageSize)
     {
         var ret=expenditureService.getExpenditure(shopId,orderId,productId,liquidationId,page,pageSize);
+        if(!ret.getCode().equals(ReturnNo.OK)) return Common.decorateReturnObject(ret);
         return Common.decorateReturnObject(Common.getPageRetObject(ret));
     }
 
@@ -174,7 +181,8 @@ public class LiquidationController {
                                            @PathVariable(value = "id") Long id
     )
     {
-        var ret=expenditureService.adminGgetExpenditureById(shopId,id);
+        var ret=revenueService.adminGgetExpenditureById(shopId,id);
+        if(!ret.getCode().equals(ReturnNo.OK)) return Common.decorateReturnObject(ret);
         return Common.decorateReturnObject(Common.getPageRetObject(ret));
     }
 
