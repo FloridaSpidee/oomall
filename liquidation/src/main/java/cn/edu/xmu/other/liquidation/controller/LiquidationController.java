@@ -6,9 +6,12 @@ import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.liquidation.constant.TimeFormat;
 import cn.edu.xmu.other.liquidation.model.vo.DetailLiquRetVo;
 import cn.edu.xmu.other.liquidation.model.vo.SimpleLiquRetVo;
+import cn.edu.xmu.other.liquidation.service.ExpenditureService;
 import cn.edu.xmu.other.liquidation.service.LiquidationService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
 import io.swagger.annotations.*;
+import org.apache.ibatis.ognl.ObjectElementsAccessor;
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,6 +39,9 @@ public class LiquidationController {
 
     @Autowired
     private LiquidationService liquidationService;
+
+    @Autowired
+    private ExpenditureService expenditureService;
 
     /**
      *获得清算单的所有状态
@@ -108,6 +114,72 @@ public class LiquidationController {
         ReturnObject ret=liquidationService.getDetailLiquInfo(detailLiquRetVo,shopId,Id);
         return Common.decorateReturnObject(ret);
     }
+
+    @ApiOperation(value = "管理员按条件查某笔的进账")
+    @ApiImplicitParams(value={
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "token", value = "用户的token", required = true),
+            @ApiImplicitParam(name = "shopId",dataType = "Integer",value = "商铺id",required = true),
+            @ApiImplicitParam(name = "orderId",dataType = "Integer",value = "订单id",required = false),
+            @ApiImplicitParam(name = "productId",dataType = "Integer:",value="货品id",required = false),
+            @ApiImplicitParam(name = "liquidationId",dataType = "Integer:",value="清算单id",required = false),
+            @ApiImplicitParam(name="page",dataType = "Integer",value = "页数",required = false),
+            @ApiImplicitParam(name="pageSize",dataType = "Integer",value = "页大小",required = false)
+
+    })
+    @Audit(departName = "shops")
+    @GetMapping("/shops/{shopId}/revenue")
+    public Object getRevenue(@PathVariable("shopId")Long shopId,
+                             @RequestParam(value = "orderId",required = false) Long orderId,
+                             @RequestParam(value = "productId,",required = false) Long productId,
+                             @RequestParam(value = "liquidationId",required = false) Long liquidationId,
+                             @RequestParam(name = "page", required = false) Integer page,
+                             @RequestParam(name = "pageSize",  required = false) Integer pageSize)
+    {
+        var ret=expenditureService.getRevenue(shopId,orderId,productId,liquidationId,page,pageSize);
+        return Common.decorateReturnObject(Common.getPageRetObject(ret));
+    }
+
+    @ApiOperation(value = "管理员按条件查对应清算单的出账")
+    @ApiImplicitParams(value={
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "token", value = "用户的token", required = true),
+            @ApiImplicitParam(name = "shopId",dataType = "Integer",value = "商铺id",required = true),
+            @ApiImplicitParam(name = "orderId",dataType = "Integer",value = "订单id",required = false),
+            @ApiImplicitParam(name = "productId",dataType = "Integer:",value="货品id",required = false),
+            @ApiImplicitParam(name = "liquidationId",dataType = "Integer:",value="清算单id",required = false),
+            @ApiImplicitParam(name="page",dataType = "Integer",value = "页数",required = false),
+            @ApiImplicitParam(name="pageSize",dataType = "Integer",value = "页大小",required = false)
+
+    })
+    @Audit(departName = "shops")
+    @GetMapping("/shops/{shopId}/expenditure")
+    public Object getExpenditure(@PathVariable("shopId")Long shopId,
+                                 @RequestParam(value = "orderId",required = false) Long orderId,
+                                 @RequestParam(value = "productId,",required = false) Long productId,
+                                 @RequestParam(value = "liquidationId",required = false) Long liquidationId,
+                                 @RequestParam(name = "page", required = false) Integer page,
+                                 @RequestParam(name = "pageSize",  required = false) Integer pageSize)
+    {
+        var ret=expenditureService.getExpenditure(shopId,orderId,productId,liquidationId,page,pageSize);
+        return Common.decorateReturnObject(Common.getPageRetObject(ret));
+    }
+
+    @ApiOperation(value = "管理员按id查出账对应的进账")
+    @ApiImplicitParams(value= {
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "token", value = "用户的token", required = true),
+            @ApiImplicitParam(name = "shopId",dataType = "Integer",value = "商铺id",required = true),
+            @ApiImplicitParam(name = "id",dataType = "Integer",value = "出账单id",required = true)
+    })
+    @GetMapping("/shops/{shopId}/expenditure/{id}/revenue")
+    public Object adminGgetExpenditureById(@PathVariable(value = "shopId") Long shopId,
+                                           @PathVariable(value = "id") Long id
+    )
+    {
+        var ret=expenditureService.adminGgetExpenditureById(shopId,id);
+        return Common.decorateReturnObject(Common.getPageRetObject(ret));
+    }
+
+
+
 
     @ApiOperation(value = "开始清算")
     @ApiImplicitParams(value={
