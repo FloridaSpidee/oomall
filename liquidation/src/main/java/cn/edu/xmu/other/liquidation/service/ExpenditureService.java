@@ -5,31 +5,40 @@ import cn.edu.xmu.oomall.core.util.ReturnNo;
 import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.liquidation.dao.ExpenditureDao;
 import cn.edu.xmu.other.liquidation.microservice.GoodsService;
+import cn.edu.xmu.other.liquidation.microservice.ShopService;
 import cn.edu.xmu.other.liquidation.microservice.vo.ProductRetVo;
 import cn.edu.xmu.other.liquidation.model.bo.Expenditure;
+
 import cn.edu.xmu.other.liquidation.model.po.ExpenditurePoExample;
-import cn.edu.xmu.other.liquidation.model.vo.GeneralLedgersRetVo;
-import cn.edu.xmu.other.liquidation.model.vo.SimpleProductRetVo;
-import cn.edu.xmu.other.liquidation.model.vo.SimpleShopRetVo;
+import cn.edu.xmu.other.liquidation.model.vo.*;
+import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static cn.edu.xmu.privilegegateway.annotation.util.Common.cloneVo;
 
 @Service
 public class ExpenditureService {
     private static final Logger logger = LoggerFactory.getLogger(LiquidationService.class);
 
     @Autowired
-    ExpenditureDao expenditureDao;
+    private ExpenditureDao expenditureDao;
+
     @Autowired
-    GoodsService goodsService;
+    private GoodsService goodsService;
 
-
+    @Resource
+    private ShopService shopService;
     /**
      * 管理员按条件查对应清算单的出账
      *
@@ -90,5 +99,49 @@ public class ExpenditureService {
         }
         pageInfo.setList(voList);
         return new ReturnObject(pageInfo);
+    }
+
+    @Transactional(readOnly = true,rollbackFor = Exception.class)
+    public ReturnObject customerGetExpenditurePointRecord(Long loginUser, ZonedDateTime beginTime, ZonedDateTime endTime, Integer page, Integer pageSize){
+        PageHelper.startPage(page, pageSize);
+
+        ReturnObject returnObj = expenditureDao.getExpenditureByShareId(loginUser,beginTime,endTime);
+        if(returnObj.getData()==null){
+            return returnObj;
+        }
+        List<ExpenditurePointRetVo> expenditurePointRetList = new ArrayList<>();
+        List<Expenditure> expenditureList = (List<Expenditure>)returnObj.getData();
+        for(Expenditure expenditure:expenditureList){
+            InternalReturnObject internalReturnObject = shopService.getShopInfo(expenditure.getShopId());
+            if(internalReturnObject.getData()==null){
+                return new ReturnObject(internalReturnObject.getErrno());
+            }
+            SimpleShopRetVo simpleShopRetVo = (SimpleShopRetVo) cloneVo(internalReturnObject.getData(),SimpleShopRetVo.class);
+            ExpenditurePointRetVo expenditurePointRetVo = (ExpenditurePointRetVo) cloneVo(expenditure,ExpenditurePointRetVo.class);
+            expenditurePointRetVo.setShop(simpleShopRetVo);
+            SimpleProductRetVo simpleProductRetVo = new SimpleProductRetVo();
+            SimpleUserRetVo creator = new SimpleUserRetVo();
+            SimpleUserRetVo modifier = new SimpleUserRetVo();
+
+            simpleProductRetVo.setId(expenditure.getProductId());
+            simpleProductRetVo.setName(expenditure.getProductName());
+
+            creator.setId(expenditure.getCreatorId());
+            creator.setName(expenditure.getCreatorName());
+            modifier.setId(expenditure.getModifierId());
+            modifier.setName(expenditure.getModifierName());
+
+            expenditurePointRetVo.setCreator(creator);
+            expenditurePointRetVo.setModifier(modifier);
+
+            expenditurePointRetList.add(expenditurePointRetVo);
+        }
+        var pageInfo = new PageInfo<>(expenditurePointRetList);
+        pageInfo.setPages(PageInfo.of(expenditureList).getPages());
+        pageInfo.setTotal(PageInfo.of(expenditureList).getTotal());
+        pageInfo.setPageNum(page);
+        pageInfo.setPageSize(pageSize);
+
+        return new ReturnObject(new PageInfoVo<>(pageInfo));
     }
 }

@@ -10,6 +10,8 @@ import cn.edu.xmu.other.liquidation.service.ExpenditureService;
 import cn.edu.xmu.other.liquidation.service.LiquidationService;
 import cn.edu.xmu.other.liquidation.service.RevenueService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
+import cn.edu.xmu.privilegegateway.annotation.aop.LoginName;
+import cn.edu.xmu.privilegegateway.annotation.aop.LoginUser;
 import io.swagger.annotations.*;
 import org.apache.ibatis.ognl.ObjectElementsAccessor;
 import org.checkerframework.checker.units.qual.A;
@@ -211,7 +213,7 @@ public class LiquidationController {
         if (shopId != 0) {
             return Common.decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE));
         }
-
+        return Common.decorateReturnObject(liquidationService.startLiquidations(shopId,beginTime,endTime));
     }
 
     @ApiOperation(value = "用户获取自己因分享得到收入返点的记录")
@@ -230,7 +232,9 @@ public class LiquidationController {
     public Object getRevenuePointRecords(@RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime beginTime,
                                          @RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime endTime,
                                          @RequestParam(name = "page", required = false) Integer page,
-                                         @RequestParam(name = "pageSize",  required = false) Integer pageSize)
+                                         @RequestParam(name = "pageSize",  required = false) Integer pageSize,
+                                         @LoginUser Long loginUser,
+                                         @LoginName String loginUserName)
     {
         //输入参数合法性检查
         if(beginTime!=null&&endTime!=null) {
@@ -238,7 +242,9 @@ public class LiquidationController {
                 return Common.decorateReturnObject(new ReturnObject(ReturnNo.LATE_BEGINTIME, "开始时间不能晚于结束时间"));
             }
         }
-
+        ReturnObject returnObj = revenueService.customerGetRevenuePointRecord(loginUser,beginTime,endTime,page,pageSize);
+        if(!returnObj.getCode().equals(ReturnNo.OK)) return Common.decorateReturnObject(returnObj);
+        return Common.decorateReturnObject(Common.getPageRetObject(returnObj));
     }
 
 
@@ -258,7 +264,9 @@ public class LiquidationController {
     public Object getExpenditurePointRecords(@RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime beginTime,
                                              @RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime endTime,
                                              @RequestParam(name = "page", required = false) Integer page,
-                                             @RequestParam(name = "pageSize",  required = false) Integer pageSize)
+                                             @RequestParam(name = "pageSize",  required = false) Integer pageSize,
+                                             @LoginUser Long loginUser,
+                                             @LoginName String loginUserName)
     {
         //输入参数合法性检查
         if(beginTime!=null&&endTime!=null) {
@@ -266,6 +274,8 @@ public class LiquidationController {
                 return Common.decorateReturnObject(new ReturnObject(ReturnNo.LATE_BEGINTIME, "开始时间不能晚于结束时间"));
             }
         }
-
+        ReturnObject returnObj = expenditureService.customerGetExpenditurePointRecord(loginUser,beginTime,endTime,page,pageSize);
+        if(!returnObj.getCode().equals(ReturnNo.OK)) return Common.decorateReturnObject(returnObj);
+        return Common.decorateReturnObject(Common.getPageRetObject(returnObj));
     }
 }

@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 /**
  * @Auther hongyu lei
@@ -61,5 +62,12 @@ public class LiquidationService {
             }
         }
         return liquidationDao.getDetailLiquInfo(detailLiquRetVo,shopId,id);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnObject startLiquidations(Long shopId, ZonedDateTime beginTime,ZonedDateTime endTime){
+
+
+        return new ReturnObject(ReturnNo.OK);
     }
 }

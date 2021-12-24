@@ -16,7 +16,7 @@ import java.time.ZonedDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @ApiModel(description = "收入视图对象")
-public class RevenueRetVo {
+public class RevenuePointRetVo {
     private Long id;
     private SimpleShopRetVo shop;
     private SimpleProductRetVo product;
@@ -31,5 +31,5 @@ public class RevenueRetVo {
     private ZonedDateTime gmtCreate;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "uuuu-MM-dd'T'HH:mm:ss.SSSXXX",timezone = "GMT+8")
     private ZonedDateTime gmtModified;
-    private SimpleProductRetVo modifier;
+    private SimpleUserRetVo modifier;
 }
