@@ -142,13 +142,15 @@ public class RevenueService {
             return returnObj;
         }
         List<RevenuePointRetVo> revenuePointRetList = new ArrayList<>();
+
         List<Revenue> revenueList = (List<Revenue>)returnObj.getData();
         for(Revenue revenue:revenueList){
             InternalReturnObject internalReturnObject = shopService.getShopInfo(revenue.getShopId());
             if(internalReturnObject.getData()==null){
                 return new ReturnObject(internalReturnObject.getErrno());
             }
-            SimpleShopRetVo simpleShopRetVo = (SimpleShopRetVo) cloneVo(internalReturnObject.getData(),SimpleShopRetVo.class);
+            SimpleShopVo simpleShopVo = (SimpleShopVo)internalReturnObject.getData();
+            SimpleShopRetVo simpleShopRetVo = (SimpleShopRetVo) cloneVo(simpleShopVo,SimpleShopRetVo.class);
             RevenuePointRetVo revenuePointRetVo = (RevenuePointRetVo) cloneVo(revenue,RevenuePointRetVo.class);
             revenuePointRetVo.setShop(simpleShopRetVo);
             SimpleProductRetVo simpleProductRetVo = new SimpleProductRetVo();

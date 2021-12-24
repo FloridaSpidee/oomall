@@ -7,6 +7,7 @@ import cn.edu.xmu.other.liquidation.dao.ExpenditureDao;
 import cn.edu.xmu.other.liquidation.microservice.GoodsService;
 import cn.edu.xmu.other.liquidation.microservice.ShopService;
 import cn.edu.xmu.other.liquidation.microservice.vo.ProductRetVo;
+import cn.edu.xmu.other.liquidation.microservice.vo.SimpleShopVo;
 import cn.edu.xmu.other.liquidation.model.bo.Expenditure;
 
 import cn.edu.xmu.other.liquidation.model.po.ExpenditurePoExample;
@@ -116,7 +117,8 @@ public class ExpenditureService {
             if(internalReturnObject.getData()==null){
                 return new ReturnObject(internalReturnObject.getErrno());
             }
-            SimpleShopRetVo simpleShopRetVo = (SimpleShopRetVo) cloneVo(internalReturnObject.getData(),SimpleShopRetVo.class);
+            SimpleShopVo simpleShopVo = (SimpleShopVo)internalReturnObject.getData();
+            SimpleShopRetVo simpleShopRetVo = (SimpleShopRetVo) cloneVo(simpleShopVo,SimpleShopRetVo.class);
             ExpenditurePointRetVo expenditurePointRetVo = (ExpenditurePointRetVo) cloneVo(expenditure,ExpenditurePointRetVo.class);
             expenditurePointRetVo.setShop(simpleShopRetVo);
             SimpleProductRetVo simpleProductRetVo = new SimpleProductRetVo();

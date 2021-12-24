@@ -225,7 +225,8 @@ public class LiquidationController {
             @ApiImplicitParam(name="pageSize",dataType = "Integer",value = "页大小",required = false)
     })
     @ApiResponses(value = {
-            @ApiResponse(code = 0, message = "成功")
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 947,message = "开始时间不能晚于结束时间")
     })
     @Audit(departName = "shops")
     @GetMapping("/pointrecords/revenue")
@@ -233,8 +234,7 @@ public class LiquidationController {
                                          @RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime endTime,
                                          @RequestParam(name = "page", required = false) Integer page,
                                          @RequestParam(name = "pageSize",  required = false) Integer pageSize,
-                                         @LoginUser Long loginUser,
-                                         @LoginName String loginUserName)
+                                         @LoginUser Long loginUser)
     {
         //输入参数合法性检查
         if(beginTime!=null&&endTime!=null) {
@@ -242,9 +242,8 @@ public class LiquidationController {
                 return Common.decorateReturnObject(new ReturnObject(ReturnNo.LATE_BEGINTIME, "开始时间不能晚于结束时间"));
             }
         }
-        ReturnObject returnObj = revenueService.customerGetRevenuePointRecord(loginUser,beginTime,endTime,page,pageSize);
-        if(!returnObj.getCode().equals(ReturnNo.OK)) return Common.decorateReturnObject(returnObj);
-        return Common.decorateReturnObject(Common.getPageRetObject(returnObj));
+        return Common.decorateReturnObject(revenueService.customerGetRevenuePointRecord(loginUser,beginTime,endTime,page,pageSize));
+
     }
 
 
@@ -257,7 +256,8 @@ public class LiquidationController {
             @ApiImplicitParam(name="pageSize",dataType = "Integer",value = "页大小",required = false)
     })
     @ApiResponses(value = {
-            @ApiResponse(code = 0, message = "成功")
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 947,message = "开始时间不能晚于结束时间")
     })
     @Audit(departName = "shops")
     @GetMapping("/pointrecords/expenditure")
@@ -265,8 +265,7 @@ public class LiquidationController {
                                              @RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime endTime,
                                              @RequestParam(name = "page", required = false) Integer page,
                                              @RequestParam(name = "pageSize",  required = false) Integer pageSize,
-                                             @LoginUser Long loginUser,
-                                             @LoginName String loginUserName)
+                                             @LoginUser Long loginUser)
     {
         //输入参数合法性检查
         if(beginTime!=null&&endTime!=null) {
@@ -274,8 +273,6 @@ public class LiquidationController {
                 return Common.decorateReturnObject(new ReturnObject(ReturnNo.LATE_BEGINTIME, "开始时间不能晚于结束时间"));
             }
         }
-        ReturnObject returnObj = expenditureService.customerGetExpenditurePointRecord(loginUser,beginTime,endTime,page,pageSize);
-        if(!returnObj.getCode().equals(ReturnNo.OK)) return Common.decorateReturnObject(returnObj);
-        return Common.decorateReturnObject(Common.getPageRetObject(returnObj));
+        return Common.decorateReturnObject(expenditureService.customerGetExpenditurePointRecord(loginUser,beginTime,endTime,page,pageSize));
     }
 }
