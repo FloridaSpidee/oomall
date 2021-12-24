@@ -82,19 +82,19 @@ public class LiquidationController {
     })
     @Audit
     @GetMapping("/shops/{shopId}/liquidation")
-    public Object getSimpleLiquInfo(@RequestBody SimpleLiquRetVo simpleLiquRetVo, @PathVariable("shopId")Long shopId, @RequestParam(name="beginDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime beginDate,
+    public Object getSimpleLiquInfo(@PathVariable("shopId")Long shopId, @RequestParam(name="beginDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime beginDate,
                                     @RequestParam(name="endDate", required = false)@DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime endDate,
                                     @RequestParam(name = "state", required = false)Byte state,
                                     @RequestParam(name = "page", required = false) Integer page,
                                     @RequestParam(name = "pageSize", required = false) Integer pageSize)
     {
         //输入参数合法性检查
-        if(beginDate!=null&&endDate!=null) {
+        if(beginDate!=null && endDate!=null) {
             if(beginDate.isAfter(endDate)) {
                 return Common.decorateReturnObject(new ReturnObject(ReturnNo.LATE_BEGINTIME, "开始时间不能晚于结束时间"));
             }
         }
-        ReturnObject ret= liquidationService.getSimpleLiquInfo(simpleLiquRetVo,shopId,state,TimeFormat.ZonedDateTime2LocalDateTime(beginDate),TimeFormat.ZonedDateTime2LocalDateTime(endDate),page,pageSize);
+        ReturnObject ret= liquidationService.getSimpleLiquInfo(shopId,state,TimeFormat.ZonedDateTime2LocalDateTime(beginDate),TimeFormat.ZonedDateTime2LocalDateTime(endDate),page,pageSize);
         return Common.decorateReturnObject(ret);
     }
 
@@ -113,9 +113,9 @@ public class LiquidationController {
     })
     @Audit
     @GetMapping("/shops/{shopId}/liquidation/{id}")
-    public Object getDetailLiquInfo(@RequestBody DetailLiquRetVo detailLiquRetVo, @PathVariable("shopId")Long shopId, @PathVariable("id")Long Id)
+    public Object getDetailLiquInfo( @PathVariable("shopId")Long shopId, @PathVariable("id")Long Id)
     {
-        ReturnObject ret=liquidationService.getDetailLiquInfo(detailLiquRetVo,shopId,Id);
+        ReturnObject ret=liquidationService.getDetailLiquInfo(shopId,Id);
         if(!ret.getCode().equals(ReturnNo.OK)) return Common.decorateReturnObject(ret);
         return Common.decorateReturnObject(ret);
     }

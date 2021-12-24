@@ -63,7 +63,7 @@ public class LiquidationTest1 {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectString = "{\"errno\":0,\"data\":{\"total\":4,\"pages\":1,\"pageSize\":4,\"page\":1,\"list\":[{\"id\":1,\"simpleShopVo\":{\"id\":1,\"name\":\"shop1\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":12,\"commission\":12,\"shopRevenue\":1,\"point\":10,\"state\":1},{\"id\":2,\"simpleShopVo\":{\"id\":1,\"name\":\"shop1\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":11,\"commission\":11,\"shopRevenue\":1,\"point\":11,\"state\":1},{\"id\":3,\"simpleShopVo\":{\"id\":2,\"name\":\"shop2\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":13,\"commission\":13,\"shopRevenue\":1,\"point\":13,\"state\":1},{\"id\":4,\"simpleShopVo\":{\"id\":2,\"name\":\"shop2\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":14,\"commission\":14,\"shopRevenue\":1,\"point\":14,\"state\":1}]},\"errmsg\":\"成功\"}";
+        String expectString = "{\"errno\":0,\"data\":{\"total\":4,\"pages\":1,\"pageSize\":4,\"page\":1,\"list\":[{\"id\":1,\"shop\":{\"id\":1,\"name\":\"shop1\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":12,\"commission\":12,\"shopRevenue\":1,\"point\":10,\"state\":1},{\"id\":2,\"shop\":{\"id\":1,\"name\":\"shop1\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":11,\"commission\":11,\"shopRevenue\":1,\"point\":11,\"state\":0},{\"id\":3,\"shop\":{\"id\":2,\"name\":\"shop2\"},\"liquidDate\":\"2021-01-11T15:04:04.000Z\",\"expressFee\":13,\"commission\":13,\"shopRevenue\":1,\"point\":13,\"state\":1},{\"id\":4,\"shop\":{\"id\":2,\"name\":\"shop2\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":14,\"commission\":14,\"shopRevenue\":1,\"point\":14,\"state\":1}]},\"errmsg\":\"成功\"}";
         JSONAssert.assertEquals(expectString, responseString, false);
     }
 
@@ -77,7 +77,7 @@ public class LiquidationTest1 {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectString = "{\"errno\":0,\"data\":{\"total\":4,\"pages\":1,\"pageSize\":4,\"page\":1,\"list\":[{\"id\":1,\"simpleShopVo\":{\"id\":1,\"name\":\"shop1\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":12,\"commission\":12,\"shopRevenue\":1,\"point\":10,\"state\":1},{\"id\":2,\"simpleShopVo\":{\"id\":1,\"name\":\"shop1\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":11,\"commission\":11,\"shopRevenue\":1,\"point\":11,\"state\":1},{\"id\":3,\"simpleShopVo\":{\"id\":2,\"name\":\"shop2\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":13,\"commission\":13,\"shopRevenue\":1,\"point\":13,\"state\":1},{\"id\":4,\"simpleShopVo\":{\"id\":2,\"name\":\"shop2\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":14,\"commission\":14,\"shopRevenue\":1,\"point\":14,\"state\":1}]},\"errmsg\":\"成功\"}";
+        String expectString = "{\"errno\":0,\"data\":{\"total\":3,\"pages\":1,\"pageSize\":3,\"page\":1,\"list\":[{\"id\":1,\"shop\":{\"id\":1,\"name\":\"shop1\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":12,\"commission\":12,\"shopRevenue\":1,\"point\":10,\"state\":1},{\"id\":3,\"shop\":{\"id\":2,\"name\":\"shop2\"},\"liquidDate\":\"2021-01-11T15:04:04.000Z\",\"expressFee\":13,\"commission\":13,\"shopRevenue\":1,\"point\":13,\"state\":1},{\"id\":4,\"shop\":{\"id\":2,\"name\":\"shop2\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":14,\"commission\":14,\"shopRevenue\":1,\"point\":14,\"state\":1}]},\"errmsg\":\"成功\"}";
         JSONAssert.assertEquals(expectString, responseString, false);
     }
 
@@ -86,12 +86,12 @@ public class LiquidationTest1 {
     {
         Mockito.when(shopService.getShopInfo(1L)).thenReturn(new InternalReturnObject<>(new SimpleShopVo(1L,"shop1")));
         Mockito.when(shopService.getShopInfo(2L)).thenReturn(new InternalReturnObject<>(new SimpleShopVo(2L,"shop2")));
-        String responseString = this.mvc.perform(get("/shops/0/liquidation?state=1&beginTime=2021-06-21T17:38:20.000+08:00&endTime=2021-12-29T17:38:20.000+08:00").contentType("application/json;charset=UTF-8")
+        String responseString = this.mvc.perform(get("/shops/0/liquidation?state=1&beginDate=2021-06-21T17:38:20.000+08:00&endDate=2021-12-29T17:38:20.000+08:00").contentType("application/json;charset=UTF-8")
                 .header("authorization", token))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectString = "";
+        String expectString = "{\"errno\":0,\"data\":{\"total\":2,\"pages\":1,\"pageSize\":2,\"page\":1,\"list\":[{\"id\":1,\"shop\":{\"id\":1,\"name\":\"shop1\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":12,\"commission\":12,\"shopRevenue\":1,\"point\":10,\"state\":1},{\"id\":4,\"shop\":{\"id\":2,\"name\":\"shop2\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":14,\"commission\":14,\"shopRevenue\":1,\"point\":14,\"state\":1}]},\"errmsg\":\"成功\"}";
         JSONAssert.assertEquals(expectString, responseString, false);
     }
 
@@ -101,12 +101,13 @@ public class LiquidationTest1 {
     {
         Mockito.when(shopService.getShopInfo(1L)).thenReturn(new InternalReturnObject<>(new SimpleShopVo(1L,"shop1")));
         Mockito.when(shopService.getShopInfo(2L)).thenReturn(new InternalReturnObject<>(new SimpleShopVo(2L,"shop2")));
+        Mockito.when(shopService.getShopInfo(14L)).thenReturn(new InternalReturnObject<>(null));
         String responseString = this.mvc.perform(get("/shops/14/liquidation").contentType("application/json;charset=UTF-8")
                 .header("authorization", token))
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectString = "";
+        String expectString = "{\"errno\":504,\"errmsg\":\"不存在该商铺\"}";
         JSONAssert.assertEquals(expectString, responseString, false);
     }
 
@@ -116,12 +117,11 @@ public class LiquidationTest1 {
     {
         Mockito.when(shopService.getShopInfo(1L)).thenReturn(new InternalReturnObject<>(new SimpleShopVo(1L,"shop1")));
         Mockito.when(shopService.getShopInfo(2L)).thenReturn(new InternalReturnObject<>(new SimpleShopVo(2L,"shop2")));
-        String responseString = this.mvc.perform(get("/shops/0/liquidation?beginTime=2021-12-29T17:38:20.000+08:00&endTime=2021-06-21T17:38:20.000+08:00").contentType("application/json;charset=UTF-8")
+        String responseString = this.mvc.perform(get("/shops/0/liquidation?beginDate=2021-12-29T17:38:20.000+08:00&endDate=2021-06-21T17:38:20.000+08:00").contentType("application/json;charset=UTF-8")
                 .header("authorization", token))
-                .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectString = "";
+        String expectString = "{\"errno\":947,\"errmsg\":\"开始时间不能晚于结束时间\"}";
         JSONAssert.assertEquals(expectString, responseString, false);
     }
 
@@ -136,7 +136,7 @@ public class LiquidationTest1 {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectString = "";
+        String expectString = "{\"errno\":0,\"data\":{\"total\":2,\"pages\":1,\"pageSize\":2,\"page\":1,\"list\":[{\"id\":3,\"shop\":{\"id\":2,\"name\":\"shop2\"},\"liquidDate\":\"2021-01-11T15:04:04.000Z\",\"expressFee\":13,\"commission\":13,\"shopRevenue\":1,\"point\":13,\"state\":1},{\"id\":4,\"shop\":{\"id\":2,\"name\":\"shop2\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":14,\"commission\":14,\"shopRevenue\":1,\"point\":14,\"state\":1}]},\"errmsg\":\"成功\"}";
         JSONAssert.assertEquals(expectString, responseString, false);
     }
 
@@ -150,7 +150,7 @@ public class LiquidationTest1 {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectString = "{\"errno\":0,\"data\":{\"id\":2,\"simpleShopVo\":{\"id\":1,\"name\":\"shop1\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":11,\"commission\":11,\"shopRevenue\":1,\"point\":11,\"state\":1,\"creator\":{\"id\":1,\"name\":\"admin\"},\"gmtCreate\":\"2021-11-11T15:04:04.000Z\",\"gmtModified\":null,\"modifier\":{\"id\":1,\"name\":\"admin\"}},\"errmsg\":\"成功\"}";
+        String expectString = "{\"errno\":0,\"data\":{\"id\":2,\"shop\":{\"id\":1,\"name\":\"shop1\"},\"liquidDate\":\"2021-11-11T15:04:04.000Z\",\"expressFee\":11,\"commission\":11,\"shopRevenue\":1,\"point\":11,\"state\":0,\"creator\":{\"id\":1,\"name\":\"admin\"},\"gmtCreate\":\"2021-11-11T15:04:04.000Z\",\"gmtModified\":null,\"modifier\":{\"id\":1,\"name\":\"admin\"}},\"errmsg\":\"成功\"}";
         JSONAssert.assertEquals(expectString, responseString, false);
     }
 
@@ -161,7 +161,7 @@ public class LiquidationTest1 {
         Mockito.when(shopService.getShopInfo(1L)).thenReturn(new InternalReturnObject<>(new SimpleShopVo(1L,"shop1")));
         String responseString = this.mvc.perform(get("/shops/1/liquidation/3").contentType("application/json;charset=UTF-8")
                 .header("authorization", token))
-                .andExpect(status().isForbidden())
+                .andExpect(status().isNotFound())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
         String expectString = "{\"errno\":504,\"errmsg\":\"清算单不存在\"}";

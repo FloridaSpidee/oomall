@@ -1,0 +1,29 @@
+-- MySQL dump 10.13  Distrib 8.0.27, for Win64 (x86_64)
+--
+-- Host: 192.168.31.241    Database: oomall
+-- ------------------------------------------------------
+-- Server version	8.0.27
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+
+
+
+LOCK TABLES `oomall_liquidation` WRITE;
+INSERT INTO `oomall_liquidation` VALUES (1,1,'shop1','2021-11-11 15:04:04',12, 12,10,1,1,1,'admin',1,'admin','2021-11-11 15:04:04',NULL),
+ (2,1,'shop1','2021-11-11 15:04:04',11, 11,11,1,1,1,'admin',1,'admin','2021-11-11 15:04:04',NULL),
+ (3,2,'shop2','2021-11-11 15:04:04',13, 13,13,1,1,1,'admin',1,'admin','2021-11-11 15:04:04',NULL),
+ (4,2,'shop2','2021-11-11 15:04:04',14, 14,14,1,1,1,'admin',1,'admin','2021-11-11 15:04:04',NULL);
+UNLOCK TABLES;
+
+
+-- Dump completed on 2021-11-20 15:00:38

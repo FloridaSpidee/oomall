@@ -170,7 +170,7 @@ public class LiquidationDao {
             SimpleShopRetVo simpleShopRetVo=new SimpleShopRetVo();
             simpleShopRetVo.setId(shopVoReturnObject.getData().getId());
             simpleShopRetVo.setName(shopVoReturnObject.getData().getName());
-            detailLiquRetVo1.setSimpleShopVo(simpleShopRetVo);
+            detailLiquRetVo1.setShop(simpleShopRetVo);
             detailLiquRetVo1.setCreator(new SimpleUserRetVo(liquidationPos.get(0).getCreatorId(),liquidationPos.get(0).getCreatorName()));
             detailLiquRetVo1.setModifier(new SimpleUserRetVo(liquidationPos.get(0).getModifierId(),liquidationPos.get(0).getModifierName()));
             return new ReturnObject<>(detailLiquRetVo1);
