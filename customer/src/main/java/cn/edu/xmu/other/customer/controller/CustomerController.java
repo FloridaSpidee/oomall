@@ -1,6 +1,8 @@
 package cn.edu.xmu.other.customer.controller;
 
 import cn.edu.xmu.other.customer.model.vo.CustomerModifyVo;
+import cn.edu.xmu.other.customer.model.vo.ModifyPwdVo;
+import cn.edu.xmu.other.customer.model.vo.ResetPwdVo;
 import cn.edu.xmu.other.customer.service.CustomerService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
 import cn.edu.xmu.privilegegateway.annotation.aop.LoginName;
@@ -14,8 +16,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
@@ -125,7 +129,62 @@ public class CustomerController {
         return Common.decorateReturnObject(returnObject);
     }
 
+    @ApiOperation(value = "用户修改密码", produces = "application/json;charset=UTF-8")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户token", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "Object", name = "body", value = "验证码和新密码", required = true)
+    })
+    @ApiResponses(value = {
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 608, message = "用户名/邮箱/电话不存在"),
+            @ApiResponse(code = 614,message = "不能与旧密码相同")
+    })
+    @Audit
+    @PutMapping("/customers/password")
+    public Object modifyPassword(@Validated @RequestBody ModifyPwdVo body)
+    {
+        ReturnObject returnObject = customerService.modifyPassword(body);
+        return Common.decorateReturnObject(returnObject);
+    }
 
+    @ApiOperation(value = "用户重置密码", produces = "application/json;charset=UTF-8")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户token", required = true),
+            @ApiImplicitParam(paramType = "body", dataType = "Object", name = "body", value = "可修改的用户信息", required = true)
+    })
+    @ApiResponses(value = {
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 500, message = "服务器内部错误"),
+            @ApiResponse(code = 608,message = "用户名/邮箱/电话不存在")
+    })
+    @Audit
+    @PutMapping("/customers/password/reset")
+    public Object resetPassword(@Validated @RequestParam ResetPwdVo body, BindingResult bindingResult, HttpServletRequest httpServletRequest)
+    {
+        /* 处理参数校验错误 */
+        Object o = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(o != null){
+            return o;
+        }
+
+        ReturnObject returnObject = customerService.resetPassword(body);
+        return Common.decorateReturnObject(returnObject);
+
+    }
+
+    @ApiOperation(value = "用户登出", produces = "application/json;charset=UTF-8")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户token", required = true)
+    })
+    @ApiResponses(value = {
+            @ApiResponse(code = 0, message = "成功")
+    })
+    @Audit
+    @GetMapping("/logout")
+    public Object Logout(@LoginUser Long loginUserId)
+    {
+        return Common.decorateReturnObject(customerService.Logout(loginUserId));
+    }
     /**
      * Chen Yixuan
     */
