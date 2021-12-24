@@ -98,7 +98,7 @@ public class ShopCustomerControllerTest {
                         .header("authorization",token)
                         .contentType("application/json;charset=UTF-8"))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(MocvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
         String expectedString= "{" +
                 "\"errno\":0," +
