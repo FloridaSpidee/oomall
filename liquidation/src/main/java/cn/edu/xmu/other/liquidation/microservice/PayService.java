@@ -18,8 +18,7 @@ import java.time.ZonedDateTime;
 @FeignClient(value = "pay-service")
 public interface PayService {
     @GetMapping("/internal/shops/{shopId}/payment")
-    InternalReturnObject<SimplePaymentRetVo> getPaymentByStateAndTime(@PathVariable Long shopId,
-                                                                      @RequestParam(required = false) String documentId,
+    InternalReturnObject getPaymentByStateAndTime(@PathVariable Long shopId,
                                                                       @RequestParam(required = false) Byte state,
                                                                       @RequestParam(value = "beginTime",required = false) @DateTimeFormat(pattern = "uuuu-MM-dd'T'HH:mm:ss.SSSXXX")ZonedDateTime beginTime,
                                                                       @RequestParam(value = "beginTime",required = false) @DateTimeFormat(pattern = "uuuu-MM-dd'T'HH:mm:ss.SSSXXX")ZonedDateTime endTime,
@@ -27,8 +26,7 @@ public interface PayService {
                                                                       @RequestParam(defaultValue = "10") Integer pageSize);
 
     @GetMapping("/internal/shops/{shopId}/refund")
-    InternalReturnObject<SimpleRefundRetVo> getRefundByStateAndTime(@PathVariable Long shopId,
-                                                                    @RequestParam(required = false) String documentId,
+    InternalReturnObject getRefundByStateAndTime(@PathVariable Long shopId,
                                                                     @RequestParam(required = false) Byte state,
                                                                     @RequestParam(value = "beginTime",required = false) @DateTimeFormat(pattern = "uuuu-MM-dd'T'HH:mm:ss.SSSXXX")ZonedDateTime beginTime,
                                                                     @RequestParam(value = "beginTime",required = false) @DateTimeFormat(pattern = "uuuu-MM-dd'T'HH:mm:ss.SSSXXX")ZonedDateTime endTime,

@@ -4,8 +4,6 @@ import cn.edu.xmu.oomall.core.util.Common;
 import cn.edu.xmu.oomall.core.util.ReturnNo;
 import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.liquidation.constant.TimeFormat;
-import cn.edu.xmu.other.liquidation.model.vo.DetailLiquRetVo;
-import cn.edu.xmu.other.liquidation.model.vo.SimpleLiquRetVo;
 import cn.edu.xmu.other.liquidation.service.ExpenditureService;
 import cn.edu.xmu.other.liquidation.service.LiquidationService;
 import cn.edu.xmu.other.liquidation.service.RevenueService;
@@ -13,8 +11,7 @@ import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
 import cn.edu.xmu.privilegegateway.annotation.aop.LoginName;
 import cn.edu.xmu.privilegegateway.annotation.aop.LoginUser;
 import io.swagger.annotations.*;
-import org.apache.ibatis.ognl.ObjectElementsAccessor;
-import org.checkerframework.checker.units.qual.A;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +20,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 /**
@@ -202,6 +198,7 @@ public class LiquidationController {
     @Audit(departName = "shops")
     @PutMapping("/shops/{shopId}/liquidation/start")
     public Object startLiquidations(@PathVariable("shopId")Long shopId,
+                                    @LoginName String loginUserName,
                                     @RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime beginTime,
                                     @RequestParam(required = false) @DateTimeFormat(pattern = TimeFormat.INPUT_DATE_TIME_FORMAT) ZonedDateTime endTime)
     {
@@ -215,7 +212,7 @@ public class LiquidationController {
         if (shopId != 0) {
             return Common.decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE));
         }
-        return Common.decorateReturnObject(liquidationService.startLiquidations(shopId,beginTime,endTime));
+        return Common.decorateReturnObject(liquidationService.startLiquidations(shopId,loginUserName,beginTime,endTime));
     }
 
     /**
@@ -249,7 +246,6 @@ public class LiquidationController {
             }
         }
         return Common.decorateReturnObject(revenueService.customerGetRevenuePointRecord(loginUser,beginTime,endTime,page,pageSize));
-
     }
 
 
