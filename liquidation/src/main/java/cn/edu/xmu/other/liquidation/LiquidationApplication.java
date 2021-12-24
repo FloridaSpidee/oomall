@@ -12,7 +12,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 @SpringBootApplication(scanBasePackages = {"cn.edu.xmu.privilegegateway","cn.edu.xmu.other.liquidation","cn.edu.xmu.oomall.core"})
 @EnableConfigurationProperties
-@MapperScan("cn.edu.xmu.other.customer.mapper")
+@MapperScan("cn.edu.xmu.other.liquidation.mapper")
 @EnableFeignClients(basePackages = "cn.edu.xmu.other.liquidation.microservice")
 public class LiquidationApplication {
     public static void main(String[] args) {

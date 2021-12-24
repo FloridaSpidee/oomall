@@ -39,7 +39,7 @@ public class LiquidationService {
     }
 
     @Transactional(readOnly = true,rollbackFor = Exception.class)
-    public ReturnObject getSimpleLiquInfo(SimpleLiquRetVo simpleLiquRetVo,Long shopId, Byte state, LocalDateTime beginDate, LocalDateTime endDate, Integer page, Integer pageSize)
+    public ReturnObject getSimpleLiquInfo(Long shopId, Byte state, LocalDateTime beginDate, LocalDateTime endDate, Integer page, Integer pageSize)
     {
         if(shopId!=null&&shopId!=0)
         {
@@ -48,11 +48,11 @@ public class LiquidationService {
                 return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST, "不存在该商铺");
             }
         }
-        return liquidationDao.getSimpleLiquInfo(simpleLiquRetVo,shopId,state,beginDate,endDate,page,pageSize);
+        return liquidationDao.getSimpleLiquInfo(shopId,state,beginDate,endDate,page,pageSize);
     }
 
     @Transactional(readOnly = true,rollbackFor = Exception.class)
-    public ReturnObject getDetailLiquInfo(DetailLiquRetVo detailLiquRetVo,Long shopId,Long id)
+    public ReturnObject getDetailLiquInfo(Long shopId,Long id)
     {
         if(shopId!=null&&shopId!=0)
         {
@@ -61,7 +61,7 @@ public class LiquidationService {
                 return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST, "不存在该商铺");
             }
         }
-        return liquidationDao.getDetailLiquInfo(detailLiquRetVo,shopId,id);
+        return liquidationDao.getDetailLiquInfo(shopId,id);
     }
 
     @Transactional(rollbackFor = Exception.class)
