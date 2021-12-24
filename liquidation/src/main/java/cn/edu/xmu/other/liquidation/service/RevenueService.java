@@ -133,6 +133,10 @@ public class RevenueService {
         return new ReturnObject(generalLedgersRetVo);
     }
 
+    /**
+     * @Author Chen Yixuan
+     * @Date 2021/12/24
+     */
     @Transactional(readOnly = true,rollbackFor = Exception.class)
     public ReturnObject customerGetRevenuePointRecord(Long loginUser, ZonedDateTime beginTime,ZonedDateTime endTime,Integer page,Integer pageSize){
         PageHelper.startPage(page, pageSize);

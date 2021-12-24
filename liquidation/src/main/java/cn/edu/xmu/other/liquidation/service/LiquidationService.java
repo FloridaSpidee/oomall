@@ -4,6 +4,7 @@ import cn.edu.xmu.oomall.core.util.ReturnNo;
 import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.liquidation.dao.LiquidationDao;
 
+import cn.edu.xmu.other.liquidation.microservice.PayService;
 import cn.edu.xmu.other.liquidation.microservice.ShopService;
 import cn.edu.xmu.other.liquidation.microservice.vo.SimpleShopVo;
 import cn.edu.xmu.other.liquidation.model.vo.DetailLiquRetVo;
@@ -32,6 +33,9 @@ public class LiquidationService {
 
     @Resource
     ShopService shopService;
+
+    @Autowired
+    private PayService payService;
 
     @Transactional(rollbackFor=Exception.class, readOnly = true)
     public ReturnObject getLiquiState() {
@@ -64,6 +68,10 @@ public class LiquidationService {
         return liquidationDao.getDetailLiquInfo(shopId,id);
     }
 
+    /**
+     * @Author Chen Yixuan
+     * @Date 2021/12/24
+     */
     @Transactional(rollbackFor = Exception.class)
     public ReturnObject startLiquidations(Long shopId, ZonedDateTime beginTime,ZonedDateTime endTime){
 

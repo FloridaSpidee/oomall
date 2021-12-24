@@ -189,8 +189,10 @@ public class LiquidationController {
     }
 
 
-
-
+    /**
+     * @Author Chen Yixuan
+     * @Date 2021/12/24
+     */
     @ApiOperation(value = "开始清算")
     @ApiImplicitParams(value={
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "token", value = "用户的token", required = true),
@@ -216,6 +218,10 @@ public class LiquidationController {
         return Common.decorateReturnObject(liquidationService.startLiquidations(shopId,beginTime,endTime));
     }
 
+    /**
+     * @Author Chen Yixuan
+     * @Date 2021/12/24
+     */
     @ApiOperation(value = "用户获取自己因分享得到收入返点的记录")
     @ApiImplicitParams(value={
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "token", value = "用户的token", required = true),
@@ -247,6 +253,10 @@ public class LiquidationController {
     }
 
 
+    /**
+     * @Author Chen Yixuan
+     * @Date 2021/12/24
+     */
     @ApiOperation(value = "用户获取因退货而扣除支出返点的记录")
     @ApiImplicitParams(value={
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "token", value = "用户的token", required = true),

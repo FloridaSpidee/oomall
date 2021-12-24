@@ -99,6 +99,10 @@ public class ExpenditureDao {
         }
     }
 
+    /**
+     * @Author Chen Yixuan
+     * @Date 2021/12/24
+     */
     public ReturnObject getExpenditureByShareId(Long id, ZonedDateTime beginTime, ZonedDateTime endTime){
         try {
             ExpenditurePoExample example = new ExpenditurePoExample();

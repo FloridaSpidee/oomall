@@ -85,6 +85,10 @@ public class RevenueDao {
         }
     }
 
+    /**
+     * @Author Chen Yixuan
+     * @Date 2021/12/24
+     */
     public ReturnObject getRevenueByShareId(Long id, ZonedDateTime beginTime, ZonedDateTime endTime){
         try {
             RevenuePoExample example = new RevenuePoExample();
