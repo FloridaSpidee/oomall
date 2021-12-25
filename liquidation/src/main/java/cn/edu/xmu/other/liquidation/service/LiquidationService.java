@@ -176,13 +176,12 @@ public class LiquidationService {
                 for(SimpleOrderItemRetVo orderItem:simpleOrderItemRetVoList){
                     //获得每一个明细的productId
                     Long productId = orderItem.getProductId();
-                    ReturnObject productRetObj = goodsService.getProductById(productId);
-                    if(productRetObj.getCode()!=ReturnNo.OK){
-                        return productRetObj;
+                    InternalReturnObject internalProductRetObj = goodsService.getProductById(productId);
+                    if(internalProductRetObj.getErrno()!=ReturnNo.OK.getCode()){
+                        return new ReturnObject(ReturnNo.getReturnNoByCode(internalProductRetObj.getErrno()),internalProductRetObj.getErrmsg());
                     }
-
                     //获得product对象
-                    ProductRetVo productRetVo = (ProductRetVo) productRetObj.getData();
+                    ProductRetVo productRetVo = (ProductRetVo) internalProductRetObj.getData();
                     Long categoryId = productRetVo.getCategory().getId();
 
                     //通过categoryId访问category
