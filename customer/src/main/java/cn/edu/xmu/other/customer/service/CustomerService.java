@@ -4,6 +4,8 @@ import cn.edu.xmu.other.customer.dao.CustomerDao;
 import cn.edu.xmu.other.customer.model.bo.Customer;
 import cn.edu.xmu.other.customer.model.vo.CustomerModifyVo;
 import cn.edu.xmu.other.customer.model.vo.CustomerRetVo;
+import cn.edu.xmu.other.customer.model.vo.ModifyPwdVo;
+import cn.edu.xmu.other.customer.model.vo.ResetPwdVo;
 import cn.edu.xmu.privilegegateway.annotation.util.Common;
 import cn.edu.xmu.privilegegateway.annotation.util.ReturnNo;
 import cn.edu.xmu.privilegegateway.annotation.util.ReturnObject;
@@ -63,6 +65,22 @@ public class CustomerService {
             return pageInfoReturnObject;
         }
         return pageInfoReturnObject;
+    }
+
+    @Transactional(rollbackFor=Exception.class)
+    public ReturnObject Logout(long userId)
+    {
+        return customerDao.deleteToken(userId);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnObject<Object> modifyPassword(ModifyPwdVo vo) {
+        return customerDao.modifyPassword(vo);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnObject<Object> resetPassword(ResetPwdVo vo) {
+        return customerDao.resetPassword(vo);
     }
 
     /**

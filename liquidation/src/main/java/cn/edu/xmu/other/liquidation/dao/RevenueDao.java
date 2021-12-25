@@ -11,14 +11,16 @@ import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 import static cn.edu.xmu.privilegegateway.annotation.util.Common.cloneVo;
 
 @Repository
 public class RevenueDao {
     @Autowired
-    RevenuePoMapper revenuePoMapper;
+    private RevenuePoMapper revenuePoMapper;
 
     public ReturnObject getRevenueByPrimaryKey(Long id)
     {
@@ -81,5 +83,34 @@ public class RevenueDao {
         {
             return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,e.getMessage());
         }
+    }
+
+    /**
+     * @Author Chen Yixuan
+     * @Date 2021/12/24
+     */
+    public ReturnObject getRevenueByShareId(Long id, ZonedDateTime beginTime, ZonedDateTime endTime){
+        try {
+            RevenuePoExample example = new RevenuePoExample();
+            RevenuePoExample.Criteria criteria = example.createCriteria();
+            if(id!=null){
+                criteria.andSharerIdEqualTo(id);
+            }
+            if(beginTime!=null && endTime!=null){
+                criteria.andGmtCreateBetween(beginTime.toLocalDateTime(),endTime.toLocalDateTime());
+            }
+            List<RevenuePo> poList = revenuePoMapper.selectByExample(example);
+            List<Revenue> boList = new ArrayList<>();
+            for(RevenuePo revenuePo:poList){
+                Revenue revenue = (Revenue) cloneVo(revenuePo,Revenue.class);
+                boList.add(revenue);
+            }
+            return new ReturnObject(boList);
+
+        }
+        catch (Exception e){
+            return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,"服务器内部错误");
+        }
+
     }
 }

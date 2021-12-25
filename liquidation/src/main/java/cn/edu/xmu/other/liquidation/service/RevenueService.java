@@ -12,27 +12,37 @@ import cn.edu.xmu.other.liquidation.microservice.vo.SimpleShopVo;
 import cn.edu.xmu.other.liquidation.model.bo.Expenditure;
 import cn.edu.xmu.other.liquidation.model.bo.Revenue;
 import cn.edu.xmu.other.liquidation.model.po.RevenuePoExample;
-import cn.edu.xmu.other.liquidation.model.vo.GeneralLedgersRetVo;
-import cn.edu.xmu.other.liquidation.model.vo.SimpleProductRetVo;
-import cn.edu.xmu.other.liquidation.model.vo.SimpleShopRetVo;
+import cn.edu.xmu.other.liquidation.model.vo.*;
+import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static cn.edu.xmu.privilegegateway.annotation.util.Common.cloneVo;
 
 
 @Controller
 public class RevenueService {
     @Autowired
     RevenueDao revenueDao;
+
     @Autowired
     GoodsService goodsService;
+
     @Autowired
     ExpenditureDao expenditureDao;
     @Autowired
     ShopService shopService;
+
+    @Resource
+    private ShopService shopService;
 
     /**
      * 管理员按条件查某笔的进账
@@ -107,5 +117,55 @@ public class RevenueService {
         var simpleShopVo=shopService.getShopInfo(expenditure.getShopId()).getData();
         GeneralLedgersRetVo generalLedgersRetVo = new GeneralLedgersRetVo(revenue, simpleShopVo, simpleProductRetVo);
         return new ReturnObject(generalLedgersRetVo);
+    }
+
+    /**
+     * @Author Chen Yixuan
+     * @Date 2021/12/24
+     */
+    @Transactional(readOnly = true,rollbackFor = Exception.class)
+    public ReturnObject customerGetRevenuePointRecord(Long loginUser, ZonedDateTime beginTime,ZonedDateTime endTime,Integer page,Integer pageSize){
+        PageHelper.startPage(page, pageSize);
+
+        ReturnObject returnObj = revenueDao.getRevenueByShareId(loginUser,beginTime,endTime);
+        if(returnObj.getData()==null){
+            return returnObj;
+        }
+        List<RevenuePointRetVo> revenuePointRetList = new ArrayList<>();
+
+        List<Revenue> revenueList = (List<Revenue>)returnObj.getData();
+        for(Revenue revenue:revenueList){
+            InternalReturnObject internalReturnObject = shopService.getShopInfo(revenue.getShopId());
+            if(internalReturnObject.getData()==null){
+                return new ReturnObject(internalReturnObject.getErrno());
+            }
+            SimpleShopVo simpleShopVo = (SimpleShopVo)internalReturnObject.getData();
+            SimpleShopRetVo simpleShopRetVo = (SimpleShopRetVo) cloneVo(simpleShopVo,SimpleShopRetVo.class);
+            RevenuePointRetVo revenuePointRetVo = (RevenuePointRetVo) cloneVo(revenue,RevenuePointRetVo.class);
+            revenuePointRetVo.setShop(simpleShopRetVo);
+            SimpleProductRetVo simpleProductRetVo = new SimpleProductRetVo();
+            SimpleUserRetVo creator = new SimpleUserRetVo();
+            SimpleUserRetVo modifier = new SimpleUserRetVo();
+
+            simpleProductRetVo.setId(revenue.getProductId());
+            simpleProductRetVo.setName(revenue.getProductName());
+
+            creator.setId(revenue.getCreatorId());
+            creator.setName(revenue.getCreatorName());
+            modifier.setId(revenue.getModifierId());
+            modifier.setName(revenue.getModifierName());
+
+            revenuePointRetVo.setCreator(creator);
+            revenuePointRetVo.setModifier(modifier);
+
+            revenuePointRetList.add(revenuePointRetVo);
+        }
+        var pageInfo = new PageInfo<>(revenuePointRetList);
+        pageInfo.setPages(PageInfo.of(revenueList).getPages());
+        pageInfo.setTotal(PageInfo.of(revenueList).getTotal());
+        pageInfo.setPageNum(page);
+        pageInfo.setPageSize(pageSize);
+
+        return new ReturnObject(new PageInfoVo<>(pageInfo));
     }
 }

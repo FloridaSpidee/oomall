@@ -1,5 +1,6 @@
 package cn.edu.xmu.other.liquidation.dao;
 
+import cn.edu.xmu.oomall.core.util.Common;
 import cn.edu.xmu.oomall.core.util.ReturnNo;
 import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.liquidation.mapper.LiquidationPoMapper;
@@ -111,7 +112,7 @@ public class LiquidationDao {
         }
     }
 
-    public ReturnObject getSimpleLiquInfo(SimpleLiquRetVo simpleLiquRetVo, Long shopId, Byte state, LocalDateTime beginDate, LocalDateTime endDate, Integer page, Integer pagesize)
+    public ReturnObject getSimpleLiquInfo( Long shopId, Byte state, LocalDateTime beginDate, LocalDateTime endDate, Integer page, Integer pagesize)
     {
             LiquidationPoExample liquidationPoExample=new LiquidationPoExample();
             LiquidationPoExample.Criteria criteria=liquidationPoExample.createCriteria();
@@ -136,21 +137,21 @@ public class LiquidationDao {
                         SimpleShopRetVo simpleShopRetVo=new SimpleShopRetVo();
                         simpleShopRetVo.setId(shopVoReturnObject.getData().getId());
                         simpleShopRetVo.setName(shopVoReturnObject.getData().getName());
-                        simpleLiquRetVo1.setSimpleShopVo(simpleShopRetVo);
+                        simpleLiquRetVo1.setShop(simpleShopRetVo);
                     }
                     simpleLiquRetVos.add(simpleLiquRetVo1);
                 }
                 PageInfo<SimpleLiquRetVo>pageInfo=new PageInfo<>(simpleLiquRetVos);
-//                ReturnObject ret=new ReturnObject(pageInfo);
-//                return Common.getPageRetVo(ret,SimpleLiquRetVo.class);
-                return new ReturnObject(pageInfo);
+                ReturnObject ret=new ReturnObject(pageInfo);
+                return Common.getPageRetVo(ret,SimpleLiquRetVo.class);
+//                return new ReturnObject(pageInfo);
             }catch (Exception e){
                 logger.error(e.getMessage());
                 return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,e.getMessage());
             }
     }
 
-    public ReturnObject getDetailLiquInfo(DetailLiquRetVo detailLiquRetVo, Long shopId,Long id)
+    public ReturnObject getDetailLiquInfo(Long shopId,Long id)
     {
         LiquidationPoExample liquidationPoExample=new LiquidationPoExample();
         LiquidationPoExample.Criteria criteria=liquidationPoExample.createCriteria();
@@ -169,7 +170,7 @@ public class LiquidationDao {
             SimpleShopRetVo simpleShopRetVo=new SimpleShopRetVo();
             simpleShopRetVo.setId(shopVoReturnObject.getData().getId());
             simpleShopRetVo.setName(shopVoReturnObject.getData().getName());
-            detailLiquRetVo1.setSimpleShopVo(simpleShopRetVo);
+            detailLiquRetVo1.setShop(simpleShopRetVo);
             detailLiquRetVo1.setCreator(new SimpleUserRetVo(liquidationPos.get(0).getCreatorId(),liquidationPos.get(0).getCreatorName()));
             detailLiquRetVo1.setModifier(new SimpleUserRetVo(liquidationPos.get(0).getModifierId(),liquidationPos.get(0).getModifierName()));
             return new ReturnObject<>(detailLiquRetVo1);
@@ -178,4 +179,6 @@ public class LiquidationDao {
             return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,e.getMessage());
         }
     }
+
+
 }
