@@ -33,13 +33,11 @@ public class RevenueService {
     @Autowired
     RevenueDao revenueDao;
 
-    @Autowired
+    @Resource
     GoodsService goodsService;
 
     @Autowired
     ExpenditureDao expenditureDao;
-    @Autowired
-    ShopService shopService;
 
     @Resource
     private ShopService shopService;

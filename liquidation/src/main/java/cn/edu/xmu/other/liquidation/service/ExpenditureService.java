@@ -36,7 +36,7 @@ public class ExpenditureService {
     @Autowired
     private ExpenditureDao expenditureDao;
 
-    @Autowired
+    @Resource
     private GoodsService goodsService;
 
     @Resource
