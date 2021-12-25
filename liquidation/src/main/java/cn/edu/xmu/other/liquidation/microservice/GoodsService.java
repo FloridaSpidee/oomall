@@ -2,6 +2,8 @@ package cn.edu.xmu.other.liquidation.microservice;
 
 import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.liquidation.microservice.vo.ProductRetVo;
+import cn.edu.xmu.other.liquidation.model.vo.SimpleProductRetVo;
+import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +14,6 @@ import org.springframework.web.bind.annotation.PathVariable;
  */
 @FeignClient(value = "goods-service")
 public interface GoodsService {
-    @GetMapping("/products/{id}")
-    ReturnObject<ProductRetVo> getProductById(@PathVariable("id") Long id);
+    @GetMapping("/internal/products/{id}")
+    InternalReturnObject<SimpleProductRetVo> getProductById(@PathVariable("id") Long id);
 }

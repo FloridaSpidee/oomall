@@ -12,6 +12,7 @@ import cn.edu.xmu.other.share.microservice.vo.SimpleObject;
 import cn.edu.xmu.other.share.model.vo.SimpleProductRetVo;
 import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
 import cn.edu.xmu.privilegegateway.annotation.util.JwtHelper;
+import io.swagger.models.auth.In;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -63,15 +64,15 @@ class ShareControllerTest {
         Mockito.when(goodsService.getOnSaleRetVoByProductId(1L)).thenReturn(new InternalReturnObject(onsale1));
         Mockito.when(goodsService.getOnSaleRetVoByProductId(2L)).thenReturn(new InternalReturnObject(onsale2));
         Mockito.when(goodsService.getOnSaleRetVoByProductId(3L)).thenReturn(noExistErrorIntRet);//不存在错误
-        Mockito.when(goodsService.getProductRetVoById(1L)).thenReturn(new ReturnObject(product1));
-        Mockito.when(goodsService.getProductRetVoById(2L)).thenReturn(new ReturnObject(product2));
-        Mockito.when(goodsService.getProductRetVoById(3L)).thenReturn(noExistErrorRet);//不存在错误
-        Mockito.when(goodsService.getOnSaleRetVoById(1L)).thenReturn(new ReturnObject(onsale1));
-        Mockito.when(goodsService.getOnSaleRetVoById(2L)).thenReturn(new ReturnObject(onsale2));
-        Mockito.when(goodsService.getOnSaleRetVoById(3L)).thenReturn(noExistErrorRet);//不存在错误
-        Mockito.when(customerService.getCustomerRetVoById(0L, 1L)).thenReturn(new ReturnObject(customer1));
-        Mockito.when(customerService.getCustomerRetVoById(0L, 2L)).thenReturn(new ReturnObject(customer2));
-        Mockito.when(customerService.getCustomerRetVoById(0L, 3L)).thenReturn(noExistErrorRet);
+        Mockito.when(goodsService.getProductRetVoById(1L)).thenReturn(new InternalReturnObject(product1));
+        Mockito.when(goodsService.getProductRetVoById(2L)).thenReturn(new InternalReturnObject(product2));
+        Mockito.when(goodsService.getProductRetVoById(3L)).thenReturn(noExistErrorIntRet);//不存在错误
+        Mockito.when(goodsService.getOnSaleRetVoById(1L)).thenReturn(new InternalReturnObject(onsale1));
+        Mockito.when(goodsService.getOnSaleRetVoById(2L)).thenReturn(new InternalReturnObject(onsale2));
+        Mockito.when(goodsService.getOnSaleRetVoById(3L)).thenReturn(noExistErrorIntRet);//不存在错误
+        Mockito.when(customerService.getCustomerRetVoById(0L, 1L)).thenReturn(new InternalReturnObject(customer1));
+        Mockito.when(customerService.getCustomerRetVoById(0L, 2L)).thenReturn(new InternalReturnObject(customer2));
+        Mockito.when(customerService.getCustomerRetVoById(0L, 3L)).thenReturn(noExistErrorIntRet);
     }
 
     private static JwtHelper jwtHelper = new JwtHelper();
@@ -85,7 +86,7 @@ class ShareControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse1 ="{\"errno\":0,\"data\":{\"id\":501,\"sharer\":{\"id\":1,\"name\":\"user1\"},\"product\":{\"id\":2,\"name\":null,\"imageUrl\":null},\"quantity\":10,\"creator\":{\"id\":1,\"name\":\"user1\"},\"gmtCreate\":\"2021-12-20T01:25:23\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}},\"errmsg\":\"成功\"}";
+        String expectedResponse1 = "{\"errno\":0,\"data\":{\"id\":501,\"sharer\":{\"id\":1,\"name\":\"user1\"},\"product\":{\"id\":2,\"name\":null,\"imageUrl\":null},\"quantity\":10,\"creator\":{\"id\":1,\"name\":\"user1\"},\"gmtCreate\":\"2021-12-20T01:25:23\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}},\"errmsg\":\"成功\"}";
         JSONAssert.assertEquals(expectedResponse1, responseString1, false);
         //post两次，判断是否为同一记录
         String responseString2 = this.mvc.perform(post("/onsale/2/shares").contentType("application/json;charset=UTF-8")
@@ -241,21 +242,21 @@ class ShareControllerTest {
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
         String expectedString1 = "{\"errno\":0,\"data\":{\"total\":1,\"pages\":1,\"pageSize\":10,\"page\":1,\"list\":[{\"id\":4,\"productId\":{\"id\":1,\"name\":null,\"imageUrl\":null},\"sharerId\":500,\"customerId\":2,\"state\":0,\"creator\":{\"id\":2,\"name\":\"user2\"},\"gmtCreate\":\"2021-12-20T21:05:06\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}}]},\"errmsg\":\"成功\"}\n";
-        JSONAssert.assertEquals(expectedString1,responseString1,false);
+        JSONAssert.assertEquals(expectedString1, responseString1, false);
 
         String responseErrorString1 = this.mvc.perform(get("/shops/1/products/3/beshared").contentType("application/json;charset=UTF-8")
                         .header("authorization", token1))
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
         String expectedErrorString1 = "{\"errno\":504,\"errmsg\":\"货品id不存在\"}";
-        JSONAssert.assertEquals(expectedErrorString1,responseErrorString1,false);
+        JSONAssert.assertEquals(expectedErrorString1, responseErrorString1, false);
 
         String responseErrorString2 = this.mvc.perform(get("/shops/1/products/2/beshared").contentType("application/json;charset=UTF-8")
                         .header("authorization", token1))
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
         String expectedErrorString2 = "{\"errno\":505,\"errmsg\":\"查询的不是自己的商品\"}";
-        JSONAssert.assertEquals(expectedErrorString2,responseErrorString2,false);
+        JSONAssert.assertEquals(expectedErrorString2, responseErrorString2, false);
 
         String responseErrorString3 = this.mvc.perform(get("/shops/1/products/2/beshared").contentType("application/json;charset=UTF-8")
                         .param("beginTime", "2021-11-11T14:38:20.000Z")
@@ -264,6 +265,6 @@ class ShareControllerTest {
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
         String expectedErrorString3 = "{\"errno\":947,\"errmsg\":\"开始时间不能晚于结束时间\"}";
-        JSONAssert.assertEquals(expectedErrorString3,responseErrorString3,false);
+        JSONAssert.assertEquals(expectedErrorString3, responseErrorString3, false);
     }
 }

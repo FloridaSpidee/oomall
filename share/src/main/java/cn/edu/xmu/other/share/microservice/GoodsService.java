@@ -1,6 +1,8 @@
 package cn.edu.xmu.other.share.microservice;
 
 import cn.edu.xmu.oomall.core.util.ReturnObject;
+import cn.edu.xmu.other.share.microservice.vo.OnSaleRetVo;
+import cn.edu.xmu.other.share.model.vo.SimpleProductRetVo;
 import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,9 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "Goods")
 public interface GoodsService {
     @GetMapping("/products/{id}")
-    public ReturnObject getProductRetVoById(@PathVariable Long id);
+    public InternalReturnObject<SimpleProductRetVo> getProductRetVoById(@PathVariable Long id);
     @GetMapping("/internal/onsales")
-    public InternalReturnObject getOnSaleRetVoByProductId(@RequestParam Long productId);
+    public InternalReturnObject<OnSaleRetVo> getOnSaleRetVoByProductId(@RequestParam Long productId);
     @GetMapping("/internal/onsales/{id}")
-    public ReturnObject getOnSaleRetVoById(@PathVariable Long onsaleId);
+    public InternalReturnObject<OnSaleRetVo> getOnSaleRetVoById(@PathVariable Long onsaleId);
 }

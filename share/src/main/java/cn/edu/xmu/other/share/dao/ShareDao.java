@@ -31,7 +31,6 @@ public class ShareDao {
     @Autowired
     SuccessfulSharePoMapper successfulSharePoMapper;
 
-
     private static final Logger logger = LoggerFactory.getLogger(Common.class);
 
     public ReturnObject<PageInfo<Share>> getShareByExample(SharePoExample sharePoExample, Integer page, Integer pageSize)
@@ -43,6 +42,9 @@ public class ShareDao {
             }
             List<SharePo> poList=sharePoMapper.selectByExample(sharePoExample);
             var pageInfo=new PageInfo(poList);
+            var pageInfo2= new PageInfo<>();
+            var pageInfo3=new PageInfo<>();
+            System.out.println(pageInfo.getPageSize()+" "+pageInfo2.getPageSize());
             var boList=new ArrayList<Share>();
             for(SharePo sharePo:poList) {
                 boList.add((Share) cloneVo(sharePo, Share.class));
