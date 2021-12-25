@@ -24,6 +24,7 @@ import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
 import com.alibaba.druid.sql.ast.statement.SQLForeignKeyImpl;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
+import io.swagger.models.auth.In;
 import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -340,6 +341,7 @@ public class ShareService {
     @Transactional(rollbackFor = Exception.class, readOnly = true)
     public ReturnObject getBesharedByCaDid(Long customerId,
                               Long productId,
+                              Long quantity,
                               LocalDateTime createTime)
     {
         SuccessfulSharePoExample successfulSharePoExample=new SuccessfulSharePoExample();
@@ -363,8 +365,14 @@ public class ShareService {
             }
         }
         SuccessfulSharePo successfulSharePo=cloneVo(retSuccessfulShare,SuccessfulSharePo.class);
-        successfulSharePo.setState(SuccessfulShare.State.LIQUIDATED.getCode());
+        successfulSharePo.setState(SuccessfulShare.State.LIQUIDATED.getCode());//更改返点成功记录的状态
         var updateRet=shareDao.updateSuccessSharePo(successfulSharePo);
+        if(!ret.getCode().equals(ReturnNo.OK)) return updateRet;
+        Long shareId=successfulSharePo.getShareId();
+        Share share=shareDao.getShareByPrimaryKey(shareId).getData();
+        SharePo sharePo=cloneVo(share,SharePo.class);
+        sharePo.setQuantity(sharePo.getQuantity()+quantity);//更新返点的商品件数
+        updateRet= shareDao.updateSharePo(sharePo);
         if(!ret.getCode().equals(ReturnNo.OK)) return updateRet;
         return new ReturnObject(retSuccessfulShare.getSharerId());
     }
