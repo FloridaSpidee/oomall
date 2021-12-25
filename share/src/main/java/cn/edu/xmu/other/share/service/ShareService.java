@@ -88,6 +88,7 @@ public class ShareService {
             sharePo.setProductId(onSaleRetVo.getProduct().getId());
             sharePo.setQuantity(0L);
             sharePo.setOnsaleId(onSaleId);
+            sharePo.setState(Share.State.VALID.getCode());
             //sharePo.setGmtCreate(LocalDateTime.now());
             //ShareActivityRetVo shareActivityRetVo = (ShareActivityRetVo) activityService.getShareActivityRetVoById(sharePo.getShareActId()).getData();
             //sharePo.setState(shareActivityRetVo.getState());
@@ -185,7 +186,7 @@ public class ShareService {
             successfulSharePo.setProductId(id);
             successfulSharePo.setOnsaleId(share.getOnsaleId());
             successfulSharePo.setCustomerId(loginUserId);
-            //successfulSharePo.setState(sharePo.getState());
+            successfulSharePo.setState(SuccessfulShare.State.VALID.getCode());
             setPoCreatedFields(successfulSharePo, loginUserId, loginUserName);
             ReturnObject ret = shareDao.insertSuccessSharePo(successfulSharePo);
             if (!ret.getCode().equals(ReturnNo.OK)) return ret;
@@ -362,6 +363,7 @@ public class ShareService {
             }
         }
         SuccessfulSharePo successfulSharePo=cloneVo(retSuccessfulShare,SuccessfulSharePo.class);
+        successfulSharePo.setState(SuccessfulShare.State.LIQUIDATED.getCode());
         var updateRet=shareDao.updateSuccessSharePo(successfulSharePo);
         if(!ret.getCode().equals(ReturnNo.OK)) return updateRet;
         return new ReturnObject(retSuccessfulShare.getSharerId());
