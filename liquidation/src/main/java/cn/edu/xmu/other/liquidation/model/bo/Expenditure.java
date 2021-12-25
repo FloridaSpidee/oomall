@@ -47,13 +47,13 @@ public class Expenditure {
     private String productName;
     private Long orderId;
     private Long orderitemId;
-    private Integer quantity;
+    private Long quantity;
     private Long amount;
-    private Long expressFee;//负
-    private Long commission;//负
-    private Long point;//负
+    private Long expressFee;
+    private Long commission;
+    private Long point;
     private Long sharerId;
-    private Long shopRevenue;//负
+    private Long shopRevenue;
     private Long creatorId;
     private String creatorName;
     private Long modifierId;

@@ -12,11 +12,9 @@ import cn.edu.xmu.other.liquidation.model.bo.*;
 import cn.edu.xmu.other.liquidation.model.po.ExpenditurePo;
 import cn.edu.xmu.other.liquidation.model.po.LiquidationPo;
 import cn.edu.xmu.other.liquidation.model.po.RevenuePo;
-import cn.edu.xmu.other.liquidation.model.vo.DetailLiquRetVo;
 import cn.edu.xmu.other.liquidation.model.vo.PageInfoVo;
-import cn.edu.xmu.other.liquidation.model.vo.SimpleLiquRetVo;
 import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
-import org.checkerframework.checker.units.qual.A;
+import org.aspectj.lang.annotation.After;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +63,9 @@ public class LiquidationService {
 
     @Resource
     private ShareService shareService;
+
+    @Resource
+    private AftersaleService aftersaleService;
 
     @Transactional(rollbackFor=Exception.class, readOnly = true)
     public ReturnObject getLiquiState() {
@@ -151,8 +152,8 @@ public class LiquidationService {
                 //每个订单的快递费用，需要单独一个revenue来存储
                 Revenue revenueExpressFee = null;
 
-                Long orderId = Long.getLong(payment.getDocumentId());
-                InternalReturnObject internalOrderRetObj = orderService.getOrdersById(orderId);
+                String orderSn = payment.getDocumentId();
+                InternalReturnObject internalOrderRetObj = orderService.getOrdersByOrderSn(orderSn);
                 if(internalOrderRetObj.getErrno()!=ReturnNo.OK.getCode()){
                     return new ReturnObject(ReturnNo.getReturnNoByCode(internalOrderRetObj.getErrno()),internalOrderRetObj.getErrmsg());
                 }
@@ -166,7 +167,7 @@ public class LiquidationService {
                     init(shopsId,shopId,loginUserName,expenditureList,revenueList,liquidation,simpleShopVo,totalAmount,expressFee,point,commission);
                 }
 
-                InternalReturnObject internalOrderItemRetObj = orderService.getOrderitemsByOrderId(orderId);
+                InternalReturnObject internalOrderItemRetObj = orderService.getOrderitemsByOrderId(simpleOrderRetVo.getId());
                 if(internalOrderItemRetObj.getErrno()!=ReturnNo.OK.getCode()){
                     return new ReturnObject(ReturnNo.getReturnNoByCode(internalOrderItemRetObj.getErrno()),internalOrderItemRetObj.getErrmsg());
                 }
@@ -208,15 +209,15 @@ public class LiquidationService {
                     Revenue revenue = new Revenue();
                     revenue.setShopId(shopId);
                     revenue.setPaymentId(payment.getId());
-                    revenue.setOrderId(orderId);
+                    revenue.setOrderId(simpleOrderRetVo.getId());
 
                     //若有快递费，则初始化快递费收入结算单的内容
                     if(simpleOrderRetVo.getExpressFee()!=null&&revenueExpressFee==null){
                         revenueExpressFee = (Revenue)cloneVo(revenue,Revenue.class);
                         //orderItemId为0代表是快递费
                         revenueExpressFee.setOrderitemId(0L);
-                        revenueExpressFee.setExpressFee(simpleOrderRetVo.getExpressFee());
-                        revenueExpressFee.setAmount(simpleOrderRetVo.getExpressFee());
+                        revenueExpressFee.setExpressFee(-simpleOrderRetVo.getExpressFee());
+                        revenueExpressFee.setAmount(-simpleOrderRetVo.getExpressFee());
                         setPoCreatedFields(revenueExpressFee,shopId,loginUserName);
                         revenueList.get(shopsId).add(revenueExpressFee);
                     }
@@ -227,8 +228,7 @@ public class LiquidationService {
                     revenue.setProductId(productId);
                     revenue.setProductName(productRetVo.getName());
                     revenue.setCommission(realCommission);
-                    revenue.setPoint(orderItem.getPoint());
-                    revenue.setExpressFee(simpleOrderRetVo.getExpressFee());
+                    revenue.setPoint(-orderItem.getPoint());
                     revenue.setShopRevenue(orderItem.getPrice()*orderItem.getQuantity()-orderItem.getDiscountPrice());
                     if(sharerId!=null) revenue.setSharerId(sharerId);
 
@@ -254,8 +254,8 @@ public class LiquidationService {
             //清算支付退款
             if(refund.getDocumentType() == Refund.Type.ORDER.getCode()){
                 Long paymentId = refundRetVo.getPaymentId();
-                Long orderId = Long.getLong(refund.getDocumentId());
-                InternalReturnObject internalOrderRetObj = orderService.getOrdersById(orderId);
+                String orderSn = refund.getDocumentId();
+                InternalReturnObject internalOrderRetObj = orderService.getOrdersByOrderSn(orderSn);
                 if(internalOrderRetObj.getErrno()!=ReturnNo.OK.getCode()){
                     return new ReturnObject(ReturnNo.getReturnNoByCode(internalOrderRetObj.getErrno()),internalOrderRetObj.getErrmsg());
                 }
@@ -275,11 +275,11 @@ public class LiquidationService {
                         expenditure.setModifierName(null);
                         expenditure.setGmtModified(null);
                         expenditure.setRefundId(refund.getId());
-                        //涉及金额部分转为负数
-                        expenditure.setExpressFee(-expenditure.getExpressFee());
-                        expenditure.setCommission(-expenditure.getCommission());
+                        //涉及转出金额部分转为负数
                         expenditure.setPoint(-expenditure.getPoint());
+                        expenditure.setCommission(-expenditure.getCommission());
                         expenditure.setShopRevenue(-expenditure.getShopRevenue());
+                        expenditure.setExpressFee(-expenditure.getExpressFee());
 
                         expenditureList.get(shopsId).add(expenditure);
 
@@ -309,11 +309,11 @@ public class LiquidationService {
                         expenditure.setGmtModified(null);
                         expenditure.setRefundId(refund.getId());
                         expenditure.setRevenueId(revenueBefore.getId());
-                        //涉及金额部分转为负数
-                        expenditure.setExpressFee(-expenditure.getExpressFee());
-                        expenditure.setCommission(-expenditure.getCommission());
+                        //涉及转出金额部分转为负数
                         expenditure.setPoint(-expenditure.getPoint());
+                        expenditure.setCommission(-expenditure.getCommission());
                         expenditure.setShopRevenue(-expenditure.getShopRevenue());
+                        expenditure.setExpressFee(-expenditure.getExpressFee());
 
                         expenditureList.get(shopsId).add(expenditure);
 
@@ -324,6 +324,73 @@ public class LiquidationService {
                         point.put(shopsId,point.get(shopsId)+expenditure.getPoint());
                     }
                 }
+            }
+
+            //清算售后退款
+            if(refund.getDocumentType() == Refund.Type.AFTERSALE.getCode()){
+                String serviceSn = refund.getDocumentId();
+                InternalReturnObject aftersaleRetObj = aftersaleService.getAfterSaleByServiceSn(serviceSn);
+                if(aftersaleRetObj.getErrno()!=ReturnNo.OK.getCode()){
+                    return new ReturnObject(ReturnNo.getReturnNoByCode(aftersaleRetObj.getErrno()),aftersaleRetObj.getErrmsg());
+                }
+                AftersaleRetVo aftersaleRetVo = (AftersaleRetVo) aftersaleRetObj.getData();
+                Long orderId = aftersaleRetVo.getOrderId();
+                Long orderitemId = aftersaleRetVo.getOrderitemId();
+
+                InternalReturnObject orderRetObj = orderService.getOrdersById(orderId);
+                if(orderRetObj.getErrno()!=ReturnNo.OK.getCode()){
+                    return new ReturnObject(ReturnNo.getReturnNoByCode(orderRetObj.getErrno()),orderRetObj.getErrmsg());
+                }
+                SimpleOrderRetVo order = (SimpleOrderRetVo) orderRetObj.getData();
+
+                //获取商铺id，区别于shopId：管理员id
+                Long shopsId = order.getShopId();
+                if(!expenditureList.containsKey(shopsId)){
+                    //初始化各HashMap
+                    init(shopsId,shopId,loginUserName,expenditureList,revenueList,liquidation,simpleShopVo,totalAmount,expressFee,point,commission);
+                }
+
+                InternalReturnObject orderitemRetObj = orderService.getOrderitemById(orderitemId);
+                if(orderitemRetObj.getErrno()!=ReturnNo.OK.getCode()){
+                    return new ReturnObject(ReturnNo.getReturnNoByCode(orderitemRetObj.getErrno()),orderitemRetObj.getErrmsg());
+                }
+                SimpleOrderItemRetVo orderitem = (SimpleOrderItemRetVo) orderitemRetObj.getData();
+                Expenditure expenditure = new Expenditure();
+
+                Long productId = orderitem.getProductId();
+                InternalReturnObject internalProductRetObj = goodsService.getProductById(productId);
+                if(internalProductRetObj.getErrno()!=ReturnNo.OK.getCode()){
+                    return new ReturnObject(ReturnNo.getReturnNoByCode(internalProductRetObj.getErrno()),internalProductRetObj.getErrmsg());
+                }
+                //获得product对象
+                ProductRetVo productRetVo = (ProductRetVo) internalProductRetObj.getData();
+                Long categoryId = productRetVo.getCategory().getId();
+
+                //通过categoryId访问category
+                ReturnObject catogoryRetObj = categoryService.getCategoryById(categoryId);
+                if(catogoryRetObj.getCode()!=ReturnNo.OK){
+                    return catogoryRetObj;
+                }
+                CategoryRetVo categoryRetVo = (CategoryRetVo) catogoryRetObj.getData();
+                Integer commissionRatio = categoryRetVo.getCommissionRatio();
+
+                setPoCreatedFields(expenditure,shopId,loginUserName);
+
+                expenditure.setRefundId(refund.getId());
+                expenditure.setShopId(order.getShopId());
+                expenditure.setProductId(productId);
+                expenditure.setProductName(productRetVo.getName());
+                expenditure.setOrderId(orderId);
+                expenditure.setOrderitemId(orderitemId);
+                expenditure.setQuantity(orderitem.getQuantity());
+
+                /*
+                //expenditure.setAmount();
+                expenditure.setCommission();
+                expenditure.setPoint();
+                expenditure.setSharerId();
+                expenditure.setShopRevenue();
+                */
             }
         }
 

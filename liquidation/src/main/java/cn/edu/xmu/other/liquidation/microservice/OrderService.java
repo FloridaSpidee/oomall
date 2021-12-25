@@ -19,12 +19,17 @@ public interface OrderService {
     @GetMapping("/internal/orders/{id}/orderitems")
     InternalReturnObject getOrderitemsByOrderId(@PathVariable Long id);
 
+    @GetMapping("/internal/orderitem/{id}")
+    InternalReturnObject getOrderitemById(@PathVariable Long id);
+
     /**
-     * 通过orderId查找orders
-     * @param id
+     * 通过orderSn查找orders
+     * @param orderSn
      * @return SimpleOrderRetVo
      */
+    @GetMapping("/internal/orders/{orderSn}")
+    InternalReturnObject getOrdersByOrderSn(@PathVariable String orderSn);
+
     @GetMapping("/internal/orders/{id}")
     InternalReturnObject getOrdersById(@PathVariable Long id);
-
 }
