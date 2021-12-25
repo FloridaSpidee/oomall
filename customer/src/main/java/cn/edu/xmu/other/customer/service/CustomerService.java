@@ -1,19 +1,26 @@
 package cn.edu.xmu.other.customer.service;
 
+import cn.edu.xmu.oomall.core.util.ReturnNo;
+import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.customer.dao.CustomerDao;
 import cn.edu.xmu.other.customer.model.bo.Customer;
-import cn.edu.xmu.other.customer.model.vo.CustomerModifyVo;
-import cn.edu.xmu.other.customer.model.vo.CustomerRetVo;
-import cn.edu.xmu.other.customer.model.vo.ModifyPwdVo;
-import cn.edu.xmu.other.customer.model.vo.ResetPwdVo;
-import cn.edu.xmu.privilegegateway.annotation.util.Common;
-import cn.edu.xmu.privilegegateway.annotation.util.ReturnNo;
-import cn.edu.xmu.privilegegateway.annotation.util.ReturnObject;
+import cn.edu.xmu.other.customer.model.po.CustomerPo;
+import cn.edu.xmu.other.customer.model.vo.*;
+import cn.edu.xmu.privilegegateway.annotation.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 import static cn.edu.xmu.privilegegateway.annotation.util.Common.cloneVo;
 import static cn.edu.xmu.privilegegateway.annotation.util.Common.setPoModifiedFields;
@@ -27,6 +34,11 @@ public class CustomerService {
     private static final Logger logger = LoggerFactory.getLogger(CustomerService.class);
     @Autowired
     private CustomerDao customerDao;
+
+
+    @Autowired
+    private RedisUtil redisUtil;
+
 
     @Transactional(readOnly = true,rollbackFor = Exception.class)
     public ReturnObject getUserSelfInfo(long id)
@@ -81,6 +93,36 @@ public class CustomerService {
     @Transactional(rollbackFor = Exception.class)
     public ReturnObject<Object> resetPassword(ResetPwdVo vo) {
         return customerDao.resetPassword(vo);
+    }
+
+
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnObject login(LoginVo loginVo) {
+        Customer customer=new Customer();
+        customer.setUserName(loginVo.getUserName());
+        ReturnObject returnObject=customerDao.getCustomerPoById(customer.getId());
+        if(returnObject.getData()==null)
+        {
+            return new ReturnObject(ReturnNo.CUSTOMER_INVALID_ACCOUNT);
+        }
+        else
+        {
+            List<CustomerPo> pos=(List<CustomerPo>) returnObject.getData();
+            if(!(pos.size()>0))
+            {
+                return new ReturnObject(ReturnNo.CUSTOMER_INVALID_ACCOUNT);
+            }
+            CustomerPo po=pos.get(0);
+            if(po.getState()!=null&&po.getState().equals(Customer.State.FORBID.getCode())||po.getBeDeleted()!=null&&po.getBeDeleted().equals(Customer.Deleted.DELETED.getCode()))
+            {
+                return new ReturnObject(ReturnNo.CUSTOMER_FORBIDDEN);
+            }
+            if(!po.getPassword().equals(loginVo.getPassword()))
+            {
+                return new ReturnObject(ReturnNo.CUSTOMER_INVALID_ACCOUNT);
+            }
+            return customerDao.createtoken(po);
+        }
     }
 
     /**

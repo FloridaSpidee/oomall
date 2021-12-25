@@ -18,6 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -98,7 +100,7 @@ public class ShopCustomerControllerTest {
                         .header("authorization",token)
                         .contentType("application/json;charset=UTF-8"))
                 .andExpect(status().isOk())
-                .andExpect(MocvcResultMatchers.content().contentType("application/json;charset=UTF-8"))
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
         String expectedString= "{" +
                 "\"errno\":0," +

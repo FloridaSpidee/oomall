@@ -1,5 +1,8 @@
 package cn.edu.xmu.other.customer.dao;
 
+import cn.edu.xmu.oomall.core.util.ReturnNo;
+import cn.edu.xmu.oomall.core.util.ReturnObject;
+import cn.edu.xmu.oomall.core.util.Common;
 import cn.edu.xmu.other.customer.mapper.CustomerPoMapper;
 import cn.edu.xmu.other.customer.model.bo.Customer;
 import cn.edu.xmu.other.customer.model.po.CustomerPo;
@@ -8,6 +11,7 @@ import cn.edu.xmu.other.customer.model.vo.AllCustomersRetVo;
 import cn.edu.xmu.other.customer.model.vo.ModifyPwdVo;
 import cn.edu.xmu.other.customer.model.vo.ResetPwdVo;
 import cn.edu.xmu.other.customer.model.vo.StateRetVo;
+import cn.edu.xmu.privilegegateway.annotation.util.JwtHelper;
 import cn.edu.xmu.privilegegateway.annotation.util.*;
 import cn.edu.xmu.privilegegateway.annotation.util.bloom.BloomFilter;
 import com.github.pagehelper.PageHelper;
@@ -15,11 +19,15 @@ import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.mail.MailException;
-import org.springframework.mail.SimpleMailMessage;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Repository;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static cn.edu.xmu.privilegegateway.annotation.util.Common.cloneVo;
@@ -40,6 +48,12 @@ public class CustomerDao {
 
     @Autowired
     private RedisUtil redisUtil;
+
+    @Value("${privilegegateway.Time:3600}")
+    private Integer ExpireTime = 3600;
+
+    @Value("${privilegeservice.login.multiply}")
+    private Boolean CANMULTIPLYLOGIN;
 
     /**
      * 用户的redis key： u_id
@@ -74,17 +88,17 @@ public class CustomerDao {
     {
         try {
             CustomerPo customerPo=cloneVo(customer,CustomerPo.class);
-            Common.copyAttribute(customer,customerPo);
+//            Common.copyAttribute(customer,customerPo);
             customerPoMapper.updateByPrimaryKeySelective(customerPo);
             return new ReturnObject(ReturnNo.OK);
         }catch (DuplicateKeyException e) {
             String info = e.getMessage();
             if (info.contains("user_name_uindex")) {
-                return new ReturnObject(ReturnNo.USER_NAME_REGISTERED);
+                return new ReturnObject(ReturnNo.CUSTOMER_NAMEEXIST);
             } else if (info.contains("email_uindex")) {
-                return new ReturnObject(ReturnNo.EMAIL_REGISTERED);
+                return new ReturnObject(ReturnNo.CUSTOMER_EMAILEXIST);
             } else {
-                return new ReturnObject(ReturnNo.MOBILE_REGISTERED);
+                return new ReturnObject(ReturnNo.CUSTOMER_MOBILEEXIST);
             }
         }
         catch (Exception e)
@@ -100,9 +114,6 @@ public class CustomerDao {
             CustomerPoExample example = new CustomerPoExample();
             CustomerPoExample.Criteria criteria = example.createCriteria();
 
-            System.out.println(email);
-            System.out.println(userName);
-            System.out.println(mobile);
             if(userName!=null&&!userName.isBlank())
                 criteria.andUserNameEqualTo(userName);
             if(email!=null&&!email.isBlank())
@@ -127,7 +138,6 @@ public class CustomerDao {
     }
 
     public ReturnObject getCustomerPoById(Long id) {
-        // 查询密码等资料以计算新签名
         try {
             CustomerPo customerPo = customerPoMapper.selectByPrimaryKey(id);
             // 不修改已被逻辑废弃的账户
@@ -152,7 +162,7 @@ public class CustomerDao {
 
             //通过验证码取出id
             if (!redisUtil.hasKey(key))
-                return new ReturnObject<>(ReturnNo.AUTH_INVALID_ACCOUNT);
+                return new ReturnObject<>(ReturnNo.CUSTOMERID_NOTEXIST);
             Long id = (Long) redisUtil.get(key);
 
             ReturnObject<Object> retObj = getCustomerPoById(id);
@@ -163,7 +173,7 @@ public class CustomerDao {
 
             //新密码与原密码相同
             if (customerPo.getPassword().equals(modifyPwdVo.getNewPassword()))
-                return new ReturnObject<>(ReturnNo.PASSWORD_SAME);
+                return new ReturnObject<>(ReturnNo.CUSTOMER_PASSWORDSAME);
             customerPo.setPassword(modifyPwdVo.getNewPassword());
             //更新数据库
             try {
@@ -198,7 +208,7 @@ public class CustomerDao {
             userPoExample1.or(criteria_username);
             customerPo1 = customerPoMapper.selectByExample(userPoExample1);
             if (customerPo1.isEmpty()) {
-                return new ReturnObject<>(ReturnNo.EMAIL_WRONG);
+                return new ReturnObject<>(ReturnNo.CUSTOMERID_NOTEXIST);
             }
 
         } catch (Exception e) {
@@ -233,6 +243,20 @@ public class CustomerDao {
 
     }
 
+    public ReturnObject createtoken(CustomerPo po)
+    {
+        JwtHelper jwtHelper=new JwtHelper();
+        try{
+            String key=String.format(USERKEY,po.getId());
+            bantoken(po.getId());
+            String userToken=jwtHelper.createToken(po.getId(),po.getUserName(),1L,1,ExpireTime);
+            redisUtil.set(key,userToken,ExpireTime);
+            return new ReturnObject(userToken);
+        }catch (Exception e)
+        {
+            return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR);
+        }
+    }
     public ReturnObject getCustomerState() {
         try{
             List<StateRetVo> list = new ArrayList<>();
@@ -246,11 +270,44 @@ public class CustomerDao {
         }
     }
 
+    public void bantoken(Long id)
+    {
+        String key=String.format(USERKEY,id);
+        if(CANMULTIPLYLOGIN){
+            Serializable token=redisUtil.get(key);
+            redisUtil.del(key);
+
+            if(token!=null)
+            {
+                banJwt((String) token);
+            }
+        }
+    }
+
+    private void banJwt(String jwt) {
+        String[] banSetName = {"BanJwt_0", "BanJwt_1"};
+        String banIndexKey = "banIndex";
+        String scriptPath = "scripts/ban-jwt.lua";
+
+        DefaultRedisScript<Void> script = new DefaultRedisScript<>();
+
+        script.setScriptSource(new ResourceScriptSource(new ClassPathResource(scriptPath)));
+        script.setResultType(Void.class);
+
+        List<String> keyList = new ArrayList<>(List.of(banSetName));
+        keyList.add(banIndexKey);
+
+        redisUtil.executeScript(script, keyList, banSetName.length, jwt, ExpireTime);
+    }
+
     public ReturnObject deleteToken(Long userId)
     {
         try{
                 String key= String.format(USERKEY,userId);
-                redisUtil.del(key);
+                if(redisUtil.hasKey(key))
+                {
+                    redisUtil.del(key);
+                }
                 return new ReturnObject(ReturnNo.OK);
 
         }catch (Exception e)

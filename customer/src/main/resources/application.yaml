@@ -10,6 +10,12 @@ server:
     threads:
       max: 500
 
+
+privilegeservice:
+  login:
+    multiply: false
+    ExpireTime: 3600
+
 spring:
   main:
     allow-bean-definition-overriding: true

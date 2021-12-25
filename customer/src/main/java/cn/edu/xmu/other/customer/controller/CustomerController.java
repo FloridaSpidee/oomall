@@ -1,15 +1,17 @@
 package cn.edu.xmu.other.customer.controller;
 
+import cn.edu.xmu.oomall.core.util.Common;
 import cn.edu.xmu.other.customer.model.vo.CustomerModifyVo;
+import cn.edu.xmu.other.customer.model.vo.LoginVo;
 import cn.edu.xmu.other.customer.model.vo.ModifyPwdVo;
 import cn.edu.xmu.other.customer.model.vo.ResetPwdVo;
 import cn.edu.xmu.other.customer.service.CustomerService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
 import cn.edu.xmu.privilegegateway.annotation.aop.LoginName;
 import cn.edu.xmu.privilegegateway.annotation.aop.LoginUser;
-import cn.edu.xmu.privilegegateway.annotation.util.Common;
-import cn.edu.xmu.privilegegateway.annotation.util.ReturnNo;
-import cn.edu.xmu.privilegegateway.annotation.util.ReturnObject;
+import cn.edu.xmu.privilegegateway.annotation.util.IpUtil;
+import cn.edu.xmu.oomall.core.util.ReturnNo;
+import cn.edu.xmu.oomall.core.util.ReturnObject;
 import io.swagger.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
-import static cn.edu.xmu.privilegegateway.annotation.util.Common.decorateReturnObject;
+import static cn.edu.xmu.oomall.core.util.Common.decorateReturnObject;
 
 /**
  * @Auther hongyu lei
@@ -54,7 +56,7 @@ public class CustomerController {
     public Object getAllStates()
     {
         ReturnObject returnObject=customerService.getCustomerState();
-        return Common.decorateReturnObject(returnObject);
+        return decorateReturnObject(returnObject);
     }
 
     /**
@@ -123,10 +125,10 @@ public class CustomerController {
     {
         if(Id!=0)
         {
-            return Common.decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE, "非管理员无权操作"));
+            return decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE, "非管理员无权操作"));
         }
         ReturnObject returnObject=customerService.getAllCustomers(userName,email,mobile,page,pageSize);
-        return Common.decorateReturnObject(returnObject);
+        return decorateReturnObject(returnObject);
     }
 
     @ApiOperation(value = "用户修改密码", produces = "application/json;charset=UTF-8")
@@ -144,7 +146,7 @@ public class CustomerController {
     public Object modifyPassword(@Validated @RequestBody ModifyPwdVo body)
     {
         ReturnObject returnObject = customerService.modifyPassword(body);
-        return Common.decorateReturnObject(returnObject);
+        return decorateReturnObject(returnObject);
     }
 
     @ApiOperation(value = "用户重置密码", produces = "application/json;charset=UTF-8")
@@ -168,8 +170,30 @@ public class CustomerController {
         }
 
         ReturnObject returnObject = customerService.resetPassword(body);
-        return Common.decorateReturnObject(returnObject);
+        return decorateReturnObject(returnObject);
 
+    }
+
+    @ApiOperation(value = "用户名密码登录", produces = "application/json;charset=UTF-8")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(paramType = "body", dataType = "Object", name = "body", value = "用户名和密码", required = true)
+    })
+    @ApiResponses(value = {
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 500, message = "服务器内部错误"),
+            @ApiResponse(code = 609,message = "用户名不存在或者密码错误"),
+            @ApiResponse(code = 610,message = "用户被禁止登录")
+    })
+    @Audit
+    @PostMapping("/login")
+    public Object login(@Validated @RequestBody LoginVo loginVo, BindingResult bindingResult){
+        /* 处理参数校验错误 */
+        Object o = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(o != null){
+            return o;
+        }
+
+        return decorateReturnObject(customerService.login(loginVo));
     }
 
     @ApiOperation(value = "用户登出", produces = "application/json;charset=UTF-8")
@@ -183,7 +207,7 @@ public class CustomerController {
     @GetMapping("/logout")
     public Object Logout(@LoginUser Long loginUserId)
     {
-        return Common.decorateReturnObject(customerService.Logout(loginUserId));
+        return decorateReturnObject(customerService.Logout(loginUserId));
     }
     /**
      * Chen Yixuan
@@ -206,14 +230,14 @@ public class CustomerController {
     {
         // 非平台管理员
         if (shopId != 0) {
-            return Common.decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE));
+            return decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE));
         }
         // 非法输入
         if (id <= 0) {
-            return Common.decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST));
+            return decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST));
         }
         ReturnObject retVoObject = customerService.getUserSelfInfo(id);
-        return Common.decorateReturnObject(retVoObject);
+        return decorateReturnObject(retVoObject);
 
     }
 
@@ -238,14 +262,14 @@ public class CustomerController {
     {
         // 非平台管理员
         if (did != 0) {
-            return Common.decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE));
+            return decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE));
         }
         // 非法输入
         if (id <= 0) {
-            return Common.decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST));
+            return decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST));
         }
         ReturnObject ret = customerService.banCustomer(id,loginUser,loginUserName);
-        return Common.decorateReturnObject(ret);
+        return decorateReturnObject(ret);
 
     }
 
@@ -270,13 +294,13 @@ public class CustomerController {
     {
         // 非平台管理员
         if (did != 0) {
-            return Common.decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE));
+            return decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE));
         }
         // 非法输入
         if (id <= 0) {
-            return Common.decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST));
+            return decorateReturnObject(new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST));
         }
         ReturnObject ret = customerService.releaseCustomer(id,loginUser,loginUserName);
-        return Common.decorateReturnObject(ret);
+        return decorateReturnObject(ret);
     }
 }
