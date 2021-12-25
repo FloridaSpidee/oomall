@@ -180,5 +180,16 @@ public class LiquidationDao {
         }
     }
 
+    public ReturnObject insertLiqui(LiquidationPo liquidationPo){
+        try{
+            int ret = liquidationPoMapper.insert(liquidationPo);
+            return new ReturnObject(liquidationPo.getId());
+        }
+        catch (Exception e){
+            return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,e.getMessage());
+        }
+
+    }
+
 
 }

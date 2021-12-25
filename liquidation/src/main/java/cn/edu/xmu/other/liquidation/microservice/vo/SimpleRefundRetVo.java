@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SimpleRefundRetVo {
     private Long id;
+    private Long paymentId;
     private String tradeSn;
     private Long patternId;
     private Long amount;

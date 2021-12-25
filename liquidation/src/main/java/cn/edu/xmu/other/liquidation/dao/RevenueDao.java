@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static cn.edu.xmu.privilegegateway.annotation.util.Common.cloneVo;
+import static cn.edu.xmu.privilegegateway.annotation.util.Common.getListRetVo;
 
 @Repository
 public class RevenueDao {
@@ -59,18 +60,6 @@ public class RevenueDao {
         }
     }
 
-    public ReturnObject insertRevenue(RevenuePo revenuePo)
-    {
-        try
-        {
-            revenuePoMapper.insert(revenuePo);
-            return new ReturnObject(revenuePo);
-        }
-        catch (Exception e)
-        {
-            return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,e.getMessage());
-        }
-    }
 
     public ReturnObject updateRevenueByPrimaryKey(RevenuePo revenuePo)
     {
@@ -89,7 +78,7 @@ public class RevenueDao {
      * @Author Chen Yixuan
      * @Date 2021/12/24
      */
-    public ReturnObject getRevenueByShareId(Long id, ZonedDateTime beginTime, ZonedDateTime endTime){
+    public ReturnObject getRevenueBySharerId(Long id, ZonedDateTime beginTime, ZonedDateTime endTime){
         try {
             RevenuePoExample example = new RevenuePoExample();
             RevenuePoExample.Criteria criteria = example.createCriteria();
@@ -112,5 +101,46 @@ public class RevenueDao {
             return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,"服务器内部错误");
         }
 
+    }
+
+    /**
+     * @Author Chen Yixuan
+     * @Date 2021/12/24
+     */
+    public ReturnObject insertRevenue(RevenuePo revenuePo){
+        try {
+            int ret = revenuePoMapper.insert(revenuePo);
+            return new ReturnObject(revenuePo.getId());
+        }
+        catch (Exception e){
+            return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,"服务器内部错误");
+        }
+    }
+
+    /**
+     * @Author Chen Yixuan
+     * @Date 2021/12/24
+     */
+    public ReturnObject getRevenueByPaymentId(Long paymentId){
+        try{
+            RevenuePoExample example = new RevenuePoExample();
+            RevenuePoExample.Criteria criteria = example.createCriteria();
+            if(paymentId!=null){
+                criteria.andPaymentIdEqualTo(paymentId);
+            }
+            List<RevenuePo> poList = (List<RevenuePo>) revenuePoMapper.selectByExample(example);
+            if(poList.size()==0){
+                return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST,"paymentId不存在！");
+            }
+            List<Revenue> boList = new ArrayList<>();
+            for(RevenuePo revenuePo:poList){
+                Revenue revenue = (Revenue) cloneVo(revenuePo,Revenue.class);
+                boList.add(revenue);
+            }
+            return new ReturnObject(boList);
+        }
+        catch (Exception e){
+            return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,"服务器内部错误");
+        }
     }
 }

@@ -44,7 +44,7 @@ public class Revenue {
     private Long shopId;
     private Long orderId;
     private Long orderitemId;
-    private Integer quantity;
+    private Long quantity;
     private Long productId;
     private String productName;
     private Long amount;

@@ -141,7 +141,7 @@ public class RevenueService {
     public ReturnObject customerGetRevenuePointRecord(Long loginUser, ZonedDateTime beginTime,ZonedDateTime endTime,Integer page,Integer pageSize){
         PageHelper.startPage(page, pageSize);
 
-        ReturnObject returnObj = revenueDao.getRevenueByShareId(loginUser,beginTime,endTime);
+        ReturnObject returnObj = revenueDao.getRevenueBySharerId(loginUser,beginTime,endTime);
         if(returnObj.getData()==null){
             return returnObj;
         }
