@@ -133,4 +133,18 @@ public class ShareDao {
             return new ReturnObject<>(ReturnNo.INTERNAL_SERVER_ERR, e.getMessage());
         }
     }
+
+    public ReturnObject updateSuccessSharePo(SuccessfulSharePo successfulSharePo)
+    {
+        try
+        {
+            successfulSharePoMapper.updateByPrimaryKey(successfulSharePo);
+            return new ReturnObject(ReturnNo.OK);
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+            return new ReturnObject<>(ReturnNo.INTERNAL_SERVER_ERR, e.getMessage());
+        }
+    }
 }

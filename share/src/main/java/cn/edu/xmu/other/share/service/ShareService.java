@@ -336,6 +336,37 @@ public class ShareService {
         return new ReturnObject<>(retPage);
     }
 
+    @Transactional(rollbackFor = Exception.class, readOnly = true)
+    public ReturnObject getBesharedByCaDid(Long customerId,
+                              Long productId,
+                              LocalDateTime createTime)
+    {
+        SuccessfulSharePoExample successfulSharePoExample=new SuccessfulSharePoExample();
+        var criteria = successfulSharePoExample.createCriteria();
+        criteria.andGmtCreateLessThanOrEqualTo(createTime);
+        criteria.andCustomerIdEqualTo(customerId);
+        criteria.andProductIdEqualTo(productId);
+        var ret=shareDao.getSuccessfulShareByExample(successfulSharePoExample,null,null);
+        var pageInfo=ret.getData();
+        if(pageInfo==null) return ret;
+        if(pageInfo.getList().size()==0) return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST);
+        var boList=pageInfo.getList();
+        SuccessfulShare retSuccessfulShare=new SuccessfulShare();
+        LocalDateTime localDateTime=boList.get(0).getGmtCreate();
+        for(SuccessfulShare successfulShare:boList)
+        {
+            if(successfulShare.getGmtCreate().isAfter(localDateTime))
+            {
+                retSuccessfulShare=successfulShare;
+                localDateTime=successfulShare.getGmtCreate();
+            }
+        }
+        SuccessfulSharePo successfulSharePo=cloneVo(retSuccessfulShare,SuccessfulSharePo.class);
+        var updateRet=shareDao.updateSuccessSharePo(successfulSharePo);
+        if(!ret.getCode().equals(ReturnNo.OK)) return updateRet;
+        return new ReturnObject(retSuccessfulShare.getSharerId());
+    }
+
     private InternalReturnObject<OnSaleRetVo> getOnSaleRetVoByProductId(Long productId)
     {
         InternalReturnObject<SimpleOnSaleRetVo> simpleRet=goodsService.getSimpleOnSaleRetVoById(productId);
@@ -343,4 +374,6 @@ public class ShareService {
         Long onSaleId=simpleRet.getData().getId();
         return goodsService.getOnSaleRetVoById(onSaleId);
     }
+
+
 }

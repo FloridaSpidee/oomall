@@ -223,4 +223,17 @@ public class ShareController {
         return Common.decorateReturnObject(Common.getPageRetObject(ret));
     }
 
+    /**
+     * 清算模块获取sharerId
+     */
+    @GetMapping("/internal/customers/{cid}/products/{pid}/beshared")
+    public Object getBesharedByCaDid(@PathVariable Long cid,
+                                     @PathVariable Long pid,
+                                     @RequestParam(value = "createTime",required = false) @DateTimeFormat(pattern = "uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime creatTime)
+    {
+        LocalDateTime create=creatTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+        return Common.decorateReturnObject(shareService.getBesharedByCaDid(cid,pid,create));
+    }
+
+
 }
