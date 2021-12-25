@@ -5,10 +5,8 @@ import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.share.ShareApplication;
 import cn.edu.xmu.other.share.microservice.CustomerService;
 import cn.edu.xmu.other.share.microservice.GoodsService;
-import cn.edu.xmu.other.share.microservice.vo.CustomerRetVo;
-import cn.edu.xmu.other.share.microservice.vo.OnSaleRetVo;
-import cn.edu.xmu.other.share.microservice.vo.ProductRetVo;
-import cn.edu.xmu.other.share.microservice.vo.SimpleObject;
+import cn.edu.xmu.other.share.microservice.ShopService;
+import cn.edu.xmu.other.share.microservice.vo.*;
 import cn.edu.xmu.other.share.model.vo.SimpleProductRetVo;
 import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
 import cn.edu.xmu.privilegegateway.annotation.util.JwtHelper;
@@ -48,25 +46,40 @@ class ShareControllerTest {
     @MockBean
     private CustomerService customerService;
 
+    @MockBean
+    private ShopService shopService;
+
     private final ProductRetVo product1 = new ProductRetVo(1L, new SimpleObject(1L, "shop1"), 1L, 1L, null, null, null, 20L, 20L, 20L, 10, null, null, null, null, null, true);
-    private final OnSaleRetVo onsale1 = new OnSaleRetVo(1L, 20L, 10, null, null, null, 1L, 1L, null, 100, null, null, new SimpleProductRetVo(1L, null, null), null, null, null);
+    private final SimpleProductRetVo simpleProduct1 = new SimpleProductRetVo(1L, "product1", null);
+    private final OnSaleRetVo onsale1 = new OnSaleRetVo(1L, 20L, 10, null, null, null, 1L, 1L, null, 100, null, null, new SimpleProductRetVo(1L, null, null), new SimpleShopVo(1L,"shop1"), null, null);
     private final ProductRetVo product2 = new ProductRetVo(2L, new SimpleObject(2L, "shop2"), 2L, 2L, null, null, null, 20L, 20L, 20L, 10, null, null, null, null, null, true);
-    private final OnSaleRetVo onsale2 = new OnSaleRetVo(2L, 20L, 10, null, null, null, 2L, 2L, null, 100, null, null, new SimpleProductRetVo(2L, null, null), null, null, null);
+    private final SimpleProductRetVo simpleProduct2 = new SimpleProductRetVo(2L, "product2", null);
+    private final OnSaleRetVo onsale2 = new OnSaleRetVo(2L, 20L, 10, null, null, null, 2L, 2L, null, 100, null, null, new SimpleProductRetVo(2L, null, null), new SimpleShopVo(2L,"shop2"), null, null);
     private final ReturnObject noExistErrorRet = new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST);
-    private final InternalReturnObject noExistErrorIntRet = new InternalReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST);
+    private final InternalReturnObject noExistErrorIntRet = new InternalReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST.getCode(), ReturnNo.RESOURCE_ID_NOTEXIST.getMessage());
     private final CustomerRetVo customer1 = new CustomerRetVo(1L, "user1", null, null, null, null, null);
     private final CustomerRetVo customer2 = new CustomerRetVo(2L, "user2", null, null, null, null, null);
+    private final SimpleShopVo shop1 = new SimpleShopVo(1L, "shop1");
+    private final SimpleShopVo shop2 = new SimpleShopVo(2L, "shop2");
+    private final SimpleOnSaleRetVo simpleOnSale1 = new SimpleOnSaleRetVo(1L, 20L, null, null, 10L, 1L, 1L, null, null);
+    private final SimpleOnSaleRetVo simpleOnSale2 = new SimpleOnSaleRetVo(2L, 20L, null, null, 10L, 2L, 2L, null, null);
 
     @BeforeEach
     public void init() {
         token2 = jwtHelper.createToken(2L, "user2", 0L, 1, 4000);
         token1 = jwtHelper.createToken(1L, "user1", 0L, 1, 4000);
-        Mockito.when(goodsService.getOnSaleRetVoByProductId(1L)).thenReturn(new InternalReturnObject(onsale1));
-        Mockito.when(goodsService.getOnSaleRetVoByProductId(2L)).thenReturn(new InternalReturnObject(onsale2));
-        Mockito.when(goodsService.getOnSaleRetVoByProductId(3L)).thenReturn(noExistErrorIntRet);//不存在错误
+        Mockito.when(shopService.getShopInfo(1L)).thenReturn(new InternalReturnObject<>(shop1));
+        Mockito.when(shopService.getShopInfo(2L)).thenReturn(new InternalReturnObject<>(shop2));
+        Mockito.when(shopService.getShopInfo(1L)).thenReturn(noExistErrorIntRet);
+        Mockito.when(goodsService.getSimpleOnSaleRetVoById(1L)).thenReturn(new InternalReturnObject<>(simpleOnSale1));
+        Mockito.when(goodsService.getSimpleOnSaleRetVoById(2L)).thenReturn(new InternalReturnObject<>(simpleOnSale2));
+        Mockito.when(goodsService.getSimpleOnSaleRetVoById(3L)).thenReturn(noExistErrorIntRet);//不存在错误
         Mockito.when(goodsService.getProductRetVoById(1L)).thenReturn(new InternalReturnObject(product1));
         Mockito.when(goodsService.getProductRetVoById(2L)).thenReturn(new InternalReturnObject(product2));
         Mockito.when(goodsService.getProductRetVoById(3L)).thenReturn(noExistErrorIntRet);//不存在错误
+        Mockito.when(goodsService.getSimpleProductRetVoById(1L)).thenReturn(new InternalReturnObject<>(simpleProduct1));
+        Mockito.when(goodsService.getSimpleProductRetVoById(2L)).thenReturn(new InternalReturnObject<>(simpleProduct2));
+        Mockito.when(goodsService.getSimpleProductRetVoById(3L)).thenReturn(noExistErrorIntRet);
         Mockito.when(goodsService.getOnSaleRetVoById(1L)).thenReturn(new InternalReturnObject(onsale1));
         Mockito.when(goodsService.getOnSaleRetVoById(2L)).thenReturn(new InternalReturnObject(onsale2));
         Mockito.when(goodsService.getOnSaleRetVoById(3L)).thenReturn(noExistErrorIntRet);//不存在错误
@@ -86,7 +99,7 @@ class ShareControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedResponse1 = "{\"errno\":0,\"data\":{\"id\":501,\"sharer\":{\"id\":1,\"name\":\"user1\"},\"product\":{\"id\":2,\"name\":null,\"imageUrl\":null},\"quantity\":10,\"creator\":{\"id\":1,\"name\":\"user1\"},\"gmtCreate\":\"2021-12-20T01:25:23\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}},\"errmsg\":\"成功\"}";
+        String expectedResponse1 = "{\"errno\":0,\"data\":{\"sharer\":{\"id\":1,\"name\":\"user1\"},\"product\":{\"id\":2,\"name\":null,\"imageUrl\":null},\"quantity\":0,\"creator\":{\"id\":1,\"name\":\"user1\"},\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}},\"errmsg\":\"成功\"}";
         JSONAssert.assertEquals(expectedResponse1, responseString1, false);
         //post两次，判断是否为同一记录
         String responseString2 = this.mvc.perform(post("/onsale/2/shares").contentType("application/json;charset=UTF-8")
@@ -207,7 +220,8 @@ class ShareControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedString1 = "{\"errno\":0,\"data\":{\"total\":2,\"pages\":1,\"pageSize\":10,\"page\":1,\"list\":[{\"id\":4,\"productId\":{\"id\":1,\"name\":null,\"imageUrl\":null},\"sharerId\":500,\"customerId\":2,\"state\":0,\"creator\":{\"id\":2,\"name\":\"user2\"},\"gmtCreate\":\"2021-12-20T21:05:06\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}},{\"id\":5,\"productId\":{\"id\":2,\"name\":null,\"imageUrl\":null},\"sharerId\":501,\"customerId\":2,\"state\":0,\"creator\":{\"id\":2,\"name\":\"user2\"},\"gmtCreate\":\"2021-12-21T14:25:04\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}}]},\"errmsg\":\"成功\"}";
+        System.out.println(responseString1);
+        String expectedString1 = "{\"errno\":0,\"data\":{\"total\":2,\"pages\":1,\"pageSize\":10,\"page\":1,\"list\":[{\"id\":4,\"productId\":{\"id\":1,\"name\":\"product1\",\"imageUrl\":null},\"sharerId\":500,\"customerId\":2,\"state\":0,\"creator\":{\"id\":2,\"name\":\"user2\"},\"gmtCreate\":\"2021-12-20T21:05:06\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}},{\"id\":5,\"productId\":{\"id\":2,\"name\":\"product2\",\"imageUrl\":null},\"sharerId\":501,\"customerId\":2,\"state\":0,\"creator\":{\"id\":2,\"name\":\"user2\"},\"gmtCreate\":\"2021-12-21T14:25:04\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}}]},\"errmsg\":\"成功\"}\n";
         JSONAssert.assertEquals(expectedString1, responseString1, false);
         String responseString2 = this.mvc.perform(get("/beshared").contentType("application/json;charset=UTF-8")
                         .param("productId", "1")
@@ -215,7 +229,8 @@ class ShareControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andReturn().getResponse().getContentAsString();
-        String expectedString2 = "{\"errno\":0,\"data\":{\"total\":1,\"pages\":1,\"pageSize\":10,\"page\":1,\"list\":[{\"id\":4,\"productId\":{\"id\":1,\"name\":null,\"imageUrl\":null},\"sharerId\":500,\"customerId\":2,\"state\":0,\"creator\":{\"id\":2,\"name\":\"user2\"},\"gmtCreate\":\"2021-12-20T21:05:06\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}}]},\"errmsg\":\"成功\"}";
+        System.out.println(responseString2);
+        String expectedString2 = "{\"errno\":0,\"data\":{\"total\":1,\"pages\":1,\"pageSize\":10,\"page\":1,\"list\":[{\"id\":4,\"productId\":{\"id\":1,\"name\":\"product1\",\"imageUrl\":null},\"sharerId\":500,\"customerId\":2,\"state\":0,\"creator\":{\"id\":2,\"name\":\"user2\"},\"gmtCreate\":\"2021-12-20T21:05:06\",\"gmtModified\":null,\"modifier\":{\"id\":null,\"name\":null}}]},\"errmsg\":\"成功\"}\n";
         JSONAssert.assertEquals(expectedString2, responseString2, false);
         String responseErrorString1 = this.mvc.perform(get("/beshared").contentType("application/json;charset=UTF-8")
                         .param("beginTime", "2021-11-11T14:38:20.000Z")

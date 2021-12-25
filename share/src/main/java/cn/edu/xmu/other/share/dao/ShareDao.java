@@ -61,11 +61,13 @@ public class ShareDao {
 
     }
 
-    public ReturnObject<SharePo> getSharePoByPrimaryKey(Long id)
+    public ReturnObject<Share> getShareByPrimaryKey(Long id)
     {
         try
         {
-            return new ReturnObject<>(sharePoMapper.selectByPrimaryKey(id));
+            SharePo sharePo = sharePoMapper.selectByPrimaryKey(id);
+            Share share=cloneVo(sharePo,Share.class);
+            return new ReturnObject<>(share);
         }
         catch (Exception e)
         {
