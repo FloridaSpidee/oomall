@@ -8,6 +8,7 @@ import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
 import cn.edu.xmu.privilegegateway.annotation.aop.LoginName;
 import cn.edu.xmu.privilegegateway.annotation.aop.LoginUser;
 import io.swagger.annotations.*;
+import io.swagger.models.auth.In;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -222,5 +223,19 @@ public class ShareController {
         var ret=shareService.getAllBeShared(begin,end,id,did,page,pageSize);
         return Common.decorateReturnObject(Common.getPageRetObject(ret));
     }
+
+    /**
+     * 清算模块获取sharerId
+     */
+    @GetMapping("/internal/customers/{cid}/products/{pid}/beshared")
+    public Object getBesharedByCaDid(@PathVariable Long cid,
+                                     @PathVariable Long pid,
+                                     @RequestParam(value= "quantity",required = true) Long quantity,
+                                     @RequestParam(value = "createTime",required = false) @DateTimeFormat(pattern = "uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime creatTime)
+    {
+        LocalDateTime create=creatTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+        return Common.decorateReturnObject(shareService.getBesharedByCaDid(cid,pid,quantity,create));
+    }
+
 
 }

@@ -15,6 +15,7 @@ import cn.edu.xmu.other.liquidation.model.vo.*;
 import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import org.checkerframework.checker.units.qual.A;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +36,7 @@ public class ExpenditureService {
     @Autowired
     private ExpenditureDao expenditureDao;
 
-    @Autowired
+    @Resource
     private GoodsService goodsService;
 
     @Resource
@@ -59,12 +60,12 @@ public class ExpenditureService {
                                        Integer pageSize) {
         boolean isAdmin = false;
         if (shopId == 0) isAdmin = true;
-        ProductRetVo productRet = null;
+        SimpleProductRetVo simpleProductRetVo = null;
         ExpenditurePoExample expenditurePoExample = new ExpenditurePoExample();
         var criteria = expenditurePoExample.createCriteria();
         if (null != productId) {
-            productRet = goodsService.getProductById(productId).getData();
-            if (productRet == null) return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST, "货品id不存在");
+            simpleProductRetVo = goodsService.getProductById(productId).getData();
+            if (simpleProductRetVo == null) return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST, "货品id不存在");
             criteria.andProductIdEqualTo(productId);
         }
         if (null != orderId) {
@@ -79,23 +80,13 @@ public class ExpenditureService {
         List<Expenditure> boList = pageInfo.getList();
         List<VoObject> voList = new ArrayList<>();
         for (Expenditure expenditure : boList) {
-            SimpleShopRetVo simpleShopRetVo;
-            SimpleProductRetVo simpleProductRetVo;
-            if (null != productId) {//如果是通过商品id查询，则不需要调用microService再查一次
-                simpleProductRetVo = productRet.getSimpleProduct();
-                simpleShopRetVo = productRet.getShop();
-            } else {
-                productRet = goodsService.getProductById(productId).getData();
-                if (productRet != null) {
-                    simpleProductRetVo = productRet.getSimpleProduct();
-                    simpleShopRetVo = productRet.getShop();
-                } else {
-                    simpleProductRetVo = null;
-                    simpleShopRetVo = null;
-                }
+            SimpleShopVo simpleShopVo;
+            simpleShopVo = shopService.getShopInfo(shopId).getData();
+            if (null == productId) {//如果是通过商品id查询，则不需要调用microService再查一次
+                simpleProductRetVo=goodsService.getProductById(expenditure.getProductId()).getData();
             }
             if (!isAdmin && shopId != expenditure.getShopId()) continue;//不是本商铺的不给你看
-            GeneralLedgersRetVo generalLedgersRetVo = new GeneralLedgersRetVo(expenditure, simpleShopRetVo, simpleProductRetVo);
+            GeneralLedgersRetVo generalLedgersRetVo = new GeneralLedgersRetVo(expenditure, simpleShopVo, simpleProductRetVo);
             voList.add(generalLedgersRetVo);
         }
         pageInfo.setList(voList);

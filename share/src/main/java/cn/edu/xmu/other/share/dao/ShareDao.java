@@ -31,7 +31,6 @@ public class ShareDao {
     @Autowired
     SuccessfulSharePoMapper successfulSharePoMapper;
 
-
     private static final Logger logger = LoggerFactory.getLogger(Common.class);
 
     public ReturnObject<PageInfo<Share>> getShareByExample(SharePoExample sharePoExample, Integer page, Integer pageSize)
@@ -43,6 +42,9 @@ public class ShareDao {
             }
             List<SharePo> poList=sharePoMapper.selectByExample(sharePoExample);
             var pageInfo=new PageInfo(poList);
+            var pageInfo2= new PageInfo<>();
+            var pageInfo3=new PageInfo<>();
+            System.out.println(pageInfo.getPageSize()+" "+pageInfo2.getPageSize());
             var boList=new ArrayList<Share>();
             for(SharePo sharePo:poList) {
                 boList.add((Share) cloneVo(sharePo, Share.class));
@@ -59,11 +61,13 @@ public class ShareDao {
 
     }
 
-    public ReturnObject<SharePo> getSharePoByPrimaryKey(Long id)
+    public ReturnObject<Share> getShareByPrimaryKey(Long id)
     {
         try
         {
-            return new ReturnObject<>(sharePoMapper.selectByPrimaryKey(id));
+            SharePo sharePo = sharePoMapper.selectByPrimaryKey(id);
+            Share share=cloneVo(sharePo,Share.class);
+            return new ReturnObject<>(share);
         }
         catch (Exception e)
         {
@@ -122,6 +126,34 @@ public class ShareDao {
                 return new ReturnObject(ReturnNo.FIELD_NOTVALID);
             }
             return new ReturnObject(successfulSharePo);
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+            return new ReturnObject<>(ReturnNo.INTERNAL_SERVER_ERR, e.getMessage());
+        }
+    }
+
+    public ReturnObject updateSuccessSharePo(SuccessfulSharePo successfulSharePo)
+    {
+        try
+        {
+            successfulSharePoMapper.updateByPrimaryKey(successfulSharePo);
+            return new ReturnObject(ReturnNo.OK);
+        }
+        catch (Exception e)
+        {
+            logger.error(e.getMessage());
+            return new ReturnObject<>(ReturnNo.INTERNAL_SERVER_ERR, e.getMessage());
+        }
+    }
+
+    public ReturnObject updateSharePo(SharePo sharePo)
+    {
+        try
+        {
+            sharePoMapper.updateByPrimaryKey(sharePo);
+            return new ReturnObject(ReturnNo.OK);
         }
         catch (Exception e)
         {

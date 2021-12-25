@@ -2,6 +2,7 @@ package cn.edu.xmu.other.liquidation.model.vo;
 
 
 import cn.edu.xmu.oomall.core.model.VoObject;
+import cn.edu.xmu.other.liquidation.microservice.vo.SimpleShopVo;
 import cn.edu.xmu.other.liquidation.model.bo.Expenditure;
 import cn.edu.xmu.other.liquidation.model.bo.Revenue;
 import io.swagger.annotations.ApiModel;
@@ -21,7 +22,7 @@ import java.time.LocalDateTime;
 @ApiModel(description = "通用账本对象")
 public class GeneralLedgersRetVo implements VoObject {
     Long id;
-    SimpleShopRetVo shop;
+    SimpleShopVo shop;
     SimpleProductRetVo product;
     Long amount;
     Integer quantity;
@@ -33,7 +34,7 @@ public class GeneralLedgersRetVo implements VoObject {
     LocalDateTime gmtCreate;
     LocalDateTime gmtModified;
     SimpleUserRetVo modifier;
-    public GeneralLedgersRetVo(Expenditure expenditure,SimpleShopRetVo shop,SimpleProductRetVo product)
+    public GeneralLedgersRetVo(Expenditure expenditure,SimpleShopVo shop,SimpleProductRetVo product)
     {
         this.id=expenditure.getId();
         this.product=product;
@@ -49,7 +50,7 @@ public class GeneralLedgersRetVo implements VoObject {
         this.gmtModified=expenditure.getGmtModified();
         this.modifier=new SimpleUserRetVo(expenditure.getModifierId(),expenditure.getModifierName());
     }
-    public GeneralLedgersRetVo(Revenue revenue,SimpleShopRetVo shop,SimpleProductRetVo product)
+    public GeneralLedgersRetVo(Revenue revenue,SimpleShopVo shop,SimpleProductRetVo product)
     {
         this.id=revenue.getId();
         this.product=product;
