@@ -150,7 +150,6 @@ public class CustomerController {
 
     @ApiOperation(value = "用户重置密码", produces = "application/json;charset=UTF-8")
     @ApiImplicitParams(value = {
-            @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户token", required = true),
             @ApiImplicitParam(paramType = "body", dataType = "Object", name = "body", value = "可修改的用户信息", required = true)
     })
     @ApiResponses(value = {
@@ -158,9 +157,8 @@ public class CustomerController {
             @ApiResponse(code = 500, message = "服务器内部错误"),
             @ApiResponse(code = 608,message = "用户名/邮箱/电话不存在")
     })
-    @Audit
     @PutMapping("/customers/password/reset")
-    public Object resetPassword(@Validated @RequestParam ResetPwdVo body, BindingResult bindingResult, HttpServletRequest httpServletRequest)
+    public Object resetPassword(@Validated @RequestBody ResetPwdVo body, BindingResult bindingResult)
     {
         /* 处理参数校验错误 */
         Object o = Common.processFieldErrors(bindingResult, httpServletResponse);
