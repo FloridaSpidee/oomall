@@ -121,7 +121,6 @@ public class CustomerService {
         else
         {
             List<CustomerPo> pos=(List<CustomerPo>) returnObject.getData();
-            System.out.println(pos.get(0).getEmail());
             if(!(pos.size()>0))
             {
                 return new ReturnObject(ReturnNo.CUSTOMER_INVALID_ACCOUNT);

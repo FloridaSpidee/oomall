@@ -329,9 +329,7 @@ public class CustomerDao {
         try{
             String key=String.format(USERKEY,po.getId());
             bantoken(po.getId());
-            System.out.println(po.getId());
             String userToken=jwtHelper.createToken(po.getId(),po.getUserName(),1L,1,ExpireTime);
-            System.out.println(userToken);
             redisUtil.set(key,userToken,ExpireTime);
             return new ReturnObject(userToken);
         }catch (Exception e)
@@ -355,7 +353,6 @@ public class CustomerDao {
     public void bantoken(Long id)
     {
         String key=String.format(USERKEY,id);
-        System.out.println(key);
         if(CANMULTIPLYLOGIN){
             Serializable token=redisUtil.get(key);
             redisUtil.del(key);

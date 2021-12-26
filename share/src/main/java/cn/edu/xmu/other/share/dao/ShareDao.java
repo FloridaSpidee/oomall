@@ -44,7 +44,6 @@ public class ShareDao {
             var pageInfo=new PageInfo(poList);
             var pageInfo2= new PageInfo<>();
             var pageInfo3=new PageInfo<>();
-            System.out.println(pageInfo.getPageSize()+" "+pageInfo2.getPageSize());
             var boList=new ArrayList<Share>();
             for(SharePo sharePo:poList) {
                 boList.add((Share) cloneVo(sharePo, Share.class));
