@@ -28,6 +28,7 @@ import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Repository;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static cn.edu.xmu.privilegegateway.annotation.util.Common.cloneVo;
@@ -65,6 +66,24 @@ public class CustomerDao {
      * 验证码的redis key: cp_id
      */
     private final static String CAPTCHAKEY = "cp_%s";
+
+    final String EMAILFILTER="CustomerEmailBloomFilter";
+    final String MOBILEFILTER="CustomerMobileBloomFilter";
+    final String NAMEFILTER="CustomerNameBloomFilter";
+
+    public ReturnObject checkBloomFilter(CustomerPo po){
+        if(stringBloomFilter.checkValue(EMAILFILTER, po.getEmail())){
+            return new ReturnObject(ReturnNo.CUSTOMER_EMAILEXIST);
+        }
+        if(stringBloomFilter.checkValue(MOBILEFILTER, po.getMobile())){
+            return new ReturnObject(ReturnNo.CUSTOMER_MOBILEEXIST);
+        }
+        if(stringBloomFilter.checkValue(NAMEFILTER, po.getUserName())){
+            return new ReturnObject(ReturnNo.CUSTOMER_NAMEEXIST);
+        }
+        return null;
+
+    }
 
 
     public ReturnObject getCustomerInfo(Long id)
@@ -147,6 +166,28 @@ public class CustomerDao {
             }
 
             return new ReturnObject<>(customerPo);
+        } catch (Exception e) {
+            // 其他 Exception 即属未知错误
+            logger.error("严重错误：" + e.getMessage());
+            return new ReturnObject<>(ReturnNo.INTERNAL_SERVER_ERR,
+                    String.format("发生了严重的未知错误：%s", e.getMessage()));
+        }
+    }
+
+    public ReturnObject getCustomerPoByUserName(String userName)
+    {
+        try {
+            CustomerPoExample example = new CustomerPoExample();
+            CustomerPoExample.Criteria criteria = example.createCriteria();
+
+            if(userName!=null&&!userName.isBlank())
+                criteria.andUserNameEqualTo(userName);
+            List<CustomerPo> customers = customerPoMapper.selectByExample(example);
+            // 不修改已被逻辑废弃的账户
+            if (customers == null || (customers.get(0).getState() != null && Customer.State.getTypeByCode(customers.get(0).getState().intValue()) == Customer.State.FORBID)) {
+                return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST);
+            }
+            return new ReturnObject<>(customers);
         } catch (Exception e) {
             // 其他 Exception 即属未知错误
             logger.error("严重错误：" + e.getMessage());
@@ -243,13 +284,54 @@ public class CustomerDao {
 
     }
 
+    public ReturnObject createCustomerByBo(Customer customer){
+        //logger.debug(String.valueOf(bloomFilter.includeByBloomFilter("mobileBloomFilter","FAED5EEF1C8562B02110BCA3F9165CBE")));
+        //by default,email/mobile are both needed
+//        CustomerPo newUserPo = (CustomerPo) baseCoder.code_sign(newUserBo,CustomerPo.class,codeFields,signFields,"signature");
+        CustomerPo customerPo=cloneVo(customer,CustomerPo.class);
+        ReturnObject returnObject;
+        returnObject=checkBloomFilter(customerPo);
+        try{
+            stringBloomFilter.addValue(NAMEFILTER,customer.getUserName());
+            stringBloomFilter.addValue(EMAILFILTER,customer.getEmail());
+            stringBloomFilter.addValue(MOBILEFILTER,customer.getMobile());
+            customerPo.setGmtCreate(LocalDateTime.now());
+            customerPoMapper.insert(customerPo);
+            returnObject=new ReturnObject<>(customerPo);
+            logger.debug("success trying to insert newUser");
+        }
+        //catch exception by unique index
+        catch (DuplicateKeyException e){
+            logger.debug("failed trying to insert newUser");
+            //e.printStackTrace();
+            String info=e.getMessage();
+            if(info.contains("user_name_uindex")){
+                return new ReturnObject(ReturnNo.CUSTOMER_NAMEEXIST);
+            }
+            if(info.contains("email_uindex")){
+                return new ReturnObject(ReturnNo.CUSTOMER_EMAILEXIST);
+            }
+            if(info.contains("mobile_uindex")){
+                return new ReturnObject(ReturnNo.CUSTOMER_MOBILEEXIST);
+            }
+
+        }
+        catch (Exception e){
+            logger.error("Internal error Happened:"+e.getMessage());
+            return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR, e.getMessage());
+        }
+        return returnObject;
+    }
+
     public ReturnObject createtoken(CustomerPo po)
     {
         JwtHelper jwtHelper=new JwtHelper();
         try{
             String key=String.format(USERKEY,po.getId());
             bantoken(po.getId());
+            System.out.println(po.getId());
             String userToken=jwtHelper.createToken(po.getId(),po.getUserName(),1L,1,ExpireTime);
+            System.out.println(userToken);
             redisUtil.set(key,userToken,ExpireTime);
             return new ReturnObject(userToken);
         }catch (Exception e)
@@ -273,6 +355,7 @@ public class CustomerDao {
     public void bantoken(Long id)
     {
         String key=String.format(USERKEY,id);
+        System.out.println(key);
         if(CANMULTIPLYLOGIN){
             Serializable token=redisUtil.get(key);
             redisUtil.del(key);

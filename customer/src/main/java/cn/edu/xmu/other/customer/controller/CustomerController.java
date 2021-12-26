@@ -1,10 +1,7 @@
 package cn.edu.xmu.other.customer.controller;
 
 import cn.edu.xmu.oomall.core.util.Common;
-import cn.edu.xmu.other.customer.model.vo.CustomerModifyVo;
-import cn.edu.xmu.other.customer.model.vo.LoginVo;
-import cn.edu.xmu.other.customer.model.vo.ModifyPwdVo;
-import cn.edu.xmu.other.customer.model.vo.ResetPwdVo;
+import cn.edu.xmu.other.customer.model.vo.*;
 import cn.edu.xmu.other.customer.service.CustomerService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
 import cn.edu.xmu.privilegegateway.annotation.aop.LoginName;
@@ -100,6 +97,8 @@ public class CustomerController {
         return decorateReturnObject(customerService.updateUserSelfInfo(customerModifyVo,loginUserId,loginUserName));
     }
 
+
+
     /**
      * 平台管理员获取所有用户列表
      */
@@ -174,17 +173,35 @@ public class CustomerController {
 
     }
 
+    @ApiOperation(value = "注册用户", produces = "application/json;charset=UTF-8")
+    @ApiImplicitParams(value = {
+            @ApiImplicitParam(paramType = "body", dataType = "Object", name = "body", value = "可填写的用户信息", required = true)
+    })
+    @ApiResponses(value = {
+            @ApiResponse(code = 0, message = "成功"),
+            @ApiResponse(code = 731,message = "用户名已被注册"),
+            @ApiResponse(code = 608,message = "邮箱已被注册"),
+            @ApiResponse(code = 608,message = "电话已被注册")
+    })
+    @PostMapping("/customers")
+    public Object Register(@Validated @RequestBody NewCustomerVo newCustomerVo, BindingResult bindingResult)
+    {
+        var res = cn.edu.xmu.privilegegateway.annotation.util.Common.processFieldErrors(bindingResult, httpServletResponse);
+        if (res != null) {
+            return res;
+        }
+        ReturnObject returnObject=customerService.newUser(newCustomerVo);
+        return decorateReturnObject(returnObject);
+    }
+
+
     @ApiOperation(value = "用户名密码登录", produces = "application/json;charset=UTF-8")
     @ApiImplicitParams(value = {
             @ApiImplicitParam(paramType = "body", dataType = "Object", name = "body", value = "用户名和密码", required = true)
     })
     @ApiResponses(value = {
             @ApiResponse(code = 0, message = "成功"),
-            @ApiResponse(code = 500, message = "服务器内部错误"),
-            @ApiResponse(code = 609,message = "用户名不存在或者密码错误"),
-            @ApiResponse(code = 610,message = "用户被禁止登录")
     })
-    @Audit
     @PostMapping("/login")
     public Object login(@Validated @RequestBody LoginVo loginVo, BindingResult bindingResult){
         /* 处理参数校验错误 */
@@ -192,7 +209,6 @@ public class CustomerController {
         if(o != null){
             return o;
         }
-
         return decorateReturnObject(customerService.login(loginVo));
     }
 

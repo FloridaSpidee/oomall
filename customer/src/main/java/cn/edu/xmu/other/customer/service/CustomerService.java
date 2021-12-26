@@ -79,6 +79,18 @@ public class CustomerService {
         return pageInfoReturnObject;
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public ReturnObject newUser(NewCustomerVo newcustomerVo){
+        Customer customer = (Customer) Common.cloneVo(newcustomerVo, Customer.class);
+        ReturnObject ret = customerDao.createCustomerByBo(customer);
+        if(ret.getData()==null){
+            return ret;
+        }
+        CustomerPo customerpo = (CustomerPo) ret.getData();
+        SimpleUserRetVo simpleUserRetVo = new SimpleUserRetVo(customerpo.getId(),customerpo.getName());
+        return new ReturnObject(simpleUserRetVo);
+    }
+
     @Transactional(rollbackFor=Exception.class)
     public ReturnObject Logout(long userId)
     {
@@ -96,11 +108,12 @@ public class CustomerService {
     }
 
 
+
     @Transactional(rollbackFor = Exception.class)
     public ReturnObject login(LoginVo loginVo) {
         Customer customer=new Customer();
         customer.setUserName(loginVo.getUserName());
-        ReturnObject returnObject=customerDao.getCustomerPoById(customer.getId());
+        ReturnObject returnObject=customerDao.getCustomerPoByUserName(customer.getUserName());
         if(returnObject.getData()==null)
         {
             return new ReturnObject(ReturnNo.CUSTOMER_INVALID_ACCOUNT);
@@ -108,6 +121,7 @@ public class CustomerService {
         else
         {
             List<CustomerPo> pos=(List<CustomerPo>) returnObject.getData();
+            System.out.println(pos.get(0).getEmail());
             if(!(pos.size()>0))
             {
                 return new ReturnObject(ReturnNo.CUSTOMER_INVALID_ACCOUNT);
