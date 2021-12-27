@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.scripting.support.ResourceScriptSource;
 import org.springframework.stereotype.Repository;
@@ -50,11 +51,17 @@ public class CustomerDao {
     @Autowired
     private RedisUtil redisUtil;
 
-    @Value("${privilegegateway.Time:3600}")
+    @Value("${privilegeservice.login.Time:3600}")
     private Integer ExpireTime = 3600;
 
     @Value("${privilegeservice.login.multiply}")
     private Boolean CANMULTIPLYLOGIN;
+
+    @Value("${privilegeservice.resetpassword.sendCaptchaLimit}")
+    private Long TIMElIMIT;
+
+    @Value("${privilegeservice.resetpassword.captchaExpire}")
+    private Integer CaptchaExpireTime;
 
     /**
      * 用户的redis key： u_id
@@ -66,6 +73,11 @@ public class CustomerDao {
      * 验证码的redis key: cp_id
      */
     private final static String CAPTCHAKEY = "cp_%s";
+
+    @Autowired
+    private RedisTemplate redisTemplate;
+
+
 
     final String EMAILFILTER="CustomerEmailBloomFilter";
     final String MOBILEFILTER="CustomerMobileBloomFilter";
@@ -285,42 +297,39 @@ public class CustomerDao {
     }
 
     public ReturnObject createCustomerByBo(Customer customer){
-        //logger.debug(String.valueOf(bloomFilter.includeByBloomFilter("mobileBloomFilter","FAED5EEF1C8562B02110BCA3F9165CBE")));
-        //by default,email/mobile are both needed
-//        CustomerPo newUserPo = (CustomerPo) baseCoder.code_sign(newUserBo,CustomerPo.class,codeFields,signFields,"signature");
         CustomerPo customerPo=cloneVo(customer,CustomerPo.class);
         ReturnObject returnObject;
-        returnObject=checkBloomFilter(customerPo);
         try{
-            stringBloomFilter.addValue(NAMEFILTER,customer.getUserName());
-            stringBloomFilter.addValue(EMAILFILTER,customer.getEmail());
-            stringBloomFilter.addValue(MOBILEFILTER,customer.getMobile());
-            customerPo.setGmtCreate(LocalDateTime.now());
-            customerPoMapper.insert(customerPo);
-            returnObject=new ReturnObject<>(customerPo);
-            logger.debug("success trying to insert newUser");
-        }
-        //catch exception by unique index
-        catch (DuplicateKeyException e){
-            logger.debug("failed trying to insert newUser");
-            //e.printStackTrace();
-            String info=e.getMessage();
-            if(info.contains("user_name_uindex")){
-                return new ReturnObject(ReturnNo.CUSTOMER_NAMEEXIST);
-            }
-            if(info.contains("email_uindex")){
-                return new ReturnObject(ReturnNo.CUSTOMER_EMAILEXIST);
-            }
-            if(info.contains("mobile_uindex")){
+            CustomerPoExample example=new CustomerPoExample();
+            CustomerPoExample.Criteria criteria=example.createCriteria();
+            criteria.andMobileEqualTo(customer.getMobile());
+            List<CustomerPo> moblie=customerPoMapper.selectByExample(example);
+            if(moblie.size()>0)
                 return new ReturnObject(ReturnNo.CUSTOMER_MOBILEEXIST);
-            }
-
+            example.clear();
+            CustomerPoExample.Criteria criteria1=example.createCriteria();
+            criteria1.andEmailEqualTo(customer.getEmail());
+            List<CustomerPo> email=customerPoMapper.selectByExample(example);
+            if(email.size()>0)
+                return new ReturnObject(ReturnNo.CUSTOMER_EMAILEXIST);
+            example.clear();
+            CustomerPoExample.Criteria criteria2=example.createCriteria();
+            criteria2.andUserNameEqualTo(customer.getUserName());
+            List<CustomerPo> username=customerPoMapper.selectByExample(example);
+            if(username.size()>0)
+                return new ReturnObject(ReturnNo.CUSTOMER_NAMEEXIST);
+            customerPo.setState((byte)0);
+            customerPo.setPoint(0L);
+            customerPo.setBeDeleted((byte)0);
+            customerPoMapper.insertSelective(customerPo);
+            returnObject=new ReturnObject(customerPo);
+            logger.debug("success trying to insert newUser");
+            return returnObject;
         }
         catch (Exception e){
             logger.error("Internal error Happened:"+e.getMessage());
             return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR, e.getMessage());
         }
-        return returnObject;
     }
 
     public ReturnObject createtoken(CustomerPo po)
