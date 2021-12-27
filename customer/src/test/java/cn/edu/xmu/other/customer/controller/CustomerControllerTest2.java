@@ -106,7 +106,7 @@ public class CustomerControllerTest2 {
 //        brKeys.add("br_96");
 //        Mockito.when(redisUtil.getSet("fu_55")).thenReturn(brKeys);
         LoginVo loginVo = new LoginVo();
-        loginVo.setUserName("admin");
+        loginVo.setUserName("customer1");
         loginVo.setPassword("12345");
         String json = JacksonUtil.toJson(loginVo);
         //以下是正常情况返回的

@@ -127,13 +127,9 @@ public class CustomerService {
             }
             CustomerPo po=pos.get(0);
             if(po.getState()!=null&&po.getState().equals(Customer.State.FORBID.getCode())||po.getBeDeleted()!=null&&po.getBeDeleted().equals(Customer.Deleted.DELETED.getCode()))
-            {
                 return new ReturnObject(ReturnNo.CUSTOMER_FORBIDDEN);
-            }
             if(!po.getPassword().equals(loginVo.getPassword()))
-            {
                 return new ReturnObject(ReturnNo.CUSTOMER_INVALID_ACCOUNT);
-            }
             return customerDao.createtoken(po);
         }
     }
