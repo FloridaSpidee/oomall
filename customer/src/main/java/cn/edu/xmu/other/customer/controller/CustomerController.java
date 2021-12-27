@@ -213,7 +213,14 @@ public class CustomerController {
         if(o != null){
             return o;
         }
-        return decorateReturnObject(customerService.login(loginVo));
+        ReturnObject returnObject=customerService.login(loginVo);
+        if (returnObject.getCode().equals(ReturnNo.CUSTOMER_INVALID_ACCOUNT))
+            return new ResponseEntity(ResponseUtil.fail(returnObject.getCode(), returnObject.getErrmsg()), HttpStatus.UNAUTHORIZED);
+        if (returnObject.getCode().equals(ReturnNo.OK))
+            return new ResponseEntity(ResponseUtil.ok(returnObject.getData()), HttpStatus.CREATED);
+        if(returnObject.getCode().equals(ReturnNo.CUSTOMER_FORBIDDEN))
+            return new ResponseEntity(ResponseUtil.fail(returnObject.getCode(), returnObject.getErrmsg()), HttpStatus.FORBIDDEN);
+        return decorateReturnObject(returnObject);
     }
 
     @ApiOperation(value = "用户登出", produces = "application/json;charset=UTF-8")
