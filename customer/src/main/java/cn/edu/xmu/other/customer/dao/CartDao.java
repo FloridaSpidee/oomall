@@ -3,6 +3,7 @@ package cn.edu.xmu.other.customer.dao;
 
 import cn.edu.xmu.other.customer.mapper.ShoppingCartPoMapper;
 import cn.edu.xmu.other.customer.model.bo.Cart;
+import cn.edu.xmu.other.customer.model.bo.Product;
 import cn.edu.xmu.other.customer.model.po.ShoppingCartPo;
 import cn.edu.xmu.other.customer.model.po.ShoppingCartPoExample;
 import cn.edu.xmu.privilegegateway.annotation.util.ReturnNo;
@@ -40,9 +41,6 @@ public class CartDao {
             ShoppingCartPoExample.Criteria criteria= example.createCriteria();
             criteria.andCustomerIdEqualTo(customerId);
             List<ShoppingCartPo> cartsPos = shoppingCartPoMapper.selectByExample(example);
-            if(cartsPos.size()==0){
-                return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST,"操作的资源id不存在！");
-            }
             List<Cart> carts = new ArrayList<>();
             for(ShoppingCartPo cartPo:cartsPos){
                 Cart cart = (Cart)cloneVo(cartPo,Cart.class);
@@ -55,6 +53,24 @@ public class CartDao {
         }
     }
 
+    public ReturnObject getCartByProductId(Long customerId,Long productId) {
+        try{
+            ShoppingCartPoExample example = new ShoppingCartPoExample();
+            ShoppingCartPoExample.Criteria criteria= example.createCriteria();
+            criteria.andProductIdEqualTo(productId);
+            criteria.andCustomerIdEqualTo(customerId);
+            List<ShoppingCartPo> poList = shoppingCartPoMapper.selectByExample(example);
+            if(poList.size()==0)
+                return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST);
+            else {
+                Cart cart = (Cart) cloneVo(poList.get(0),Cart.class);
+                return new ReturnObject(cart);
+            }
+        }
+        catch (Exception e){
+            return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,"服务器内部错误！");
+        }
+    }
 
     public boolean deleteGoodsByCartId(Long id) {
         try {
@@ -95,7 +111,7 @@ public class CartDao {
     public ReturnObject addCart(Cart cart){
         try{
             ShoppingCartPo cartPo = (ShoppingCartPo) cloneVo(cart,ShoppingCartPo.class);
-            int ret = shoppingCartPoMapper.insert(cartPo);
+            shoppingCartPoMapper.insert(cartPo);
             cart.setId(cartPo.getId());
             return new ReturnObject(cart);
         }catch (Exception e){

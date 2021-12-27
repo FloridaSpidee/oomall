@@ -1,4 +1,4 @@
-package cn.edu.xmu.other.customer.model.vo;
+package cn.edu.xmu.other.customer.microservice.vo;
 
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;

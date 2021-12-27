@@ -57,12 +57,6 @@ public class CustomerDao {
     @Value("${privilegeservice.login.multiply}")
     private Boolean CANMULTIPLYLOGIN;
 
-    @Value("${privilegeservice.resetpassword.sendCaptchaLimit}")
-    private Long TIMElIMIT;
-
-    @Value("${privilegeservice.resetpassword.captchaExpire}")
-    private Integer CaptchaExpireTime;
-
     /**
      * 用户的redis key： u_id
      *

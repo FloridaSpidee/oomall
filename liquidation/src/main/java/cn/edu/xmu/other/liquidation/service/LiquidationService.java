@@ -104,12 +104,6 @@ public class LiquidationService {
      */
     @Transactional(rollbackFor = Exception.class)
     public ReturnObject startLiquidations(Long shopId,String loginUserName, ZonedDateTime beginTime,ZonedDateTime endTime){
-        InternalReturnObject internalShopObj = shopService.getShopInfo(shopId);
-        if(internalShopObj.getErrno()!=ReturnNo.OK.getCode()){
-            return new ReturnObject(ReturnNo.getReturnNoByCode(internalShopObj.getErrno()),internalShopObj.getErrmsg());
-        }
-        SimpleShopVo simpleShopVo = (SimpleShopVo) internalShopObj.getData();
-
         //获得已对账的流水
         Byte state = Payment.State.RECO.getCode();
         InternalReturnObject internalReturnObject1 = payService.getPaymentByStateAndTime(shopId,state,beginTime,endTime,1,10);
@@ -163,6 +157,13 @@ public class LiquidationService {
                 //获取商铺id，区别于shopId：管理员id
                 Long shopsId = simpleOrderRetVo.getShopId();
                 if(!liquidation.containsKey(shopsId)){
+
+                    InternalReturnObject internalShopObj = shopService.getShopInfo(shopsId);
+                    if(internalShopObj.getErrno()!=ReturnNo.OK.getCode()){
+                        return new ReturnObject(ReturnNo.getReturnNoByCode(internalShopObj.getErrno()),internalShopObj.getErrmsg());
+                    }
+                    SimpleShopVo simpleShopVo = (SimpleShopVo) internalShopObj.getData();
+
                     //初始化各HashMap
                     init(shopsId,shopId,loginUserName,expenditureList,revenueList,liquidation,simpleShopVo,totalAmount,expressFee,point,commission);
                 }
@@ -346,6 +347,11 @@ public class LiquidationService {
                 //获取商铺id，区别于shopId：管理员id
                 Long shopsId = order.getShopId();
                 if(!expenditureList.containsKey(shopsId)){
+                    InternalReturnObject internalShopObj = shopService.getShopInfo(shopsId);
+                    if(internalShopObj.getErrno()!=ReturnNo.OK.getCode()){
+                        return new ReturnObject(ReturnNo.getReturnNoByCode(internalShopObj.getErrno()),internalShopObj.getErrmsg());
+                    }
+                    SimpleShopVo simpleShopVo = (SimpleShopVo) internalShopObj.getData();
                     //初始化各HashMap
                     init(shopsId,shopId,loginUserName,expenditureList,revenueList,liquidation,simpleShopVo,totalAmount,expressFee,point,commission);
                 }
@@ -450,18 +456,20 @@ public class LiquidationService {
      * @Date 2021/12/24
      */
     //初始化
-    private final void init(Long shopsId,
-              Long shopId,
-              String loginUserName,
-              HashMap<Long,List<Expenditure>> expenditureList,
-              HashMap<Long,List<Revenue>> revenueList,
-              HashMap<Long,Liquidation> liquidation,
-              SimpleShopVo simpleShopVo,
-              HashMap<Long,Long> totalAmount,
-              HashMap<Long,Long> expressFee,
-              HashMap<Long,Long> point,
-              HashMap<Long,Long> commission)
+    private final void init(
+            Long shopsId,
+            Long shopId,
+            String loginUserName,
+            HashMap<Long,List<Expenditure>> expenditureList,
+            HashMap<Long,List<Revenue>> revenueList,
+            HashMap<Long,Liquidation> liquidation,
+            SimpleShopVo simpleShopVo,
+            HashMap<Long,Long> totalAmount,
+            HashMap<Long,Long> expressFee,
+            HashMap<Long,Long> point,
+            HashMap<Long,Long> commission)
     {
+
         expenditureList.put(shopsId,new ArrayList<Expenditure>());
         revenueList.put(shopsId,new ArrayList<Revenue>());
         liquidation.put(shopsId,new Liquidation());

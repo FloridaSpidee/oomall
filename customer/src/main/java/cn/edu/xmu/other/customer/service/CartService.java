@@ -1,6 +1,7 @@
 package cn.edu.xmu.other.customer.service;
 
 import cn.edu.xmu.other.customer.dao.CartDao;
+import cn.edu.xmu.other.customer.microservice.vo.OnsaleRetVo;
 import cn.edu.xmu.other.customer.microservice.vo.ProductRetVo;
 import cn.edu.xmu.other.customer.model.bo.Product;
 import cn.edu.xmu.other.customer.model.bo.Cart;
@@ -13,6 +14,7 @@ import cn.edu.xmu.privilegegateway.annotation.util.ReturnNo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,7 +49,7 @@ public class CartService {
     public ReturnObject getCartList(Long userId,Integer page,Integer pageSize){
         PageHelper.startPage(page, pageSize, true, true, true);
         ReturnObject returnObject = cartDao.getCartList(userId);
-        if(returnObject.getData()==null){
+        if(returnObject.getCode()!=ReturnNo.OK){
             return returnObject;
         }
         List<Cart> carts = (List<Cart>) returnObject.getData();
@@ -66,17 +68,19 @@ public class CartService {
                 ProductRetVo productRetVo = (ProductRetVo) cloneVo(internalObj.getData(),ProductRetVo.class);
                 //得到最总返回前端的CartRetVo内的SimpleProduct，并设置price
                 SimpleProduct simpleProduct = (SimpleProduct) cloneVo(productRetVo,SimpleProduct.class);
+                simpleProduct.setId(cart.getProductId());
                 cartRetVo.setProduct(simpleProduct);
-                cartRetVo.setPrice(productRetVo.getPrice()*cart.getQuantity().longValue());
+
+                cartRetVo.setPrice(productRetVo.getPrice());
 
                 //读取CouponActivity
-                InternalReturnObject internalObj2 = couponService.listCouponActivitiesByProductId(productRetVo.getId());
+                InternalReturnObject<PageInfo<CouponActivityRetVo>> internalObj2 = couponService.listCouponActivitiesByProductId(simpleProduct.getId());
 
                 //CouponActivity模块判断判断是否有错
                 if(internalObj2.getErrno().equals(0)) {
                     /*将返回的internalObj2转为List<SimpleCouponActivity>并赋值给cartRetVo的List<SimpleCouponActivity> couponActivity。*/
 
-                    PageInfo<CouponActivityRetVo> CouponActivityRetVoPage = (PageInfo<CouponActivityRetVo>)internalObj2.getData();
+                    PageInfo<CouponActivityRetVo> CouponActivityRetVoPage = internalObj2.getData();
                     List<CouponActivityRetVo> CouponActivityRetVoList= CouponActivityRetVoPage.getList();
                     List<SimpleCouponActivity> simpleCouponActivityList = new ArrayList<>();
                     for(CouponActivityRetVo couponActivityRetVo:CouponActivityRetVoList){
@@ -103,7 +107,7 @@ public class CartService {
         if(!cartDao.deleteGoodsByCartId(id)){
             return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST,"操作的资源id不存在");
         }
-        else return new ReturnObject<>();
+        else return new ReturnObject<>(ReturnNo.OK);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -114,20 +118,36 @@ public class CartService {
     @Transactional(rollbackFor = Exception.class)
     public ReturnObject addCart(@Valid CartVo cartVo, Long loginUserId, String loginUserName){
         Cart cart = (Cart)cloneVo(cartVo,Cart.class);
+        cart.setCustomerId(loginUserId);
         setPoCreatedFields(cart,loginUserId,loginUserName);
-        //读取product的price
-        InternalReturnObject<ProductRetVo> internalObj = productService.getProductDetails(cart.getProductId());
-        if(internalObj.getErrno().equals(0)) {
-            Product product = (Product)cloneVo(internalObj.getData(),Product.class);
-            cart.setPrice(product.getPrice()*cart.getQuantity().longValue());
+        //读取Onsale的price
+        InternalReturnObject<ProductRetVo> productRetObj = productService.getProductDetails(cart.getProductId());
+        if(productRetObj.getErrno().equals(0)) {
+            ProductRetVo productRetVo = productRetObj.getData();
+            ReturnObject returnObject = cartDao.getCartByProductId(loginUserId,productRetVo.getId());
+            //更新购物车数量
+            if(returnObject.getData()!=null){
+                Cart cartBefor = (Cart) returnObject.getData();
+                cart.setQuantity(cart.getQuantity()+cartBefor.getQuantity());
+                cartDao.deleteGoodsByCartId(cartBefor.getId());
+            }
+            else if(returnObject.getCode()==ReturnNo.INTERNAL_SERVER_ERR){
+                return returnObject;
+            }
+
+            if(cart.getQuantity()>productRetVo.getQuantity())
+                cart.setQuantity(productRetVo.getQuantity());
+            cart.setPrice(productRetVo.getPrice()*cart.getQuantity());
             ReturnObject retObj = cartDao.addCart(cart);
             if(retObj.getData() == null){
                 return retObj;
             }
-            SuccessfulCartRetVo cartRet = (SuccessfulCartRetVo)cloneVo(retObj.getData(),SuccessfulCartRetVo.class);
+            SuccessfulCartRetVo cartRet = (SuccessfulCartRetVo)cloneVo((Cart)retObj.getData(),SuccessfulCartRetVo.class);
+            cartRet.setQuantity(cartVo.getQuantity());
+            cartRet.setPrice(cartVo.getQuantity()*productRetVo.getPrice());
             return new ReturnObject(cartRet);
         }
-        else return new ReturnObject(internalObj.getErrno());
+        else return new ReturnObject(productRetObj.getErrno());
     }
 
     @Transactional(rollbackFor = Exception.class)
