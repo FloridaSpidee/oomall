@@ -49,12 +49,15 @@ class ShareControllerTest {
     @MockBean
     private ShopService shopService;
 
-    private final ProductRetVo product1 = new ProductRetVo(1L, new SimpleObject(1L, "shop1"), 1L, 1L, null, null, null, 20L, 20L, 20L, 10, null, null, null, null, null, true);
+    private final ProductRetVo product1 = null;
     private final SimpleProductRetVo simpleProduct1 = new SimpleProductRetVo(1L, "product1", null);
-    private final OnSaleRetVo onsale1 = new OnSaleRetVo(1L, 20L, 10, null, null, null, 1L, 1L, null, 100, null, null, new SimpleProductRetVo(1L, null, null), new SimpleShopVo(1L,"shop1"), null, null);
-    private final ProductRetVo product2 = new ProductRetVo(2L, new SimpleObject(2L, "shop2"), 2L, 2L, null, null, null, 20L, 20L, 20L, 10, null, null, null, null, null, true);
+    private final OnSaleRetVo onsale1 =
+            null;
+    private final ProductRetVo product2 =
+            null;
     private final SimpleProductRetVo simpleProduct2 = new SimpleProductRetVo(2L, "product2", null);
-    private final OnSaleRetVo onsale2 = new OnSaleRetVo(2L, 20L, 10, null, null, null, 2L, 2L, null, 100, null, null, new SimpleProductRetVo(2L, null, null), new SimpleShopVo(2L,"shop2"), null, null);
+    private final OnSaleRetVo onsale2 =
+            null;
     private final ReturnObject noExistErrorRet = new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST);
     private final InternalReturnObject noExistErrorIntRet = new InternalReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST.getCode(), ReturnNo.RESOURCE_ID_NOTEXIST.getMessage());
     private final CustomerRetVo customer1 = new CustomerRetVo(1L, "user1", null, null, null, null, null);
@@ -71,9 +74,6 @@ class ShareControllerTest {
         Mockito.when(shopService.getShopInfo(1L)).thenReturn(new InternalReturnObject<>(shop1));
         Mockito.when(shopService.getShopInfo(2L)).thenReturn(new InternalReturnObject<>(shop2));
         Mockito.when(shopService.getShopInfo(1L)).thenReturn(noExistErrorIntRet);
-        Mockito.when(goodsService.getSimpleOnSaleRetVoById(1L)).thenReturn(new InternalReturnObject<>(simpleOnSale1));
-        Mockito.when(goodsService.getSimpleOnSaleRetVoById(2L)).thenReturn(new InternalReturnObject<>(simpleOnSale2));
-        Mockito.when(goodsService.getSimpleOnSaleRetVoById(3L)).thenReturn(noExistErrorIntRet);//不存在错误
         Mockito.when(goodsService.getProductRetVoById(1L)).thenReturn(new InternalReturnObject(product1));
         Mockito.when(goodsService.getProductRetVoById(2L)).thenReturn(new InternalReturnObject(product2));
         Mockito.when(goodsService.getProductRetVoById(3L)).thenReturn(noExistErrorIntRet);//不存在错误

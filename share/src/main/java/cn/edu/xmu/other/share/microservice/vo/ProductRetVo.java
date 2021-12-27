@@ -12,7 +12,7 @@ public class ProductRetVo {
     private Long id;
     private SimpleObject shop;
     private Long goodsId;
-    private Long onSaleId;
+    private Long onsaleId;
     private String name;
     private String skuSn;
     private String imageUrl;
@@ -26,4 +26,5 @@ public class ProductRetVo {
     private String originPlace;
     private SimpleObject category;
     private Boolean shareable;
+    private Long freightId;
 }

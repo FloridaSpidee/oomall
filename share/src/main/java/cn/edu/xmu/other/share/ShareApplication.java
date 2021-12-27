@@ -14,7 +14,6 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication(scanBasePackages = {"cn.edu.xmu.oomall.core", "cn.edu.xmu.other.share","cn.edu.xmu.privilegegateway"})
 @EnableConfigurationProperties
 @MapperScan("cn.edu.xmu.other.share.mapper")
-@EnableDiscoveryClient
 @EnableFeignClients(basePackages = "cn.edu.xmu.other.share.microservice")
 public class ShareApplication {
     public static void main(String[] args) {

@@ -17,14 +17,14 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @date 2021/11/01
  */
 
-@FeignClient(name = "Goods")
+@FeignClient(name = "goods-service")
 public interface GoodsService {
-    @GetMapping("/internal/products/{id}")
+    @GetMapping("internal/products/{id}")
     public InternalReturnObject<SimpleProductRetVo> getSimpleProductRetVoById(@PathVariable Long id);
-    @GetMapping("/internal/product")
-    public InternalReturnObject<ProductRetVo> getProductRetVoById(@RequestParam Long id);
-    @GetMapping("/internal/onsales")
-    public InternalReturnObject<SimpleOnSaleRetVo> getSimpleOnSaleRetVoById(@RequestParam Long productId);
-    @GetMapping("/internal/onsales/{id}")
+    @GetMapping("internal/product/{id}/detail")
+    public InternalReturnObject<ProductRetVo> getProductRetVoById(@PathVariable Long id);
+    @GetMapping("internal/onsales")
+    public InternalReturnObject<SimpleOnSaleRetVo> getSimpleOnSaleRetVoByProductId(@RequestParam("productId") Long productId);
+    @GetMapping("internal/onsales/{id}")
     public InternalReturnObject<OnSaleRetVo> getOnSaleRetVoById(@PathVariable Long onsaleId);
 }

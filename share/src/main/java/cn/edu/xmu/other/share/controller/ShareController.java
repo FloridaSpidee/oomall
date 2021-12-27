@@ -24,7 +24,6 @@ import java.time.ZonedDateTime;
 
 @Api(value = "分享服务", tags = "shares")
 @RestController
-@RefreshScope
 @RequestMapping(value = "/", produces = "application/json;charset=UTF-8")
 public class ShareController {
     private final Logger logger = LoggerFactory.getLogger(ShareController.class);
@@ -46,13 +45,14 @@ public class ShareController {
             @ApiResponse(code = 504,message = "货品销售id不存在"),
             @ApiResponse(code = 609,message = "用户未登录")
     })
-    @Audit(departName = "shares")
+    @Audit
     @PostMapping("/onsale/{id}/shares")
     public Object generateShareResult(@PathVariable(value = "id") Long id,
                                       @LoginUser Long loginUserId,
                                       @LoginName String loginUserName)
     {
-        return Common.decorateReturnObject(shareService.generateShareResult(id,loginUserId,loginUserName));
+        ReturnObject returnObject=shareService.generateShareResult(id,loginUserId,loginUserName);
+        return Common.decorateReturnObject(returnObject);
     }
 
     @ApiOperation(value = "买家查询所有分享记录", produces = "application/json;charset=UTF-8")
@@ -71,7 +71,7 @@ public class ShareController {
             @ApiResponse(code = 504,message = "商品id不存在"),
             @ApiResponse(code = 947,message = "开始时间不能晚于结束时间")
     })
-    @Audit(departName = "shares")
+    @Audit
     @GetMapping("/shares")
     public Object getShares(@RequestParam(required = false) @DateTimeFormat(pattern="uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime beginTime,
                             @RequestParam(required = false) @DateTimeFormat(pattern="uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime endTime,
@@ -107,7 +107,7 @@ public class ShareController {
             @ApiResponse(code = 500, message = "服务器内部错误"),
             @ApiResponse(code = 404,message = "id或sid不存在"),
     })
-    @Audit(departName = "shares")
+    @Audit
     @GetMapping("/shares/{sid}/products/{id}")
     public Object getProductsFromShares(@PathVariable("sid") Long sid,
                                         @PathVariable("id") Long id,
@@ -132,8 +132,8 @@ public class ShareController {
             @ApiResponse(code = 404,message = "id或sid不存在"),
                 @ApiResponse(code = 505,message = "操作的资源id不是自己的对象")
     })
-    @Audit(departName = "shares")
-    @GetMapping("/shops/{did}/products/{id}/share")
+    @Audit
+    @GetMapping("/shops/{did}/products/{id}/shares")
     public Object getSharesOfGoods(@PathVariable("did") Long did,
                                    @PathVariable("id") Long id,
                                    @RequestParam(defaultValue = "1") Integer page,
@@ -161,7 +161,7 @@ public class ShareController {
             @ApiResponse(code = 947,message = "开始时间不能晚于结束时间"),
             @ApiResponse(code = 404,message = "productId不存在"),
     })
-    @Audit(departName = "shares")
+    @Audit
     @GetMapping("/beshared")
     public Object getBeShared(@RequestParam(required = false) @DateTimeFormat(pattern="uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime beginTime,
                               @RequestParam(required = false) @DateTimeFormat(pattern="uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime endTime,
@@ -200,7 +200,7 @@ public class ShareController {
             @ApiResponse(code = 504,message = "id或did不存在"),
             @ApiResponse(code = 505,message = "查看的不是自己的资源"),
     })
-    @Audit(departName = "shares")
+    @Audit
     @GetMapping("/shops/{did}/products/{id}/beshared")
     public Object getAllBeShared(@RequestParam(required = false) @DateTimeFormat(pattern="uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime beginTime,
                                  @RequestParam(required = false) @DateTimeFormat(pattern="uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime endTime,
