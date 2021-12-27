@@ -1,6 +1,7 @@
 package cn.edu.xmu.other.customer.controller;
 
 import cn.edu.xmu.oomall.core.util.Common;
+import cn.edu.xmu.oomall.core.util.ResponseUtil;
 import cn.edu.xmu.other.customer.model.vo.*;
 import cn.edu.xmu.other.customer.service.CustomerService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
@@ -14,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -188,8 +191,11 @@ public class CustomerController {
         if (res != null) {
             return res;
         }
+
         ReturnObject returnObject=customerService.newUser(newCustomerVo);
-        return decorateReturnObject(returnObject);
+        if(returnObject.getData()==null)
+            return decorateReturnObject(returnObject);
+        return new ResponseEntity(ResponseUtil.ok(returnObject.getData()), HttpStatus.CREATED);
     }
 
 

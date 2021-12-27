@@ -30,22 +30,9 @@ import javax.validation.constraints.*;
 @Data
 @NoArgsConstructor
 public class NewCustomerVo {
-    /*
-    Minimum eight characters, at least one letter and one number:
-    "^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$"
-    Minimum eight characters, at least one letter, one number and one special character:
-    "^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$"
-    Minimum eight characters, at least one uppercase letter, one lowercase letter and one number:
-    "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$"
-    Minimum eight characters, at least one uppercase letter, one lowercase letter, one number and one special character:
-    "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
-    Minimum eight and maximum 10 characters, at least one uppercase letter, one lowercase letter, one number and one special character:
-    "^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,10}$"
-     */
     @Length(min=6,message = "用户名长度过短")
     @NotBlank(message = "用户名不能为空")
     private String userName;
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,}$",message = "密码格式不正确，请包含大小写字母数字及特殊符号")
     @NotBlank(message = "请输入密码")
     private String password;
     @NotBlank(message = "名称不能为空")

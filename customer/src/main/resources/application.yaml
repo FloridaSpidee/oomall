@@ -5,7 +5,7 @@ management:
         include: "*"
 
 server:
-  port: 8081
+  port: 8083
   tomcat:
     threads:
       max: 500
@@ -15,12 +15,15 @@ privilegeservice:
   login:
     multiply: false
     ExpireTime: 3600
+  resetpassword:
+    sendCaptchaLimit: 60
+    captchaExpire: 25
 
 spring:
   main:
     allow-bean-definition-overriding: true
   application:
-    name: goods-service
+    name: customer-service
   servlet:
     multipart:
       enabled: true
@@ -28,7 +31,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 172.16.4.136
+        server-addr: 172.30.98.1:8848
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
