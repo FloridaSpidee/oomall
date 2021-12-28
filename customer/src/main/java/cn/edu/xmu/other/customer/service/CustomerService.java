@@ -61,7 +61,7 @@ public class CustomerService {
     {
         Customer customer= cloneVo(customerModifyVo,Customer.class);
         customer.setId(id);
-        Common.setPoModifiedFields(customer, id, loginUsername);
+        customer.setState(Customer.State.NORM.getCode());
         return customerDao.updateCustomerInfo(customer);
     }
 
@@ -126,7 +126,9 @@ public class CustomerService {
                 return new ReturnObject(ReturnNo.CUSTOMER_INVALID_ACCOUNT);
             }
             CustomerPo po=pos.get(0);
-            if(po.getState()!=null&&po.getState().equals(Customer.State.FORBID.getCode())||po.getBeDeleted()!=null&&po.getBeDeleted().equals(Customer.Deleted.DELETED.getCode()))
+            if(po.getState()!=null&&po.getState().equals(Customer.State.FORBID.getCode()))
+                return new ReturnObject(ReturnNo.CUSTOMER_FORBIDDEN);
+            if(po.getBeDeleted()!=null&&po.getBeDeleted().equals(Customer.Deleted.DELETED.getCode()))
                 return new ReturnObject(ReturnNo.CUSTOMER_FORBIDDEN);
             if(!po.getPassword().equals(loginVo.getPassword()))
                 return new ReturnObject(ReturnNo.CUSTOMER_INVALID_ACCOUNT);

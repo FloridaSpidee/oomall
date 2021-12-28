@@ -17,9 +17,8 @@ import java.util.Map;
 @NoArgsConstructor
 public class Customer {
     public enum State {
-        BACK((byte)0, "后台"),
-        NORM((byte)4, "正常"),
-        FORBID((byte)6, "封禁");
+        NORM((byte)0, "正常"),
+        FORBID((byte)1, "封禁");
 
         private static final Map<Byte, State> stateMap;
 

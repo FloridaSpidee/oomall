@@ -113,18 +113,9 @@ public class CustomerDao {
     {
         try {
             CustomerPo customerPo=cloneVo(customer,CustomerPo.class);
-//            Common.copyAttribute(customer,customerPo);
+            customerPo.setState(customer.getState());
             customerPoMapper.updateByPrimaryKeySelective(customerPo);
             return new ReturnObject(ReturnNo.OK);
-        }catch (DuplicateKeyException e) {
-            String info = e.getMessage();
-            if (info.contains("user_name_uindex")) {
-                return new ReturnObject(ReturnNo.CUSTOMER_NAMEEXIST);
-            } else if (info.contains("email_uindex")) {
-                return new ReturnObject(ReturnNo.CUSTOMER_EMAILEXIST);
-            } else {
-                return new ReturnObject(ReturnNo.CUSTOMER_MOBILEEXIST);
-            }
         }
         catch (Exception e)
         {

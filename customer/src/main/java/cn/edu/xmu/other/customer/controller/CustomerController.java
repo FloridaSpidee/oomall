@@ -51,7 +51,6 @@ public class CustomerController {
     @ApiResponses(value = {
             @ApiResponse(code = 0, message = "成功")
     })
-    @Audit
     @GetMapping("/customers/states")
     public Object getAllStates()
     {
