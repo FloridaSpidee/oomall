@@ -32,4 +32,27 @@ public class OnSaleRetVo{
     private SimpleShopVo shop;
     private SimpleAdminUserBo creator;
     private SimpleAdminUserBo modifier;
+
+    @Override
+    public String toString() {
+        return "OnSaleRetVo{" +
+                "id=" + id +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                ", beginTime=" + beginTime +
+                ", endTime=" + endTime +
+                ", type=" + type +
+                ", activityId=" + activityId +
+                ", shareActId=" + shareActId +
+                ", numKey=" + numKey +
+                ", maxQuantity=" + maxQuantity +
+                ", gmtCreate=" + gmtCreate +
+                ", gmtModified=" + gmtModified +
+                ", state=" + state +
+                ", product=" + product +
+                ", shop=" + shop +
+                ", creator=" + creator +
+                ", modifier=" + modifier +
+                '}';
+    }
 }

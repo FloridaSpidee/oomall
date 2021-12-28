@@ -74,18 +74,12 @@ class ShareControllerTest {
         Mockito.when(shopService.getShopInfo(1L)).thenReturn(new InternalReturnObject<>(shop1));
         Mockito.when(shopService.getShopInfo(2L)).thenReturn(new InternalReturnObject<>(shop2));
         Mockito.when(shopService.getShopInfo(1L)).thenReturn(noExistErrorIntRet);
-        Mockito.when(goodsService.getProductRetVoById(1L)).thenReturn(new InternalReturnObject(product1));
-        Mockito.when(goodsService.getProductRetVoById(2L)).thenReturn(new InternalReturnObject(product2));
-        Mockito.when(goodsService.getProductRetVoById(3L)).thenReturn(noExistErrorIntRet);//不存在错误
         Mockito.when(goodsService.getSimpleProductRetVoById(1L)).thenReturn(new InternalReturnObject<>(simpleProduct1));
         Mockito.when(goodsService.getSimpleProductRetVoById(2L)).thenReturn(new InternalReturnObject<>(simpleProduct2));
         Mockito.when(goodsService.getSimpleProductRetVoById(3L)).thenReturn(noExistErrorIntRet);
         Mockito.when(goodsService.getOnSaleRetVoById(1L)).thenReturn(new InternalReturnObject(onsale1));
         Mockito.when(goodsService.getOnSaleRetVoById(2L)).thenReturn(new InternalReturnObject(onsale2));
         Mockito.when(goodsService.getOnSaleRetVoById(3L)).thenReturn(noExistErrorIntRet);//不存在错误
-        Mockito.when(customerService.getCustomerRetVoById(0L, 1L)).thenReturn(new InternalReturnObject(customer1));
-        Mockito.when(customerService.getCustomerRetVoById(0L, 2L)).thenReturn(new InternalReturnObject(customer2));
-        Mockito.when(customerService.getCustomerRetVoById(0L, 3L)).thenReturn(noExistErrorIntRet);
     }
 
     private static JwtHelper jwtHelper = new JwtHelper();

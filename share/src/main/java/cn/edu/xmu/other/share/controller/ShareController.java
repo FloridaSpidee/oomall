@@ -22,7 +22,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
-@Api(value = "分享服务", tags = "shares")
+@Api(value = "分享服务", tags = "分享服务")
 @RestController
 @RequestMapping(value = "/", produces = "application/json;charset=UTF-8")
 public class ShareController {
@@ -45,13 +45,16 @@ public class ShareController {
             @ApiResponse(code = 504,message = "货品销售id不存在"),
             @ApiResponse(code = 609,message = "用户未登录")
     })
+
+    @PostMapping("/onsales/{id}/shares")
     @Audit
-    @PostMapping("/onsale/{id}/shares")
     public Object generateShareResult(@PathVariable(value = "id") Long id,
                                       @LoginUser Long loginUserId,
                                       @LoginName String loginUserName)
     {
+        System.out.println("post");
         ReturnObject returnObject=shareService.generateShareResult(id,loginUserId,loginUserName);
+        System.out.println("out");
         return Common.decorateReturnObject(returnObject);
     }
 
@@ -71,10 +74,10 @@ public class ShareController {
             @ApiResponse(code = 504,message = "商品id不存在"),
             @ApiResponse(code = 947,message = "开始时间不能晚于结束时间")
     })
-    @Audit
     @GetMapping("/shares")
-    public Object getShares(@RequestParam(required = false) @DateTimeFormat(pattern="uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime beginTime,
-                            @RequestParam(required = false) @DateTimeFormat(pattern="uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime endTime,
+    @Audit
+    public Object getShares(@RequestParam(required = false) @DateTimeFormat(pattern="uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime beginDate,
+                            @RequestParam(required = false) @DateTimeFormat(pattern="uuuu-MM-dd'T'HH:mm:ss.SSSXXX") ZonedDateTime endDate,
                             @RequestParam(value = "productId",required = false) Long productId,
                             @RequestParam(defaultValue = "1",required = false) Integer page,
                             @RequestParam(defaultValue = "10",required = false) Integer pageSize,
@@ -82,17 +85,18 @@ public class ShareController {
                             @LoginName String loginUserName
     )
     {
+        System.out.println(loginUserId+loginUserName);
+        System.out.println("/shares");
         LocalDateTime begin=null,end=null;
-        if(beginTime!=null&&endTime!=null){
-            if(beginTime.isAfter(endTime)){
+        if(beginDate!=null&&endDate!=null){
+            if(beginDate.isAfter(endDate)){
                 ReturnObject returnObjectNotValid=new ReturnObject(ReturnNo.LATE_BEGINTIME);
                 return Common.decorateReturnObject(returnObjectNotValid);
             }
-            begin = beginTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
-            end = endTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+            begin = beginDate.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
+            end = endDate.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
         }
         var ret=shareService.getAllShareRecords(begin,end,productId,page,pageSize,loginUserId,loginUserName);
-        if(!ret.getCode().equals(ReturnNo.OK)) return ret;
         return Common.decorateReturnObject(Common.getPageRetObject(ret));
     }
 
@@ -220,7 +224,7 @@ public class ShareController {
             begin = beginTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
             end = endTime.withZoneSameInstant(ZoneId.of("UTC")).toLocalDateTime();
         }
-        var ret=shareService.getAllBeShared(begin,end,id,did,page,pageSize);
+        var ret=shareService.getAllBeShared(begin,end,id,did,page,pageSize,loginUserName);
         return Common.decorateReturnObject(Common.getPageRetObject(ret));
     }
 
