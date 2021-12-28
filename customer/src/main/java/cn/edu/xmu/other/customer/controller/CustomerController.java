@@ -120,7 +120,7 @@ public class CustomerController {
             @ApiResponse(code = 500, message = "服务器内部错误")
     })
     @Audit
-    @GetMapping("/shops/{id}/customers/all")
+    @GetMapping("/shops/{id}/customers")
     public Object getAllUsers(@PathVariable("id")Long Id,@RequestParam(required = false) String  userName,@RequestParam(required = false) String email,@RequestParam(required = false) String mobile,@RequestParam(name = "page", required = false) Integer page,
                               @RequestParam(name = "pageSize", required = false) Integer pageSize)
     {
