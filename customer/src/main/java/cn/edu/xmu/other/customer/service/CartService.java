@@ -117,6 +117,7 @@ public class CartService {
 
     @Transactional(rollbackFor = Exception.class)
     public ReturnObject addCart(@Valid CartVo cartVo, Long loginUserId, String loginUserName){
+        if(cartVo.getQuantity() == null) cartVo.setQuantity(1L);
         Cart cart = (Cart)cloneVo(cartVo,Cart.class);
         cart.setCustomerId(loginUserId);
         setPoCreatedFields(cart,loginUserId,loginUserName);
@@ -128,24 +129,33 @@ public class CartService {
             //更新购物车数量
             if(returnObject.getData()!=null){
                 Cart cartBefor = (Cart) returnObject.getData();
-                cart.setQuantity(cart.getQuantity()+cartBefor.getQuantity());
                 cartDao.deleteGoodsByCartId(cartBefor.getId());
+                //考虑到加入的数量为负数时，原有购物车购物车商品数量不足则清零
+                if(cart.getQuantity()+cartBefor.getQuantity()<0L) {
+                    return new ReturnObject(ReturnNo.OK);
+                }
+                //
+                else cart.setQuantity(cart.getQuantity()+cartBefor.getQuantity());
             }
             else if(returnObject.getCode()==ReturnNo.INTERNAL_SERVER_ERR){
                 return returnObject;
             }
 
+
             if(cart.getQuantity()>productRetVo.getQuantity())
                 cart.setQuantity(productRetVo.getQuantity());
-            cart.setPrice(productRetVo.getPrice()*cart.getQuantity());
+
+            cart.setPrice(productRetVo.getPrice());
+
             ReturnObject retObj = cartDao.addCart(cart);
             if(retObj.getData() == null){
                 return retObj;
             }
             SuccessfulCartRetVo cartRet = (SuccessfulCartRetVo)cloneVo((Cart)retObj.getData(),SuccessfulCartRetVo.class);
             cartRet.setQuantity(cartVo.getQuantity());
-            cartRet.setPrice(cartVo.getQuantity()*productRetVo.getPrice());
+            cartRet.setPrice(productRetVo.getPrice());
             return new ReturnObject(cartRet);
+
         }
         else return new ReturnObject(productRetObj.getErrno());
     }

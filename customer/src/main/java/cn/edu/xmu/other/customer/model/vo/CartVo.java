@@ -17,8 +17,6 @@ public class CartVo {
     @Min(value = 1)
     private Long productId;
 
-    @NotNull
-    @Min(value = 1,message = "数量至少为1")
     private Long quantity;
 
     public CartVo(Long productId, Long quantity) {
