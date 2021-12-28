@@ -98,12 +98,12 @@ public class CustomerService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public ReturnObject<Object> modifyPassword(ModifyPwdVo vo) {
+    public ReturnObject modifyPassword(ModifyPwdVo vo) {
         return customerDao.modifyPassword(vo);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public ReturnObject<Object> resetPassword(ResetPwdVo vo) {
+    public ReturnObject resetPassword(ResetPwdVo vo) {
         return customerDao.resetPassword(vo);
     }
 

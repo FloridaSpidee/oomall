@@ -7,10 +7,7 @@ import cn.edu.xmu.other.customer.mapper.CustomerPoMapper;
 import cn.edu.xmu.other.customer.model.bo.Customer;
 import cn.edu.xmu.other.customer.model.po.CustomerPo;
 import cn.edu.xmu.other.customer.model.po.CustomerPoExample;
-import cn.edu.xmu.other.customer.model.vo.AllCustomersRetVo;
-import cn.edu.xmu.other.customer.model.vo.ModifyPwdVo;
-import cn.edu.xmu.other.customer.model.vo.ResetPwdVo;
-import cn.edu.xmu.other.customer.model.vo.StateRetVo;
+import cn.edu.xmu.other.customer.model.vo.*;
 import cn.edu.xmu.privilegegateway.annotation.util.JwtHelper;
 import cn.edu.xmu.privilegegateway.annotation.util.*;
 import cn.edu.xmu.privilegegateway.annotation.util.bloom.BloomFilter;
@@ -53,6 +50,12 @@ public class CustomerDao {
 
     @Value("${privilegeservice.login.Time:3600}")
     private Integer ExpireTime = 3600;
+
+    @Value("${privilegeservice.resetpassword.captchaExpire}")
+    private Integer CaptchExpireTime;
+
+    @Value("${privilegeservice.resetpassword.sendCaptchaLimit}")
+    private Long CAPTCHALIMIT;
 
     @Value("${privilegeservice.login.multiply}")
     private Boolean CANMULTIPLYLOGIN;
@@ -193,34 +196,37 @@ public class CustomerDao {
         }
     }
 
-    public ReturnObject<Object> modifyPassword(ModifyPwdVo modifyPwdVo) {
+    public ReturnObject modifyPassword(ModifyPwdVo modifyPwdVo) {
         try{
-            //防止重复请求验证码
-            String key = String.format(CAPTCHAKEY, modifyPwdVo.getCaptcha());
-
-            //通过验证码取出id
-            if (!redisUtil.hasKey(key))
-                return new ReturnObject<>(ReturnNo.CUSTOMERID_NOTEXIST);
-            Long id = (Long) redisUtil.get(key);
-
-            ReturnObject<Object> retObj = getCustomerPoById(id);
-            if (retObj.getCode() != ReturnNo.OK)
-                return retObj;
-            // 查询密码等资料以计算新签名
-            CustomerPo customerPo = (CustomerPo) retObj.getData();
-
-            //新密码与原密码相同
-            if (customerPo.getPassword().equals(modifyPwdVo.getNewPassword()))
-                return new ReturnObject<>(ReturnNo.CUSTOMER_PASSWORDSAME);
-            customerPo.setPassword(modifyPwdVo.getNewPassword());
-            //更新数据库
-            try {
-                customerPoMapper.updateByPrimaryKeySelective(customerPo);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return new ReturnObject<>(ReturnNo.INTERNAL_SERVER_ERR, e.getMessage());
+            String captcha= modifyPwdVo.getCaptcha();
+            String key=String.format(CAPTCHAKEY,captcha);
+            if(!redisUtil.hasKey(key)){
+                return new ReturnObject(ReturnNo.CUSTOMERID_NOTEXIST);
             }
-            return new ReturnObject<>(ReturnNo.OK);
+            Long uid=Long.valueOf((String) redisUtil.get(key));
+            redisUtil.del(key);
+            ReturnObject returnObject1 =  getCustomerPoById(uid);
+            if(returnObject1.getData()==null)
+            {
+                return returnObject1;
+            }
+            CustomerPo customerPo=(CustomerPo) returnObject1.getData();
+            if (!customerPo.getUserName().equals(modifyPwdVo.getUserName())) {
+                return new ReturnObject(ReturnNo.CUSTOMERID_NOTEXIST);
+            }
+            if(customerPo.getPassword().equals(modifyPwdVo.getNewPassword()))
+            {
+                return new ReturnObject(ReturnNo.CUSTOMER_PASSWORDSAME);
+            }
+            Customer customer = new Customer();
+            customer.setId(uid);
+            customer.setPassword(modifyPwdVo.getNewPassword());
+            customer.setState(Customer.State.NORM.getCode());
+            ReturnObject returnObject = updateCustomerInfo(customer);
+            if (returnObject.getData() != null) {
+                return new ReturnObject(ReturnNo.OK);
+            }
+            return returnObject;
         }catch (Exception e){
             logger.error("Internal error Happened:"+e.getMessage());
             return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR, e.getMessage());
@@ -230,55 +236,26 @@ public class CustomerDao {
     public ReturnObject<Object> resetPassword(ResetPwdVo vo) {
         //验证邮箱、手机号
 
-        CustomerPoExample userPoExample1 = new CustomerPoExample();
-        List<CustomerPo> customerPo1 = null;
-//        Collection<String> voCodeFields = new ArrayList<>(Arrays.asList("name"));
-//        ResetPwdVo vo_coded = (ResetPwdVo) baseCoder.code_sign(vo, ResetPwdVo.class, voCodeFields, null, "signature");
-
         try {
-            CustomerPoExample.Criteria criteria_email = userPoExample1.createCriteria();
-            criteria_email.andEmailEqualTo(vo.getName());
-            CustomerPoExample.Criteria criteria_phone = userPoExample1.createCriteria();
-            criteria_phone.andMobileEqualTo(vo.getName());
-            CustomerPoExample.Criteria criteria_username = userPoExample1.createCriteria();
-            criteria_username.andUserNameEqualTo(vo.getName());
-            userPoExample1.or(criteria_phone);
-            userPoExample1.or(criteria_username);
-            customerPo1 = customerPoMapper.selectByExample(userPoExample1);
-            if (customerPo1.isEmpty()) {
-                return new ReturnObject<>(ReturnNo.CUSTOMERID_NOTEXIST);
+            ReturnObject returnObject=getCustomerPoByUserName(vo.getName());
+            if(returnObject.getData()==null)
+            {
+                return new ReturnObject(ReturnNo.CUSTOMERID_NOTEXIST);
             }
-
+            List<CustomerPo> customerPo1 = (List<CustomerPo>) returnObject.getData();
+            if(!(customerPo1.size()>0))
+                return new ReturnObject(ReturnNo.CUSTOMERID_NOTEXIST);
+            //随机生成验证码
+            String captcha = RandomCaptcha.getRandomString(6);
+            while (redisUtil.hasKey(captcha))
+                captcha = RandomCaptcha.getRandomString(6);
+            String id = customerPo1.get(0).getId().toString();
+            String key = String.format(CAPTCHAKEY, captcha);
+            redisUtil.set(key, id, CaptchExpireTime);
+            return new ReturnObject(new CaptchaRetVo(captcha));
         } catch (Exception e) {
-            return new ReturnObject<>(ReturnNo.INTERNAL_SERVER_ERR, e.getMessage());
+            return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR, e.getMessage());
         }
-
-
-        //随机生成验证码
-        String captcha = RandomCaptcha.getRandomString(6);
-        while (redisUtil.hasKey(captcha))
-            captcha = RandomCaptcha.getRandomString(6);
-
-        String id = customerPo1.get(0).getId().toString();
-        String key = String.format(CAPTCHAKEY, captcha);
-        redisUtil.set(key, id, 5 * 60L);
-
-
-//        //发送邮件(请在配置文件application.properties填写密钥)
-//        SimpleMailMessage msg = new SimpleMailMessage();
-//        msg.setSubject("【oomall】密码重置通知");
-//        msg.setSentDate(new Date());
-//        msg.setText("您的验证码是：" + captcha + "，5分钟内有效。");
-//        msg.setFrom("925882085@qq.com");
-//        msg.setTo(vo.get);
-//        try {
-//            mailSender.send(msg);
-//        } catch (MailException e) {
-//            return new ReturnObject<>(ReturnNo.FIELD_NOTVALID);
-//        }
-
-        return new ReturnObject<>(captcha);
-
     }
 
     public ReturnObject createCustomerByBo(Customer customer){

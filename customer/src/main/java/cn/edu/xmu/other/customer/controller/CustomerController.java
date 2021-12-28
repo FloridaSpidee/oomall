@@ -142,10 +142,14 @@ public class CustomerController {
             @ApiResponse(code = 608, message = "用户名/邮箱/电话不存在"),
             @ApiResponse(code = 614,message = "不能与旧密码相同")
     })
-    @Audit
-    @PutMapping("/customers/password")
-    public Object modifyPassword(@Validated @RequestBody ModifyPwdVo body)
+    @PutMapping("/password")
+    public Object modifyPassword(@Validated @RequestBody ModifyPwdVo body,BindingResult bindingResult)
     {
+        /* 处理参数校验错误 */
+        Object o = Common.processFieldErrors(bindingResult, httpServletResponse);
+        if(o != null){
+            return o;
+        }
         ReturnObject returnObject = customerService.modifyPassword(body);
         return decorateReturnObject(returnObject);
     }
@@ -159,7 +163,7 @@ public class CustomerController {
             @ApiResponse(code = 500, message = "服务器内部错误"),
             @ApiResponse(code = 608,message = "用户名/邮箱/电话不存在")
     })
-    @PutMapping("/customers/password/reset")
+    @PutMapping("/password/reset")
     public Object resetPassword(@Validated @RequestBody ResetPwdVo body, BindingResult bindingResult)
     {
         /* 处理参数校验错误 */
