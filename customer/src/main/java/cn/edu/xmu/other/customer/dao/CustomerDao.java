@@ -142,9 +142,6 @@ public class CustomerDao {
 
             PageHelper.startPage(page,pagesize);
             List<CustomerPo> customers = customerPoMapper.selectByExample(example);
-            if (customers.size()==0) {
-                return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST);
-            }
             PageInfo pageInfo=new PageInfo(customers);
             ReturnObject pageRetVo= Common.getPageRetVo(new ReturnObject<>(pageInfo), AllCustomersRetVo.class);
             logger.debug("getUserById: retUsers = " + customers);
