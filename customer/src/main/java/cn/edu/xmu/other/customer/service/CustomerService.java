@@ -142,7 +142,7 @@ public class CustomerService {
         Customer customer = new Customer();
         customer.setId(id);
         setPoModifiedFields(customer, loginUser, loginUsername);
-        Byte foridden = 6;
+        Byte foridden = Customer.State.FORBID.getCode();
         customer.setState(foridden);
         return  customerDao.updateCustomerState(customer);
     }
@@ -155,7 +155,7 @@ public class CustomerService {
         Customer customer = new Customer();
         customer.setId(id);
         setPoModifiedFields(customer, loginUser, loginUsername);
-        Byte norm =4;
+        Byte norm = Customer.State.NORM.getCode();
         customer.setState(norm);
         return  customerDao.updateCustomerState(customer);
     }
