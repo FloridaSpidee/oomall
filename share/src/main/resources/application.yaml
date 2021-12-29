@@ -5,7 +5,7 @@ management:
         include: "*"
 
 server:
-  port: 8081
+  port: 8091
   tomcat:
     threads:
       max: 500
@@ -14,7 +14,7 @@ spring:
   main:
     allow-bean-definition-overriding: true
   application:
-    name: goods-service
+    name: share-service
   servlet:
     multipart:
       enabled: true
@@ -22,7 +22,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 172.16.4.136
+        server-addr: localhost:8848
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
