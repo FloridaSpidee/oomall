@@ -1,5 +1,6 @@
 package cn.edu.xmu.other.customer.model.vo;
 
+import cn.edu.xmu.other.customer.microservice.vo.SimpleRegionRetVo;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -11,7 +12,7 @@ import java.time.LocalDateTime;
 @Data
 public class AddressRetVo {
     private Long id;
-    private Long regionId;
+    SimpleRegionRetVo region;
     private String detail;
     private String consignee;
     private String mobile;

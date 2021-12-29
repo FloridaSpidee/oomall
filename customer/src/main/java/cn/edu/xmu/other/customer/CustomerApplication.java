@@ -13,6 +13,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 @SpringBootApplication(scanBasePackages = {"cn.edu.xmu.privilegegateway","cn.edu.xmu.other.customer","cn.edu.xmu.oomall.core"})
 @EnableConfigurationProperties
+@EnableDiscoveryClient
 @MapperScan("cn.edu.xmu.other.customer.mapper")
 @EnableFeignClients(basePackages = "cn.edu.xmu.other.customer.microservice")
 public class CustomerApplication {

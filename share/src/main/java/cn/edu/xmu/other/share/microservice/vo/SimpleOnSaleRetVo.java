@@ -29,4 +29,5 @@ public class SimpleOnSaleRetVo {
     private Byte type;
 
     private Byte state;
+
 }

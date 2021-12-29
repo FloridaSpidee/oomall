@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProductRetVo {
     private Long id;
-    private SimpleObject shop;
+    private SimpleShopVo shop;
     private Long goodsId;
     private Long onsaleId;
     private String name;
@@ -24,7 +24,31 @@ public class ProductRetVo {
     private String unit;
     private String barCode;
     private String originPlace;
-    private SimpleObject category;
+    private SimpleCategoryVo category;
     private Boolean shareable;
     private Long freightId;
+
+    @Override
+    public String toString() {
+        return "ProductRetVo{" +
+                "id=" + id +
+                ", shop=" + shop +
+                ", goodsId=" + goodsId +
+                ", onsaleId=" + onsaleId +
+                ", name='" + name + '\'' +
+                ", skuSn='" + skuSn + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
+                ", originalPrice=" + originalPrice +
+                ", weight=" + weight +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                ", state=" + state +
+                ", unit='" + unit + '\'' +
+                ", barCode='" + barCode + '\'' +
+                ", originPlace='" + originPlace + '\'' +
+                ", category=" + category +
+                ", shareable=" + shareable +
+                ", freightId=" + freightId +
+                '}';
+    }
 }

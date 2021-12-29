@@ -1,4 +1,4 @@
-package cn.edu.xmu.other.coupon.model.po;
+package cn.edu.xmu.other.customer.model.po;
 
 import java.time.LocalDateTime;
 

@@ -31,7 +31,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 172.30.98.1:8848
+        server-addr: localhost:8848
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -77,4 +77,11 @@ mybatis:
 
 pagehelper:
   helper-dialect: mysql
+
+rocketmq:
+  name-server: 119.3.225.71:9876
+  producer:
+    group: coustomer_group
+    max-message-size: 4096
+    send-message-timeout: 3000
 

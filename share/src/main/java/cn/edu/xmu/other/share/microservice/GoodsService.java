@@ -6,6 +6,7 @@ import cn.edu.xmu.other.share.microservice.vo.ProductRetVo;
 import cn.edu.xmu.other.share.microservice.vo.SimpleOnSaleRetVo;
 import cn.edu.xmu.other.share.model.vo.SimpleProductRetVo;
 import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
+import com.github.pagehelper.PageInfo;
 import com.google.protobuf.Internal;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,12 +20,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(name = "goods-service")
 public interface GoodsService {
-    @GetMapping("internal/products/{id}")
-    public InternalReturnObject<SimpleProductRetVo> getSimpleProductRetVoById(@PathVariable Long id);
-    @GetMapping("internal/product/{id}/detail")
-    public InternalReturnObject<ProductRetVo> getProductRetVoById(@PathVariable Long id);
+    @GetMapping("/internal/products/{id}")
+    InternalReturnObject<SimpleProductRetVo> getSimpleProductRetVoById(@PathVariable Long id);
+
+    @GetMapping("/internal/products/{id}/details")
+    InternalReturnObject<ProductRetVo> getProductDetails(@PathVariable Long id);
+
     @GetMapping("internal/onsales")
-    public InternalReturnObject<SimpleOnSaleRetVo> getSimpleOnSaleRetVoByProductId(@RequestParam("productId") Long productId);
+    InternalReturnObject<PageInfo<SimpleOnSaleRetVo>> getSimpleOnSaleRetVoByProductId(@RequestParam("productId") Long productId);
+
     @GetMapping("internal/onsales/{id}")
-    public InternalReturnObject<OnSaleRetVo> getOnSaleRetVoById(@PathVariable Long onsaleId);
+    InternalReturnObject<OnSaleRetVo> getOnSaleRetVoById(@PathVariable("id") Long onsaleId);
 }

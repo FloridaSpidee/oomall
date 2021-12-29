@@ -34,7 +34,6 @@
 
     <modules>
         <module>aftersale</module>
-        <module>coupon</module>
         <module>customer</module>
         <module>liquidation</module>
         <module>share</module>

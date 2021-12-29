@@ -21,6 +21,7 @@ import cn.edu.xmu.other.share.model.vo.ShareRetVo;
 import cn.edu.xmu.other.share.model.vo.SimpleCustomer;
 import cn.edu.xmu.other.share.model.vo.SimpleProductRetVo;
 import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -60,12 +61,20 @@ public class ShareService {
     public ReturnObject generateShareResult(Long onSaleId, Long loginUserId, String loginUserName) {
         try
         {
+
+            System.out.println("1");
+            System.out.println("onsaleId:"+onSaleId);
             InternalReturnObject<OnSaleRetVo> onsaleRet = goodsService.getOnSaleRetVoById(onSaleId);
             if (null == onsaleRet.getData()) {
                 return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST, "货品销售id不存在");//没有商品或查询商品出错，返回错误
             }
             OnSaleRetVo onSaleRetVo = onsaleRet.getData();
-            InternalReturnObject<ProductRetVo> productRet=goodsService.getProductRetVoById(onSaleRetVo.getId());
+            if(onSaleRetVo.getShareActId()==null) return new ReturnObject(ReturnNo.SHARE_UNSHARABLE,"商品不可分享");
+            Long productId=onSaleRetVo.getProduct().getId();
+            System.out.println(productId);
+            InternalReturnObject<ProductRetVo> productRet=goodsService.getProductDetails(productId);
+            System.out.println(productRet.toString());
+            System.out.println(productRet.getData());
             if(null==productRet.getData())
             {
                 return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST,"商品id不存在");
@@ -177,10 +186,6 @@ public class ShareService {
                                               Long id,
                                               Long loginUserId,
                                               String loginUserName) {
-
-
-
-
         try
         {
             var shareRet = shareDao.getShareByPrimaryKey(sid);
@@ -193,11 +198,14 @@ public class ShareService {
                 return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST, "商品不存在");//商品不存在，返回错误
 
             var productRetVo = (SimpleProductRetVo) productRet.getData();
-            if (!shareRet.getData().getProductId().equals(productRetVo.getId()))
+            productRetVo.setId(id);
+            System.out.println(id);
+            System.out.println(shareRet.getData().getProductId());
+            if (shareRet.getData().getProductId().longValue()!=id)
                 return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST, "分享记录不与商品对应");
 
             if (loginUserId.equals(shareRet.getData().getSharerId()))
-                return new ReturnObject(productRet.getData());//查看自己分享的商品，则直接返回商品，不生成分享成功记录
+                return new ReturnObject(goodsService.getProductDetails(id).getData());//查看自己分享的商品，则直接返回商品，不生成分享成功记录
 
             Share share = shareRet.getData();
             SuccessfulSharePo successfulSharePo = new SuccessfulSharePo();
@@ -210,7 +218,7 @@ public class ShareService {
             setPoCreatedFields(successfulSharePo, loginUserId, loginUserName);
             ReturnObject ret = shareDao.insertSuccessSharePo(successfulSharePo);
             if (!ret.getCode().equals(ReturnNo.OK)) return ret;
-            return new ReturnObject(goodsService.getProductRetVoById(id).getData());
+            return new ReturnObject(goodsService.getProductDetails(id).getData());
         }
         catch(Exception e)
         {
@@ -234,10 +242,13 @@ public class ShareService {
 
         try
         {
+            System.out.println("in");
             var productRet = goodsService.getSimpleProductRetVoById(id);
             if (productRet.getData() == null) return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST, "查询的商品不存在");
             OnSaleRetVo onSaleRetVo = getOnSaleRetVoByProductId(id).getData();
-            if (!onSaleRetVo.getShop().getId().equals(shopId)) {
+            System.out.println("onsale:"+onSaleRetVo.getShop().getId());
+            System.out.println("shop:"+shopId);
+            if (onSaleRetVo.getShop().getId()!=shopId) {
                 return new ReturnObject(ReturnNo.RESOURCE_ID_OUTSCOPE);//只能查询自己商铺的商品
             }
             SharePoExample sharePoExample = new SharePoExample();
@@ -250,8 +261,12 @@ public class ShareService {
             for (Share share : boList) {
                 ShareRetVo shareRetVo = new ShareRetVo(share);
                 Long customerId = share.getSharerId();
-                String customerName = ((CustomerRetVo) customerService.getCustomerRetVoById(0L, customerId).getData()).getUserName();
+                CustomerRetVo customerRetVo=customerService.getCustomerRetVoById(customerId).getData();
+                String customerName = (customerRetVo).getName();
                 shareRetVo.setSharer(new SimpleCustomer(customerId, customerName));
+                SimpleProductRetVo simpleProductRetVo=productRet.getData();
+                simpleProductRetVo.setId(id);
+                shareRetVo.setProduct(simpleProductRetVo);
                 voList.add(shareRetVo);
             }
             retPage.setList(voList);
@@ -285,10 +300,12 @@ public class ShareService {
             SuccessfulSharePoExample successfulSharePoExample = new SuccessfulSharePoExample();
             var criteria = successfulSharePoExample.createCriteria();
             InternalReturnObject<SimpleProductRetVo> productRet = null;
+            SimpleProductRetVo simpleProductRetVo=null;
             if (null != productId) {
                 productRet = goodsService.getSimpleProductRetVoById(productId);
                 if (productRet.getErrno() != 0)
                     return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST, "查询的商品不存在");
+                simpleProductRetVo.setId(productId);
                 criteria.andProductIdEqualTo(productId);
             }
             if (null != beginTime) {
@@ -304,10 +321,11 @@ public class ShareService {
             for (SuccessfulShare successfulShare : boList) {
                 BeSharedRetVo beSharedRetVo = new BeSharedRetVo(successfulShare);
                 if (null != productId)
-                    beSharedRetVo.setProductId(productRet.getData());
+                    beSharedRetVo.setProduct(simpleProductRetVo);
                 else {
-                    SimpleProductRetVo simpleProductRetVo = goodsService.getSimpleProductRetVoById(successfulShare.getProductId()).getData();
-                    beSharedRetVo.setProductId(simpleProductRetVo);
+                    simpleProductRetVo = goodsService.getSimpleProductRetVoById(successfulShare.getProductId()).getData();
+                    simpleProductRetVo.setId(successfulShare.getProductId());
+                    beSharedRetVo.setProduct(simpleProductRetVo);
                 }
                 voList.add(beSharedRetVo);
             }
@@ -334,7 +352,8 @@ public class ShareService {
                                        Long id,
                                        Long did,
                                        Integer page,
-                                       Integer pageSize
+                                       Integer pageSize,
+                                       String username
     ) {
         try
         {
@@ -353,10 +372,13 @@ public class ShareService {
             if (productRet.getData() == null) return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST, "货品id不存在");
 
             var onsaleRetVo = (OnSaleRetVo) onsaleRet.getData();
-
-            if (!onsaleRetVo.getShop().getId().equals(did))
+            System.out.println(onsaleRetVo.getShop().getId());
+            System.out.println(did);
+            if (onsaleRetVo.getShop().getId()!=did)
                 return new ReturnObject<>(ReturnNo.RESOURCE_ID_OUTSCOPE, "查询的不是自己的商品");
-
+            Long judShopId = Long.parseLong(username.substring(username.length()-5));
+            if(judShopId!=did)
+                return new ReturnObject<>(ReturnNo.RESOURCE_ID_OUTSCOPE, "查询的不是自己的商品");
             criteria.andProductIdEqualTo(id);
             var ret = shareDao.getSuccessfulShareByExample(successfulSharePoExample, page, pageSize);
             if (!ret.getCode().equals(ReturnNo.OK)) {
@@ -367,7 +389,7 @@ public class ShareService {
             List<BeSharedRetVo> voList = new ArrayList<BeSharedRetVo>();
             for (SuccessfulShare successfulShare : boList) {
                 BeSharedRetVo beSharedRetVo = new BeSharedRetVo(successfulShare);
-                beSharedRetVo.setProductId(onsaleRetVo.getProduct());
+                beSharedRetVo.setProduct(onsaleRetVo.getProduct());
                 voList.add(beSharedRetVo);
             }
             retPage.setList(voList);
@@ -428,16 +450,31 @@ public class ShareService {
     }
 
     private InternalReturnObject<OnSaleRetVo> getOnSaleRetVoByProductId(Long productId) {
+        System.out.println("in");
         if(productId==null)
         {
             System.out.println("导入了null");
             return new InternalReturnObject<>(new OnSaleRetVo());
         }
-        InternalReturnObject<SimpleOnSaleRetVo> simpleRet=goodsService.getSimpleOnSaleRetVoByProductId(productId);
-        InternalReturnObject<OnSaleRetVo> ret = goodsService.getOnSaleRetVoById(simpleRet.getData().getId());
-        if (simpleRet.getErrno() != 0) return new InternalReturnObject<>(simpleRet.getErrno(), simpleRet.getErrmsg());
-        Long onSaleId = simpleRet.getData().getId();
-        return goodsService.getOnSaleRetVoById(onSaleId);
+        InternalReturnObject<PageInfo<SimpleOnSaleRetVo>> simpleRet=goodsService.getSimpleOnSaleRetVoByProductId(productId);
+        if(simpleRet.getData()==null)
+        {
+            System.out.println("simple返回null");
+            return new InternalReturnObject<>();
+        }
+        Long simpleId=simpleRet.getData().getList().get(0).getId();
+        if(simpleId==null)
+        {
+            System.out.println("simpleid为null");
+            return new InternalReturnObject<>();
+        }
+        InternalReturnObject<OnSaleRetVo> ret = goodsService.getOnSaleRetVoById(simpleId);
+        if (ret.getErrno() != 0)
+        {
+            System.out.println("retError");
+            return new InternalReturnObject<>(ret.getErrno(), ret.getErrmsg());
+        }
+        return ret;
     }
 
 

@@ -7,6 +7,7 @@ import cn.edu.xmu.other.customer.service.CustomerService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
 import cn.edu.xmu.privilegegateway.annotation.aop.LoginName;
 import cn.edu.xmu.privilegegateway.annotation.aop.LoginUser;
+import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
 import cn.edu.xmu.privilegegateway.annotation.util.IpUtil;
 import cn.edu.xmu.oomall.core.util.ReturnNo;
 import cn.edu.xmu.oomall.core.util.ReturnObject;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Path;
 import javax.validation.Valid;
 
 import static cn.edu.xmu.oomall.core.util.Common.decorateReturnObject;
@@ -269,6 +271,14 @@ public class CustomerController {
         ReturnObject retVoObject = customerService.getUserSelfInfo(id);
         return decorateReturnObject(retVoObject);
 
+    }
+
+    @GetMapping("/internal/customers/{id}")
+    public Object internalGetUserById(@PathVariable("id") Long id)
+    {
+        ReturnObject retVoObject = customerService.getUserSelfInfo(id);
+        if(retVoObject.getData()==null) return new InternalReturnObject(retVoObject.getCode().getCode(),retVoObject.getCode().getMessage());
+        return new InternalReturnObject(retVoObject.getData());
     }
 
     /**
