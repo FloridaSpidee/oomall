@@ -27,7 +27,7 @@ import static cn.edu.xmu.privilegegateway.annotation.util.Common.cloneVo;
 
 /**
  * @author Yuchen Huang
- * @date 2021-12-13
+ * @date 2021-12-16
  */
 @Repository
 public class CouponDao {
@@ -152,7 +152,8 @@ public class CouponDao {
             long timeSeed=  System.currentTimeMillis();
             Long res = redis.executeScript(script,
                     Stream.of(setKey).collect(Collectors.toList()), quantity,timeSeed);
-            if (res >= 0) {
+            //System.out.println("我还剩这么多"+res);
+            if (res > 0) {
                 return new ReturnObject(ReturnNo.OK);
             }
             //优惠卷领罄

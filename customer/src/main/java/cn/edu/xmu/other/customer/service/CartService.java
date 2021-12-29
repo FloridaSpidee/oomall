@@ -1,7 +1,7 @@
 package cn.edu.xmu.other.customer.service;
 
 import cn.edu.xmu.other.customer.dao.CartDao;
-import cn.edu.xmu.other.customer.microservice.vo.OnsaleRetVo;
+import cn.edu.xmu.other.customer.microservice.CouponActivityService;
 import cn.edu.xmu.other.customer.microservice.vo.ProductRetVo;
 import cn.edu.xmu.other.customer.model.bo.Product;
 import cn.edu.xmu.other.customer.model.bo.Cart;
@@ -14,7 +14,6 @@ import cn.edu.xmu.privilegegateway.annotation.util.ReturnNo;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
-import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import cn.edu.xmu.other.customer.microservice.ProductService;
-import cn.edu.xmu.other.customer.microservice.CouponService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +41,7 @@ public class CartService {
     private ProductService productService;
 
     @Resource
-    private CouponService couponService;
+    private CouponActivityService couponActivityService;
 
     @Transactional(readOnly = true,rollbackFor = Exception.class)
     public ReturnObject getCartList(Long userId,Integer page,Integer pageSize){
@@ -74,7 +72,7 @@ public class CartService {
                 cartRetVo.setPrice(productRetVo.getPrice());
 
                 //读取CouponActivity
-                InternalReturnObject<PageInfo<CouponActivityRetVo>> internalObj2 = couponService.listCouponActivitiesByProductId(simpleProduct.getId());
+                InternalReturnObject<PageInfo<CouponActivityRetVo>> internalObj2 = couponActivityService.listCouponActivitiesByProductId(simpleProduct.getId());
 
                 //CouponActivity模块判断判断是否有错
                 if(internalObj2.getErrno().equals(0)) {

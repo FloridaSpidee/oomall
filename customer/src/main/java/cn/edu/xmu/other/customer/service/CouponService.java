@@ -8,6 +8,7 @@ import cn.edu.xmu.other.customer.microservice.vo.SimpleCouponActivityRetVo;
 import cn.edu.xmu.other.customer.model.bo.Coupon;
 import cn.edu.xmu.other.customer.model.po.CouponPo;
 import cn.edu.xmu.other.customer.model.vo.*;
+import cn.edu.xmu.other.customer.model.vo.CouponRetVo;
 import cn.edu.xmu.other.customer.service.mq.CouponMessageBody;
 import cn.edu.xmu.other.customer.service.mq.RocketMqUtil;
 import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
@@ -24,10 +25,10 @@ import static cn.edu.xmu.privilegegateway.annotation.util.Common.*;
 
 /**
  * @author Yuchen Huang
- * @date 2021-12-13
+ * @date 2021-12-16
  */
 @Service
-public class CouponerService {
+public class CouponService {
 
     @Autowired
     CouponDao couponDao;
@@ -89,13 +90,14 @@ public class CouponerService {
      */
     @Transactional(rollbackFor = Exception.class)
     public ReturnObject getCoupons(Long userId,String userName, Long id){
-        //获取对应优惠活动
+        //活动相关
         InternalReturnObject internalReturnObject=couponActivityService.getCouponActivityById(id);
         if(internalReturnObject.getData()==null){
             return new ReturnObject(internalReturnObject);
         }
+        //System.out.println("internalReturnObject.getData()："+internalReturnObject.getData());
         CouponActivityVoInfo couponActivityVoInfo= (CouponActivityVoInfo) internalReturnObject.getData();
-        //获得activity相关信息
+        //acticity信息
         Long couponActivityId=couponActivityVoInfo.getId();
         Integer quantity=couponActivityVoInfo.getQuantity();
         LocalDateTime beginTime=couponActivityVoInfo.getCouponTime();
@@ -122,9 +124,15 @@ public class CouponerService {
             return new ReturnObject(ReturnNo.COUPON_END);
         }
         else {
+           // System.out.println("123");
             //不需要抢
             if(quantityType==0)
             {
+                //即使不需要抢，也存在数量为0的情况（见测试）
+                if(couponActivityVoInfo.getQuantity()==0)
+                {
+                    return new ReturnObject(ReturnNo.COUPON_FINISH);
+                }
                 boolean hasCoupon=couponDao.getCouponByUserIdAndCouponActivityId(userId,id);
                 if(hasCoupon)
                 {
@@ -156,12 +164,14 @@ public class CouponerService {
                         couponRetVo.setActivityId(simpleCouponActivityRetVo.getId());
                         list.add(couponRetVo);
                     }
+                    System.out.println("走到这里了");
                     return new ReturnObject(list);
                 }
             }
             //需要抢
             else
             {
+                System.out.println("剩下的："+couponActivityVoInfo.getQuantity());
                 if(couponActivityVoInfo.getQuantity()==0)
                 {
                     return new ReturnObject(ReturnNo.COUPON_FINISH);

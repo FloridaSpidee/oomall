@@ -1,6 +1,7 @@
 package cn.edu.xmu.other.customer.microservice;
 
 import cn.edu.xmu.other.customer.microservice.vo.SimpleCouponActivityRetVo;
+import cn.edu.xmu.other.customer.model.vo.CouponActivityRetVo;
 import cn.edu.xmu.other.customer.model.vo.CouponActivityVoInfo;
 import cn.edu.xmu.other.customer.service.mq.CouponQuantityBody;
 import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
@@ -10,20 +11,14 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Yuchen Huang
- * @date 2021-12-17
+ * @date 2021-12-16
  */
 @FeignClient(name = "coupon-service")
 public interface CouponActivityService {
 
-    /**
-     * 根据productId查看商品的上线的优惠活动
-     * @param productId
-     * @param page
-     * @param pageSize
-     * @return
-     */
+
     @GetMapping("products/{id}/couponactivities")
-    InternalReturnObject<PageInfo<SimpleCouponActivityRetVo>> listCouponActivitiesByProductId(@RequestParam  @PathVariable("id") Long productId, @RequestParam Integer page, @RequestParam Integer pageSize);
+    InternalReturnObject<PageInfo<CouponActivityRetVo>> listCouponActivitiesByProductId(@PathVariable Long id);
 
     @GetMapping("/internal/couponactivities/{id}")
     InternalReturnObject<CouponActivityVoInfo> getCouponActivityById(@RequestParam @PathVariable("id") Long id);

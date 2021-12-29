@@ -3,7 +3,7 @@ package cn.edu.xmu.other.customer.controller;
 import cn.edu.xmu.oomall.core.util.Common;
 import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.customer.model.vo.SimpleCouponRetVo;
-import cn.edu.xmu.other.customer.service.CouponerService;
+import cn.edu.xmu.other.customer.service.CouponService;
 import cn.edu.xmu.privilegegateway.annotation.aop.Audit;
 import cn.edu.xmu.privilegegateway.annotation.aop.LoginName;
 import cn.edu.xmu.privilegegateway.annotation.aop.LoginUser;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Yuchen Huang
- * @date 2021-12-13
+ * @date 2021-12-16
  */
 @RestController
 @Slf4j
@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.*;
 public class CouponController {
 
     @Autowired
-    CouponerService couponService;
+    CouponService couponService;
 
     @ApiOperation(value = "获得优惠券的所有状态")
     @ApiResponses(value = {@ApiResponse(code = 0, message = "成功")})

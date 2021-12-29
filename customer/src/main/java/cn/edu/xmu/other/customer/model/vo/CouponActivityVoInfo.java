@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class CouponActivityVoInfo {
+public class CouponActivityVoInfo{
     private Long id;
     private String name;
     private LocalDateTime beginTime;
