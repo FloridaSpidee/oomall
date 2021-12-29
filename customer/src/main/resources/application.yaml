@@ -78,3 +78,10 @@ mybatis:
 pagehelper:
   helper-dialect: mysql
 
+rocketmq:
+  name-server: 119.3.225.71:9876
+  producer:
+    group: coustomer_group
+    max-message-size: 4096
+    send-message-timeout: 3000
+

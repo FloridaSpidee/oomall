@@ -4,11 +4,11 @@ import cn.edu.xmu.oomall.core.model.VoObject;
 import cn.edu.xmu.oomall.core.util.ReturnNo;
 import cn.edu.xmu.oomall.core.util.ReturnObject;
 import cn.edu.xmu.other.customer.mapper.AddressPoMapper;
-import cn.edu.xmu.other.customer.mapper.RegionPoMapper;
+
 import cn.edu.xmu.other.customer.model.bo.AddressBo;
-import cn.edu.xmu.other.customer.model.po.*;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import cn.edu.xmu.other.customer.model.po.AddressPo;
+import cn.edu.xmu.other.customer.model.po.AddressPoExample;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,8 +16,10 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static cn.edu.xmu.privilegegateway.annotation.util.Common.cloneVo;
 
 /**
  * @author Yuchen Huang
@@ -28,12 +30,12 @@ import java.util.stream.Collectors;
 public class AddressDao {
     private static final Logger logger = LoggerFactory.getLogger(AddressDao.class);
 
+
+
     @Autowired
     private AddressPoMapper addressPoMapper;
 
-    @Autowired
-    private
-    RegionPoMapper regionPoMapper;
+
 
     /**
      * 新增地址
@@ -42,25 +44,27 @@ public class AddressDao {
      */
     public ReturnObject<VoObject>addAddress(AddressBo addressBo){
         try {
+            AddressPoExample addressPoExample = new AddressPoExample();  //新的poexample对象，通过criteria构造查询条件
+            AddressPoExample.Criteria criteria = addressPoExample.createCriteria(); ////构造自定义查询条件
+            //System.out.println("123"+addressBo.getCustomerId());
+            criteria.andCustomerIdEqualTo(addressBo.getCustomerId());
+            //System.out.println("???");
+            List<AddressPo> addressPos = addressPoMapper.selectByExample(addressPoExample);
+            //自定义查询条件可能返回多条记录,使用List接收
+System.out.println("咋又出错了"+addressPos.size());
+            if (addressPos.size() >=20) {
+
+                return new ReturnObject<>(ReturnNo.ADDRESS_OUTLIMIT);  //达到地址簿上限
+            }
+
             ReturnObject<VoObject> retObj = null;
-            AddressPo addressPo = addressBo.getAddressPo();
+            AddressPo addressPo = addressBo.getAddressPo();  //Bo生成Po进行数据库操作
             addressPo.setBeDefault((byte)0);
             addressPo.setGmtCreate(LocalDateTime.now());
             addressPo.setGmtModified(null);
-            RegionPo regionPo = regionPoMapper.selectByPrimaryKey(addressBo.getRegionId());
-            if(regionPo == null){
-                return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST);
-            }
-            if(regionPo.getState().intValue()==1){
-                return new ReturnObject<>(ReturnNo.FREIGHT_REGIONOBSOLETE);
-            }
-            AddressPoExample addressPoExample = new AddressPoExample();
-            AddressPoExample.Criteria criteria = addressPoExample.createCriteria();
-            criteria.andCustomerIdEqualTo(addressBo.getCustomerId());
-            List<AddressPo> addressPos = addressPoMapper.selectByExample(addressPoExample);
-            if (addressPos.size() >= 20) {
-                return new ReturnObject<>(ReturnNo.ADDRESS_OUTLIMIT);
-            }
+            //System.out.println(addressBo.getRegionId());
+
+
             addressPoMapper.insert(addressPo);
             AddressBo addressBo1 = new AddressBo(addressPo);
             retObj = new ReturnObject<>(addressBo1);
@@ -68,6 +72,7 @@ public class AddressDao {
 //            return new ReturnObject<>(ReturnNo.OK);
         }catch(DataAccessException e){
             logger.error("addAddress: DataAccessException:" + e.getMessage());
+            System.out.println("Dao层错了");
             return new ReturnObject<>(ReturnNo.INTERNAL_SERVER_ERR);
         }
     }
@@ -79,38 +84,33 @@ public class AddressDao {
      * @param pageSize
      * @return
      */
-    public ReturnObject<PageInfo<VoObject>> getAddresses(Long userId,  Integer page, Integer pageSize){
-        AddressPoExample example = new AddressPoExample();
-        AddressPoExample.Criteria criteria = example.createCriteria();
-        criteria.andCustomerIdEqualTo(userId);
-        List<AddressPo> addressPos;
-        PageHelper.startPage(page,pageSize,true,true,null);
+    public ReturnObject getAddresses(Long userId, Integer page, Integer pageSize){
         try{
-            addressPos =  addressPoMapper.selectByExample(example);
+            //PageHelper.startPage(page, 30);
+            AddressPoExample example = new AddressPoExample();
+            AddressPoExample.Criteria criteria = example.createCriteria();
+            criteria.andCustomerIdEqualTo(userId);
+            List<AddressPo> poList = addressPoMapper.selectByExample(example);
+            List<AddressBo> boList = new ArrayList<>();
+            for(AddressPo po: poList){
+                AddressBo bo = cloneVo(po, AddressBo.class);
+                if(po.getBeDefault().equals((byte)1)){
+                    bo.setBeDefault(true);
+                }
+                else{
+                    bo.setBeDefault(false);
+                }
+                boList.add(bo);
+            }
+            //PageInfo pageInfo = PageInfo.of(poList);
+            //pageInfo.setList(boList);
+            return new ReturnObject(boList);
+        }catch (Exception e) {
+            logger.error(e.getMessage());
+            return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR, e.getMessage());
         }
-        catch (DataAccessException e){
-            StringBuilder message = new StringBuilder().append("getAddresses: ").append(e.getMessage());
-            logger.error(message.toString());
-            return new ReturnObject<>(ReturnNo.INTERNAL_SERVER_ERR);
-        }
-        PageInfo<AddressPo> addressesPoPage = new PageInfo<>(addressPos);
-        List<VoObject> ret =addressPos.stream().map(AddressBo::new).map(x->{
-            RegionPo region=regionPoMapper.selectByPrimaryKey(x.getRegionId());
-            if(region==null)
-                x.setState((byte)1);
-            else
-                x.setState(region.getState());
-            //x.setState(regionPoMapper.selectByPrimaryKey(x.getRegionId()).getState());
-            return x;
-        }).collect(Collectors.toList());
-
-        PageInfo<VoObject> addressesPage = new PageInfo<>(ret);
-        addressesPage.setPages(addressesPoPage.getPages());
-        addressesPage.setPageNum(addressesPoPage.getPageNum());
-        addressesPage.setPageSize(addressesPoPage.getPageSize());
-        addressesPage.setTotal(addressesPoPage.getTotal());
-        return new ReturnObject<>(addressesPage);
     }
+
 
     /**
      * 买家修改自己的地址信息
@@ -121,13 +121,13 @@ public class AddressDao {
     {
         try{
             AddressPo addressPo = addressPoMapper.selectByPrimaryKey(addressBo.getId());
-            if(addressPo == null) return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST);
-            if(addressPo.getCustomerId()!=addressBo.getCustomerId()){
+            if(addressPo == null) {
+                return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST);   //不存在此id对应的address资源
+            }
+                if(addressPo.getCustomerId()!=addressBo.getCustomerId()){   //修改的不是自己的address（资源使用越界）
                 return new ReturnObject<>(ReturnNo.RESOURCE_ID_OUTSCOPE);
             }
-            RegionPo regionPo = regionPoMapper.selectByPrimaryKey(addressBo.getRegionId());
-            if(regionPo==null)return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST);
-            if(regionPo.getState().intValue()==1)return new ReturnObject<>(ReturnNo.FREIGHT_REGIONOBSOLETE);
+
             addressPo.setRegionId(addressBo.getRegionId());
             addressPo.setConsignee(addressBo.getConsignee());
             addressPo.setDetail(addressBo.getDetail());
@@ -160,7 +160,7 @@ public class AddressDao {
             if(addressPos.size()>0){
                 for(AddressPo po:addressPos)
                 {
-                    po.setBeDefault((byte)0);
+                    po.setBeDefault((byte)0);   //把已有的默认地址变为非默认
                     addressPoMapper.updateByPrimaryKey(po);
                 }
             }
@@ -170,8 +170,6 @@ public class AddressDao {
             }
             else if(addressPo.getCustomerId()!=userId)return new ReturnObject<>(ReturnNo.RESOURCE_ID_OUTSCOPE);
             else{
-                RegionPo regionPo = regionPoMapper.selectByPrimaryKey(addressPo.getRegionId());
-                if(regionPo.getState().intValue()==1)return new ReturnObject<>(ReturnNo.ADDRESS_OUTLIMIT);
                 addressPo.setBeDefault((byte)1);
                 addressPoMapper.updateByPrimaryKey(addressPo);
             }
@@ -209,8 +207,6 @@ public class AddressDao {
 
 
 
-    public Boolean hasRegion(Long id) {
-        return regionPoMapper.selectByPrimaryKey(id) != null;
-    }
+
 }
 

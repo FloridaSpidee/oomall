@@ -2,7 +2,6 @@ package cn.edu.xmu.other.customer.model.bo;
 
 import cn.edu.xmu.oomall.core.model.VoObject;
 import cn.edu.xmu.other.customer.model.po.AddressPo;
-import cn.edu.xmu.other.customer.model.vo.AddressInfoVo;
 import cn.edu.xmu.other.customer.model.vo.AddressRetVo;
 import lombok.Data;
 
@@ -38,23 +37,23 @@ public class AddressBo implements VoObject {
 
     @Override
     public Object createVo() {
-        AddressInfoVo addressInfoVo = new AddressInfoVo();
-        addressInfoVo.setId(this.getId());
-        addressInfoVo.setRegionId(this.getRegionId());
-        addressInfoVo.setDetail(this.getDetail());
-        addressInfoVo.setConsignee(this.getConsignee());
-        addressInfoVo.setMobile(this.getMobile());
-        addressInfoVo.setBeDefault(this.getBeDefault());
-        addressInfoVo.setGmtCreate(this.getGmtCreate());
-        addressInfoVo.setState(this.getState().intValue());
-        return addressInfoVo;
+        AddressRetVo addressRetVo = new AddressRetVo();
+        addressRetVo.setId(this.getId());
+        //addressRetVo.setRegion(this.getRegionId());
+        addressRetVo.setDetail(this.getDetail());
+        addressRetVo.setConsignee(this.getConsignee());
+        addressRetVo.setMobile(this.getMobile());
+        addressRetVo.setBeDefault(this.getBeDefault());
+//        addressRetVo.setGmtCreate(this.getGmtCreate().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+//        addressRetVo.setGmtModified(this.getGmtModified().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        return addressRetVo;
     }
 
     @Override
     public Object createSimpleVo() {
         AddressRetVo addressRetVo = new AddressRetVo();
         addressRetVo.setId(this.getId());
-        addressRetVo.setRegionId(this.getRegionId());
+        //addressRetVo.setRegion(this.getRegionId());
         addressRetVo.setDetail(this.getDetail());
         addressRetVo.setConsignee(this.getConsignee());
         addressRetVo.setMobile(this.getMobile());
