@@ -80,20 +80,6 @@ public class CustomerDao {
     final String MOBILEFILTER="CustomerMobileBloomFilter";
     final String NAMEFILTER="CustomerNameBloomFilter";
 
-    public ReturnObject checkBloomFilter(CustomerPo po){
-        if(stringBloomFilter.checkValue(EMAILFILTER, po.getEmail())){
-            return new ReturnObject(ReturnNo.CUSTOMER_EMAILEXIST);
-        }
-        if(stringBloomFilter.checkValue(MOBILEFILTER, po.getMobile())){
-            return new ReturnObject(ReturnNo.CUSTOMER_MOBILEEXIST);
-        }
-        if(stringBloomFilter.checkValue(NAMEFILTER, po.getUserName())){
-            return new ReturnObject(ReturnNo.CUSTOMER_NAMEEXIST);
-        }
-        return null;
-
-    }
-
 
     public ReturnObject getCustomerInfo(Long id)
     {
