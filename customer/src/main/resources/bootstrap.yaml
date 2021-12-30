@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: customer-service
+  cloud:
+    nacos:
+      config:
+        server-addr: 172.16.0.30:8848
+        file-extension: yaml
+  profiles:
+    active: dev
+
