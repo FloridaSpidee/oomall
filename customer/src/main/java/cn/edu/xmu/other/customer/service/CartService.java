@@ -3,8 +3,8 @@ package cn.edu.xmu.other.customer.service;
 import cn.edu.xmu.other.customer.dao.CartDao;
 import cn.edu.xmu.other.customer.microservice.CouponActivityService;
 import cn.edu.xmu.other.customer.microservice.vo.ProductRetVo;
-import cn.edu.xmu.other.customer.model.bo.Product;
 import cn.edu.xmu.other.customer.model.bo.Cart;
+import cn.edu.xmu.other.customer.model.po.ShoppingCartPo;
 import cn.edu.xmu.other.customer.model.vo.*;
 
 import cn.edu.xmu.privilegegateway.annotation.util.InternalReturnObject;
@@ -115,40 +115,45 @@ public class CartService {
 
     @Transactional(rollbackFor = Exception.class)
     public ReturnObject addCart(@Valid CartVo cartVo, Long loginUserId, String loginUserName){
-        if(cartVo.getQuantity() == null) cartVo.setQuantity(1L);
+
         Cart cart = (Cart)cloneVo(cartVo,Cart.class);
+        if(cart.getQuantity() == null) cart.setQuantity(1L);
         cart.setCustomerId(loginUserId);
         setPoCreatedFields(cart,loginUserId,loginUserName);
         //读取Onsale的price
         InternalReturnObject<ProductRetVo> productRetObj = productService.getProductDetails(cart.getProductId());
         if(productRetObj.getErrno().equals(0)) {
             ProductRetVo productRetVo = productRetObj.getData();
+            if(cart.getQuantity()>productRetVo.getQuantity())
+                cart.setQuantity(productRetVo.getQuantity());
+            cart.setPrice(productRetVo.getPrice());
+
             ReturnObject returnObject = cartDao.getCartByProductId(loginUserId,productRetVo.getId());
             //更新购物车数量
             if(returnObject.getData()!=null){
-                Cart cartBefor = (Cart) returnObject.getData();
-                cartDao.deleteGoodsByCartId(cartBefor.getId());
+                Cart cartBefore = (Cart) returnObject.getData();
+
                 //考虑到加入的数量为负数时，原有购物车购物车商品数量不足则清零
-                if(cart.getQuantity()+cartBefor.getQuantity()<0L) {
+                if(cart.getQuantity()+cartBefore.getQuantity()<=0L) {
+                    cartDao.deleteGoodsByCartId(cartBefore.getId());
                     return new ReturnObject(ReturnNo.OK);
                 }
                 //
-                else cart.setQuantity(cart.getQuantity()+cartBefor.getQuantity());
+                else {
+                    cart.setQuantity(cart.getQuantity()+cartBefore.getQuantity());
+                    cart.setId(cartBefore.getId());
+                    cartDao.updateCart(cart);
+                    SuccessfulCartRetVo successfulCartRetVo = (SuccessfulCartRetVo) cloneVo(cart,SuccessfulCartRetVo.class);
+                    successfulCartRetVo.setPrice(productRetVo.getPrice());
+                    return new ReturnObject(productRetObj);
+                }
             }
             else if(returnObject.getCode()==ReturnNo.INTERNAL_SERVER_ERR){
                 return returnObject;
             }
 
-
-            if(cart.getQuantity()>productRetVo.getQuantity())
-                cart.setQuantity(productRetVo.getQuantity());
-
-            cart.setPrice(productRetVo.getPrice());
-
             ReturnObject retObj = cartDao.addCart(cart);
-            if(retObj.getData() == null){
-                return retObj;
-            }
+            if(retObj.getData() == null) return retObj;
             SuccessfulCartRetVo cartRet = (SuccessfulCartRetVo)cloneVo((Cart)retObj.getData(),SuccessfulCartRetVo.class);
             cartRet.setQuantity(cartVo.getQuantity());
             cartRet.setPrice(productRetVo.getPrice());
@@ -163,13 +168,6 @@ public class CartService {
         Cart cart = (Cart)cloneVo(cartVo,Cart.class);
         cart.setId(id);
         setPoModifiedFields(cart,loginUser,loginUserName);
-        //读取product的price
-        InternalReturnObject<ProductRetVo> internalObj = productService.getProductDetails(cart.getProductId());
-        if(internalObj.getErrno().equals(0)) {
-            Product product = (Product)cloneVo(internalObj.getData(),Product.class);
-            cart.setPrice(product.getPrice()*cart.getQuantity().longValue());
-            return cartDao.updateCart(cart);
-        }
-        else return new ReturnObject(ReturnNo.getReturnNoByCode(internalObj.getErrno()));
+        return cartDao.updateCart(cart);
     }
 }

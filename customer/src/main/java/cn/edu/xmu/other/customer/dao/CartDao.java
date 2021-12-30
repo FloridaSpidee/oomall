@@ -3,7 +3,6 @@ package cn.edu.xmu.other.customer.dao;
 
 import cn.edu.xmu.other.customer.mapper.ShoppingCartPoMapper;
 import cn.edu.xmu.other.customer.model.bo.Cart;
-import cn.edu.xmu.other.customer.model.bo.Product;
 import cn.edu.xmu.other.customer.model.po.ShoppingCartPo;
 import cn.edu.xmu.other.customer.model.po.ShoppingCartPoExample;
 import cn.edu.xmu.privilegegateway.annotation.util.ReturnNo;
@@ -98,12 +97,9 @@ public class CartDao {
         try{
             ShoppingCartPo cartPo = (ShoppingCartPo) cloneVo(cart,ShoppingCartPo.class);
             int ret = shoppingCartPoMapper.updateByPrimaryKeySelective(cartPo);
-            if(ret != 1){
-                return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST,"操作的资源不存在！");
-            }
+            if(ret != 1) return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST,"操作的资源不存在！");
             return new ReturnObject(ReturnNo.OK);
         }catch (Exception e){
-            logger.error("first param ",e);
             return new ReturnObject<>(ReturnNo.INTERNAL_SERVER_ERR);
         }
     }
@@ -115,7 +111,6 @@ public class CartDao {
             cart.setId(cartPo.getId());
             return new ReturnObject(cart);
         }catch (Exception e){
-            logger.error("first param ",e);
             return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR,"服务器内部出错！");
         }
     }

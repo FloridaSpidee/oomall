@@ -12,7 +12,4 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface ProductService {
     @GetMapping("/internal/products/{id}/details")
     InternalReturnObject<ProductRetVo> getProductDetails(@PathVariable Long id);
-
-    @GetMapping("internal/onsales/{id}/simple")
-    InternalReturnObject<OnsaleRetVo> getOnsaleById(@PathVariable Long id);
 }

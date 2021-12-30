@@ -117,11 +117,8 @@ public class CartController {
                                  BindingResult bindingResult,
                                  @LoginUser Long loginUser, @LoginName String loginUserName)
     {
-        if (bindingResult.hasErrors()){
-            return Common.decorateReturnObject(new ReturnObject(ReturnNo.FIELD_NOTVALID,"字段不合法"));
-        }
+        if (bindingResult.hasErrors()) return Common.decorateReturnObject(new ReturnObject(ReturnNo.FIELD_NOTVALID,"字段不合法"));
         return Common.decorateReturnObject(cartService.updateCart(id,cartVo,loginUser,loginUserName));
-
     }
 
     @ApiOperation(value = "买家删除购物车中商品", produces = "application/json;charset=UTF-8")
