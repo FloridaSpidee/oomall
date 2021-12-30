@@ -245,7 +245,7 @@ public class CustomerController {
      * Chen Yixuan
     */
     @ApiOperation(value = "平台管理员查看任意买家信息", produces = "application/json;charset=UTF-8")
-    @Audit(departName = "shops")
+    @Audit
     @ApiImplicitParams({
             @ApiImplicitParam(name="authorization", value="Token", required = true, dataType="String", paramType="header"),
             @ApiImplicitParam(name="shopId", required = true, dataType="Integer", paramType="path"),
