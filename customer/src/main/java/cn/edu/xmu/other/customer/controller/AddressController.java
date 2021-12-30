@@ -68,12 +68,10 @@ public class AddressController {
             return Common.decorateReturnObject(new ReturnObject(ReturnNo.FIELD_NOTVALID,"字段不合法"));
         }
         try{
-            System.out.println("很合理");
+
             //ReturnObject<VoObject> returnObj = addressService.addAddress(userId,addressVo);  //调用service层处理函数
             ReturnObject ret= addressService.addAddress(userId, addressVo);
-            System.out.println("还合理吗合理");
-            System.out.println(ret);
-            System.out.println(Common.decorateReturnObject(ret));
+
             return Common.decorateReturnObject(ret);
 
 //            if(returnObj.getCode().equals(ReturnNo.OK))   //正常返回
@@ -89,7 +87,6 @@ public class AddressController {
         }catch (Exception e)
         {
             httpServletResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-           System.out.println("Con层错了");
             return ResponseUtil.fail(ReturnNo.INTERNAL_SERVER_ERR);  //服务器内部错误
         }
 
@@ -98,8 +95,8 @@ public class AddressController {
     @ApiOperation(value = "买家查询所有已有的地址信息", produces = "application/json;charset=UTF-8")
     @ApiImplicitParams(value = {
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户token", required = true),
-            @ApiImplicitParam(name = "page", value = "页码", required = true, dataType = "Integer", paramType = "query"),
-            @ApiImplicitParam(name = "pageSize", value = "每页数目", required = true, dataType = "Integer", paramType = "query")
+            @ApiImplicitParam(name = "page", value = "页码", required = true, dataType = "Integer"),
+            @ApiImplicitParam(name = "pageSize", value = "每页数目", required = true, dataType = "Integer")
 
     })
     @ApiResponses(value = {
@@ -107,16 +104,16 @@ public class AddressController {
             @ApiResponse(code = 500, message = "服务器内部错误"),
             @ApiResponse(code = 401,message = "用户未登录")
     })
-    @Audit(departName = "customers")
+    @Audit
     @GetMapping("/addresses")
     public Object getAddresses(@LoginUser Long userId,@RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "pageSize", required = false) Integer pageSize){
+
         if(page<=0||pageSize<=0)
         {
             httpServletResponse.setStatus(HttpStatus.BAD_REQUEST.value());
             return ResponseUtil.fail(ReturnNo.OK,"page或pageSize格式不符");
         }
         ReturnObject returnobject = addressService.getAddresses(userId, page, pageSize);
-        //System.out.println(Common.decorateReturnObject(returnobject));
         return Common.decorateReturnObject(returnobject);
 
     }
@@ -132,7 +129,7 @@ public class AddressController {
             @ApiResponse(code = 401,message = "用户未登录"),
 
     })
-    @Audit(departName = "customers")
+    @Audit
     @PutMapping("/addresses/{id}/default")
     public Object modifyDefaultAddresses(@LoginUser Long userId, @PathVariable("id") Long id)  //OK
     {
@@ -163,7 +160,7 @@ public class AddressController {
             @ApiResponse(code = 500, message = "服务器内部错误"),
             @ApiResponse(code = 609,message = "用户未登录")
     })
-    @Audit(departName = "customers")
+    @Audit
     @PutMapping("/addresses/{id}")
     public Object modifyAddresses(@LoginUser Long userId, @PathVariable("id") Long id, @RequestBody @Validated AddressVo addressVo,BindingResult result) {
         if(result.hasErrors()){
@@ -208,7 +205,7 @@ public class AddressController {
             @ApiResponse(code = 500, message = "服务器内部错误"),
             @ApiResponse(code = 401,message = "用户未登录"),
     })
-    @Audit(departName = "customers")
+    @Audit
     @DeleteMapping("/addresses/{id}")
     public Object deleteAddresses(@LoginUser Long userId, @PathVariable Long id){
         ReturnNo ReturnNo = addressService.deleteAddress(userId,id).getCode();

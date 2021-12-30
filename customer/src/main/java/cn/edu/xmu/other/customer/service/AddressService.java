@@ -47,7 +47,6 @@ public class AddressService {
         try
         {
             ReturnObject returnObject = addressDao.addAddress(addressBo);
-            System.out.println(returnObject.getCode());
             AddressBo bo = (AddressBo) returnObject.getData();
             if(bo==null)return returnObject;
 //            bo.setBeDefault(false);
@@ -72,7 +71,9 @@ public class AddressService {
     @Transactional(rollbackFor = Exception.class, readOnly = true)
     public ReturnObject getAddresses(Long userId, Integer page, Integer pageSize){
         ReturnObject<List<AddressBo>> returnObject = addressDao.getAddresses(userId, page, pageSize);  //返回为bolist
+
         if(returnObject.getData()==null){
+            System.out.println("dao data为空");
             return returnObject;
         }
         List<AddressBo> boList = returnObject.getData();
@@ -82,6 +83,7 @@ public class AddressService {
             InternalReturnObject<SimpleRegionRetVo> internalReturnObject = freightService.getRegionInfo(bo.getRegionId());
             //SimpleRegionRetvo中只有regionId与data，提取data存入
             if(internalReturnObject.getData()==null){
+                System.out.println("data为空");
                 return new ReturnObject(internalReturnObject);
             }
             addressRetVo.setRegion(new SimpleRegionRetVo(bo.getRegionId(),internalReturnObject.getData().getName()));

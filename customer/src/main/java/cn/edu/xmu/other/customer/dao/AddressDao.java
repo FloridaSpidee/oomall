@@ -51,7 +51,6 @@ public class AddressDao {
             //System.out.println("???");
             List<AddressPo> addressPos = addressPoMapper.selectByExample(addressPoExample);
             //自定义查询条件可能返回多条记录,使用List接收
-System.out.println("咋又出错了"+addressPos.size());
             if (addressPos.size() >=20) {
 
                 return new ReturnObject<>(ReturnNo.ADDRESS_OUTLIMIT);  //达到地址簿上限
@@ -72,7 +71,6 @@ System.out.println("咋又出错了"+addressPos.size());
 //            return new ReturnObject<>(ReturnNo.OK);
         }catch(DataAccessException e){
             logger.error("addAddress: DataAccessException:" + e.getMessage());
-            System.out.println("Dao层错了");
             return new ReturnObject<>(ReturnNo.INTERNAL_SERVER_ERR);
         }
     }
