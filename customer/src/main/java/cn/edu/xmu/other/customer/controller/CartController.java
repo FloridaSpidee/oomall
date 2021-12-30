@@ -39,7 +39,7 @@ public class CartController {
     private HttpServletResponse httpServletResponse;
 
     @ApiOperation(value = "买家获得购物车列表", produces = "application/json;charset=UTF-8")
-    @Audit(departName = "shops")
+    @Audit
     @ApiImplicitParams(value = {
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户token", required = true),
             @ApiImplicitParam(name = "page", value = "页数", required = false, dataType = "Integer", paramType = "query"),
@@ -59,7 +59,7 @@ public class CartController {
     }
 
     @ApiOperation(value = "买家将商品加入购物车", produces = "application/json;charset=UTF-8")
-    @Audit(departName = "shops")
+    @Audit
     @ApiImplicitParams(value = {
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户token", required = true),
             @ApiImplicitParam(name = "body", value = "可填写的信息", required = true, dataType = "CartVo"),
@@ -83,7 +83,7 @@ public class CartController {
     }
 
     @ApiOperation(value = "买家清空购物车", produces = "application/json;charset=UTF-8")
-    @Audit(departName = "shops")
+    @Audit
     @ApiImplicitParams(value = {
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户token", required = true),
     })
@@ -99,7 +99,7 @@ public class CartController {
     }
 
     @ApiOperation(value = "买家修改购物车单个商品的数量或规格", produces = "application/json;charset=UTF-8")
-    @Audit(departName = "shops")
+    @Audit
     @ApiImplicitParams(value = {
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户token", required = true),
             @ApiImplicitParam(name="id", value="购物车Id", required = true, dataType="Integer", paramType="path"),
@@ -125,7 +125,7 @@ public class CartController {
     }
 
     @ApiOperation(value = "买家删除购物车中商品", produces = "application/json;charset=UTF-8")
-    @Audit(departName = "shops")
+    @Audit
     @ApiImplicitParams(value = {
             @ApiImplicitParam(paramType = "header", dataType = "String", name = "authorization", value = "用户token", required = true),
             @ApiImplicitParam(name="id", value="购物车Id", required = true, dataType="Integer", paramType="path"),
