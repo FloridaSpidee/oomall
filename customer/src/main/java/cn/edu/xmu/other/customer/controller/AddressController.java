@@ -108,11 +108,6 @@ public class AddressController {
     @GetMapping("/addresses")
     public Object getAddresses(@LoginUser Long userId,@RequestParam(name = "page", required = false) Integer page, @RequestParam(name = "pageSize", required = false) Integer pageSize){
 
-        if(page<=0||pageSize<=0)
-        {
-            httpServletResponse.setStatus(HttpStatus.BAD_REQUEST.value());
-            return ResponseUtil.fail(ReturnNo.OK,"page或pageSize格式不符");
-        }
         ReturnObject returnobject = addressService.getAddresses(userId, page, pageSize);
         return Common.decorateReturnObject(returnobject);
 
@@ -137,11 +132,7 @@ public class AddressController {
         if(returnNo.equals(ReturnNo.OK)){
             return ResponseUtil.ok();
         }
-        else if(returnNo.equals(ReturnNo.RESOURCE_ID_OUTSCOPE))  //操作的资源id不是自己的对象
-        {
-            httpServletResponse.setStatus(HttpStatus.FORBIDDEN.value());
-            return ResponseUtil.fail(returnNo);
-        }
+
         else {
             httpServletResponse.setStatus(HttpStatus.NOT_FOUND.value());
             return ResponseUtil.fail(returnNo);
