@@ -130,7 +130,6 @@ public class CustomerDao {
             List<CustomerPo> customers = customerPoMapper.selectByExample(example);
             PageInfo pageInfo=new PageInfo(customers);
             ReturnObject pageRetVo= Common.getPageRetVo(new ReturnObject<>(pageInfo), AllCustomersRetVo.class);
-            logger.debug("getUserById: retUsers = " + customers);
             return pageRetVo;
         }catch (Exception e){
             System.out.println(e.getMessage());
@@ -144,14 +143,12 @@ public class CustomerDao {
             CustomerPo customerPo = customerPoMapper.selectByPrimaryKey(id);
             // 不修改已被逻辑废弃的账户
             if (customerPo == null || (customerPo.getState() != null && Customer.State.getTypeByCode(customerPo.getState().intValue()) == Customer.State.FORBID)) {
-                logger.info("用户不存在或已被删除：id = " + id);
                 return new ReturnObject<>(ReturnNo.RESOURCE_ID_NOTEXIST);
             }
 
             return new ReturnObject<>(customerPo);
         } catch (Exception e) {
             // 其他 Exception 即属未知错误
-            logger.error("严重错误：" + e.getMessage());
             return new ReturnObject<>(ReturnNo.INTERNAL_SERVER_ERR,
                     String.format("发生了严重的未知错误：%s", e.getMessage()));
         }
@@ -173,7 +170,6 @@ public class CustomerDao {
             return new ReturnObject<>(customers);
         } catch (Exception e) {
             // 其他 Exception 即属未知错误
-            logger.error("严重错误：" + e.getMessage());
             return new ReturnObject<>(ReturnNo.INTERNAL_SERVER_ERR,
                     String.format("发生了严重的未知错误：%s", e.getMessage()));
         }
@@ -211,7 +207,6 @@ public class CustomerDao {
             }
             return returnObject;
         }catch (Exception e){
-            logger.error("Internal error Happened:"+e.getMessage());
             return new ReturnObject(ReturnNo.INTERNAL_SERVER_ERR, e.getMessage());
         }
     }
@@ -310,7 +305,6 @@ public class CustomerDao {
         if(CANMULTIPLYLOGIN){
             Serializable token=redisUtil.get(key);
             redisUtil.del(key);
-
             if(token!=null)
             {
                 banJwt((String) token);
