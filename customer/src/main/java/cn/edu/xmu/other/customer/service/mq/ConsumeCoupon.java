@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
  * @author Yuchen Huang
  * @date 2021-12-18
  */
-//TODO: 测试完解开消费者
 @Service
 @RocketMQMessageListener(topic = "customer-coupon-topic", consumeMode = ConsumeMode.CONCURRENTLY, consumerGroup = "customer-coupon-group")
 public class ConsumeCoupon implements RocketMQListener<CouponMessageBody> {

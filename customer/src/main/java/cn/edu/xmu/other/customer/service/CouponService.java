@@ -85,12 +85,12 @@ public class CouponService {
      * 买家领取优惠券
      * @param userId
      * @param userName
-     * @param id
+     * @param id 活动id
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
     public ReturnObject getCoupons(Long userId,String userName, Long id){
-        //活动相关
+        //获取活动信息
         InternalReturnObject internalReturnObject=couponActivityService.getCouponActivityById(id);
         if(internalReturnObject.getData()==null){
             return new ReturnObject(internalReturnObject);
@@ -102,9 +102,9 @@ public class CouponService {
         Integer quantity=couponActivityVoInfo.getQuantity();
         LocalDateTime beginTime=couponActivityVoInfo.getCouponTime();
         LocalDateTime endTime=couponActivityVoInfo.getEndTime();
-        LocalDateTime now=LocalDateTime.now();
-        Byte quantityType = couponActivityVoInfo.getQuantityType();
-        Byte state = couponActivityVoInfo.getState();
+        LocalDateTime now=LocalDateTime.now();   //获取起止时间与当前时间
+        Byte quantityType = couponActivityVoInfo.getQuantityType();  //0每人数量，1总数控制
+        Byte state = couponActivityVoInfo.getState();  //0草稿 1上线 2下线
         //优惠活动没有定义优惠券
         if(quantity==-1){
             return new ReturnObject(ReturnNo.RESOURCE_ID_NOTEXIST);
@@ -164,14 +164,14 @@ public class CouponService {
                         couponRetVo.setActivityId(simpleCouponActivityRetVo.getId());
                         list.add(couponRetVo);
                     }
-                    System.out.println("走到这里了");
+                    //System.out.println("走到这里了");
                     return new ReturnObject(list);
                 }
             }
             //需要抢
             else
             {
-                System.out.println("剩下的："+couponActivityVoInfo.getQuantity());
+                //System.out.println("剩下的："+couponActivityVoInfo.getQuantity());
                 if(couponActivityVoInfo.getQuantity()==0)
                 {
                     return new ReturnObject(ReturnNo.COUPON_FINISH);
